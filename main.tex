@@ -1,4 +1,3 @@
-% !TEX root = C:\Users\gabry\Desktop\Compiti\2025-2026\Tirocinio\Tesi\Tex
 % --------------------------
 % ---- DECLARE PACKAGES ----
 % --------------------------
@@ -10,8 +9,10 @@
 \usepackage[english,italian]{babel} % Lingua principale italiano, con parti in inglese
 \usepackage{blindtext} % Per la generazione di paragrafi lorem ipsum
 \usepackage{graphicx} % Per includere immagini esterne
-\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=3cm,right=3cm]{geometry} %impaginazione e margini documento
-\usepackage[fontsize=13pt]{scrextend} %dimensione font
+\usepackage[a4paper,top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry} %impaginazione e margini documento
+\usepackage[fontsize=12pt]{scrextend} %dimensione font
+\usepackage{setspace}
+\onehalfspacing % interlinea 1.5
 \usepackage{graphicx}
 \usepackage[parfill]{parskip} % Disabilita l'indentazione dopo essere andati a capo
 % \usepackage[hang,flushmargin]{footmisc} % Disabilita l'indentazione nelle footnotes
@@ -66,11 +67,12 @@
 \begin{document} % Inizio documento
 \pagenumbering{gobble} % Disabilita numerazione pagine
 \input{Frontespizio.tex} % PAGINA FRONTESPIZIO
-\input{Dedica} % PAGINA DEDICA
+% \input{Dedica} % PAGINA DEDICA
 \tableofcontents  % Genera l'indice
 \newpage % Nuova pagna
 \pagenumbering{arabic} % Riabilita la numerazione in modo che cominci dal primo capitolo
 \setcounter{chapter}{0} % Fa risultare l'introduzione come capitolo 0
+
 % ------------------
 % ---- CHAPTERS ----
 % ------------------
