@@ -1,1 +1,47 @@
-\chapter{Progettazione e Architettura}
+\chapter{Architettura}
+
+\section{Panoramica dell'Architettura di Sistema}
+L'architettura del Migration Tool è stata definita per essere modulare e scalabile.
+Alla base del sistema vi è una separazione netta tra il modulo di input (Importer), il motore per l'elaborazione dei metadati,
+e il Generatore di Codice.
+Questo approccio garantisce una separazione tra il layout dei dati preesistenti e la struttura del database Infor CloudSuite.
+
+\section{Progettazione del Software}
+\subsection{Design dell'Importer e del Parser dei Dati}
+L'Importer funge da punto d'ingresso per i dati ed è progettato per interpretare il formato proprietario di Infor Exchange,
+analizzando file di esportazione testuali o strutturati.
+Estraendo i metadati dai record, l'Importer popola i dizionari \textit{Datafiles} (\texttt{txamg110}) e i
+relativi \textit{Fields} (\texttt{txamg111}).
+
+Questo design del caricamento rende possibile supportare sia architetture multitenant cloud, sia installazioni legacy on-premise.
+
+\subsection{Motore di Generazione del Codice}
+Il nucleo computazionale è rappresentato dal motore di generazione.
+Basato su librerie compilate (DLL come \texttt{txamgdll0012} e \texttt{txamgdll0013}), il modulo interpreta il
+dizionario di mapping (definito in \texttt{txamg203} o \textit{MappedFields}) e traduce i legami e le regole di
+trasformazione in script nativi Baan C.
+
+Questo meccanismo previene di dover scrivere manualmente codice, garantendo il rispetto dei framework CloudSuite:
+il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
+
+\subsection{Modulo di Integrazione Ad-hoc e Callbacks}
+Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di business richiedono sviluppi
+specifici a causa della loro complessità.
+Vengono quindi esposte a livello architetturale delle interfacce \textit{callback}.
+
+In appositi \textit{module script}, gli sviluppatori possono iniettare blocchi di codice chiamati asincronamente dall'engine.
+Questi script personalizzati usufruiscono degli stessi vantaggi transazionali dell'utility principale.
+
+\section{Scelte Tecnologiche}
+\subsection{Linguaggi e Framework}
+L'intero ecosistema è sviluppato sfruttando l'Infor Tools Framework, programmando in \textbf{Baan C (sia 3GL che 4GL)}.
+In parte sono state adottate le \textit{DAL (Data Access Layer)},
+per il restante, sono state utilizzati approcci più classici e a basso livello.
+
+\subsection{Librerie di Supporto e Strumenti di Build}
+Tutto il coordinamento della configurazione, logging (\texttt{txamgdll0011}) e le \textit{string utility} si basano sulle librerie
+del sistema ERP (DLL native Baan e tool come il \texttt{ttdll string}).
+
+Le build non prevedono toolchain esterni complessi
+(come Maven o MSBuild), ma si appoggiano direttamente al toolset interno dell'ERP, il quale gestisce i
+legami VRC (Version Release Customer) multitenant per garantirne l'incapsulamento del codice generato al corretto Tenant.

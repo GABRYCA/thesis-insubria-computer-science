@@ -1,1 +1,45 @@
-\chapter{Conclusione}
+\chapter{Conclusioni}
+
+\section{Obiettivi Raggiunti e Risultati Ottenuti}
+Nel percorso di questa Tesi, si è analizzato, implementato e documentato un completo \textit{Migration Tool}
+(con pacchetto aziendale \texttt{txamg}) nell'ambiente \textit{custom (tx)} Infor LN. I requisiti complessi, nati per la
+maggior parte dalla natura multitenant dei nuovi ambienti CloudSuite, sono stati affrontati offrendo un approccio parametrico
+e automatizzato.
+
+Mediante lo sviluppo delle DLL di generazione del codice dal dizionario (ad esempio \texttt{txamgdll0012} e \texttt{txamgdll0013}) e
+dell'architettura per la lettura nativa Infor Exchange, si è raggiunto l'obiettivo aziendale in termini di affidabilità,
+performance logica e generazione del codice in tempo reale, eliminando la componente di trascrizione metodica manuale
+e suscettibile d'errori.
+
+\section{Sfide Incontrate}
+Le principali complessità progettuali erano dovute al mapping rigido imposto dal requisiti interni e dall'interfacciarsi
+ad entità Infor chiuse (\textit{closed source} o proprietari), in cui il Baan C (3GL e 4GL) risulta l'unica tecnologia
+utilizzabile valida.
+
+In un ecosistema di questa genere, l'accesso al compilatore interno garantendo una perfetta validazione del codice
+per ogni variante di tenant è risultato cruciale dal punto di vista dell'analisi e debug dei prototipi iniziali della libreria generatrice di log.
+Analogamente, standardizzare codifiche e formati non standard proveniente dagli strati Legacy ha richiesto robusti
+componenti di parsing e una logica complessa di \textit{Runs} di batch (\texttt{txamg200}).
+
+Durante lo fase di studio e sviluppo, è stato necessario affrontare una fase di training sia base che avanzata dei tool
+Infor, quali struttura, nomenclatura, linguaggi, logica di funzionamento, architettura come \textit{middleware ION}, BOD, API e \textit{Web Services}
+con formati XML legacy come SOAP (non REST), in tempi molto brevi rispetto a quanto normalmente previsto (diversi mesi), al fine
+di completare il progetto in tempo e completare questa tesi.
+
+Si fa anche notare la natura molto restrittiva dell'ERP Infor, che non permette l'accesso nemmeno ad amministratori di sistema
+a parti di API o funzionalità che semplificherebbero lo sviluppo, oltre alla mancata documentazione delle stesse in molti casi
+a causa di transizioni a più alto livello aziendale, lasciando allo sviluppatore finale (noi) "scoprire" ed esplorare
+tramite trial-and-error delle soluzioni, spesso non standard, ove possibile.
+Questo ha dato origine molti tempi morti, complicando il contesto generale
+
+
+\section{Sviluppi Futuri}
+Nonostante lo standard d'eccellenza raggiunto, si ritiene possibile evolvere ulteriormente il tool in diverse direzioni.
+
+In primo luogo, lo schema architetturale per le estensioni \textit{Custom} potrebbe venire affiancato da procedure di \textit{Machine Learning} (addestrate sui mapping legacy)
+in grado di suggerire i mapping e i moduli di conversione per grandi volumi di tabelle non ancora definite
+(senza l'input umano in interfacce e Sessioni \texttt{txamg2103}).
+Inoltre, la visualizzazione delle specifiche tramite esportazione
+a modelli UML o grafi digitali, se automatizzata nativamente dal framework, fornirebbe reportistica in \textit{real-time} durante
+la fase di studio del cliente prima dell'operazione di caricamento, riducendo di fatto tempi e costi
+e supportando i consulenti AlteaIN, funzionali e Infor verso transizioni Cloud più semplici.

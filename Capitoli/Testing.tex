@@ -1,1 +1,28 @@
 \chapter{Testing e Validazione}
+
+\section{Strategia di Testing}
+Il testing di un software per la migrazione dei dati è un aspetto fondamentale.
+Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti Cloud Multitenant,
+ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema target.
+
+\subsection{Unit Testing sui Moduli di Parsing}
+I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
+degli Infor Exchange sono stati collaudati su porzioni specifiche di file.
+
+Verificando ogni singola colonna (\texttt{txamg1111}), la validazione include il corretto casting di tipi enumerati,
+decimali a virgola mobile e codifiche caratteri ASCII, simulando una diversità di input.
+
+\subsection{Test di Integrazione del Flusso di Migrazione}
+L'integrazione end-to-end è validata eseguendo flussi di test governati dalle logiche di batch (\texttt{txamg2100}
+e \texttt{txamg3200}).
+
+I \textit{Runs Errors} offrono un riscontro immediato di blocchi logici o semantici.
+Sono stati eseguiti scenari in cui la validazione è forzata per respingere record privi di riferimenti chiave,
+verificando che la linea incriminata fosse elaborata senza però interromperne il caricamento dell'intero \textit{Run}.
+
+\section{Verifica dell'Integrità dei Dati}
+\subsection{Matching tra Dati Sorgente (Legacy) e Destinazione (Cloud)}
+Ogni file migrato è dotato di un tracciamento specifico (\texttt{txamg301}, \texttt{txamg302}). Il \textit{matching}
+prevede che vengano comparati il numero dei record letti, processati ed eventualmente respinti rispetto alla fonte.
+
+I report prodotti (tramite moduli ad hoc come \texttt{txamgdll0011} per il log d'errore) forniscono la garanzia numerica dell'operazione.
