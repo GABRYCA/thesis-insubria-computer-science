@@ -3,6 +3,7 @@
 \section{Sistemi ERP}
 I sistemi ERP (Enterprise Resource Planning) rappresentano un elemento essenziale del sistema gestionale aziendale \cite{erpMigration},
 consentendo l'integrazione dei processi di business principali di un'azienda (vendite, acquisti, gestione inventario, contabilità).
+
 \subsection{Evoluzione dai Sistemi Legacy al Cloud}
 Nel tempo, i sistemi ERP si sono evoluti partendo da architetture on-premise legacy, spesso caratterizzate da un elevato
 grado di personalizzazione (customization, in Infor LN definiti come tx) e importanti costi di mantenimento.
@@ -47,14 +48,16 @@ Esso si divide a sua volta in:
 \subsection{Infor Exchange e Strumenti di Import/Export}
 Per lo scambio di informazioni, Infor fornisce un modulo denominato \textit{Exchange}.
 Si tratta di una piattaforma per l'importazione e l'esportazione di file (es. CSV, XML, testo a larghezza fissa)
-mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN. Spesso si necessitano delle
-personalizzazioni delle procedure di migrazione tramite Baan C, che quindi risulta essenziale quando le regole di
+mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN.
+
+Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tramite Baan C, che quindi risulta essenziale quando le regole di
 mappatura superano la complessità gestibile nativamente dall'Exchange.
 
 \section{Migrazione Dati nei Sistemi ERP}
 \subsection{Sfide e Problematiche Comuni}
 La migrazione da un sistema legacy a un nuovo ERP cloud, richiede un'attenta fase di analisi per evitare perdite o
 disallineamenti di informazioni storiche e master data.
+
 Attualmente, molte migrazioni sono per la maggior parte gestite manualmente, con l'integrazioni di script scritti
 ad hoc, con tutti i rischi che ne conseguono.
 Per questo, nasce l'idea del Tool di Migrazione (\textit{Migration Tool}) oggetto di questa tesi.

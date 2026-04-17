@@ -3,12 +3,15 @@
 \section{Scenario di Riferimento}
 \subsection{Flusso di Migrazione Esistente}
 Negli ambienti legacy, il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
-manuali e script ad hoc. L'operatore (noi) è costretto a sviluppare script personalizzati per ogni singola tabella, sessioni,
+manuali e script ad hoc.
+
+L'operatore (noi) è costretto a sviluppare script personalizzati per ogni singola tabella, sessioni,
 e ogni elemento di un gestionale, con lunghi tempi di realizzazione e rischi inerenti alla trascrizione manuale delle logiche di mapping.
 
 % \subsection{Necessità di Ottimizzazione}
 Inoltre, cambiamenti da parte di Infor e nuovi standard più restrittivi hanno reso le operazioni manuali molto più
-complesse \cite{erpMigration}. Emerge quindi la necessità aziendale di innovare, ottimizzare e automatizzare il processo
+complesse \cite{erpMigration}.
+Emerge quindi la necessità aziendale di innovare, ottimizzare e automatizzare il processo
 con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
 
 \section{Requisiti Funzionali}
@@ -17,6 +20,7 @@ con gli stakeholder.
 
 \subsection{Sviluppo dell'Importer Infor Exchange}
 Il sistema dovrà supportare l'input di file e strutture generate dallo strumento preesistente nativo di Infor Exchange.
+
 Tali file presentano specifici layout (come formati testuali ASCII o delimitati) che dovranno essere interpretati per
 popolare il dizionario \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields).
 
@@ -28,6 +32,7 @@ senza l'intervento manuale del programmatore.
 
 \subsection{Sistema di Estendibilità con Funzioni Ad-hoc}
 Nonostante l'automazione, alcune regole di business legacy non potranno essere legate a semplici assegnazioni.
+
 Viene quindi la necessità di una funzionalità di callback per permettere, ad opera dello sviluppatore, l'inserimento di
 script personalizzati che verranno inseriti nel processo principale durante l'esecuzione batch (\texttt{txamg3200}).
 
@@ -68,6 +73,7 @@ Il modello dati è suddiviso in diverse entità:
 
 I Domini includono sia tipi strettamente descrittivi (es. \texttt{txamg.cdom}, \texttt{txamg.fdnm}) sia tipi enumerativi
 per la validazione e il workflow (es. \texttt{txamg.migt} o \texttt{txamg.mapl}).
+
 Esempi di Domini essenziali sono quelli relativi ai formati ASCII (\texttt{txamg.fast}), alle regole di mapping (\texttt{txamg.mapl})
 o al tracciamento dei file (\texttt{txamg.dfil}).
 

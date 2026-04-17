@@ -5,29 +5,35 @@
 \usepackage[T1]{fontenc} % Font encoding, T1 = it
 \usepackage{lmodern}
 \usepackage{multicol} % Per il frontespizio
-\usepackage[utf8]{inputenc} % Input encoding - per caratteri particolari
-\usepackage[english,italian]{babel} % Lingua principale italiano, con parti in inglese
-\usepackage{blindtext} % Per la generazione di paragrafi lorem ipsum
-\usepackage{graphicx} % Per includere immagini esterne
-\usepackage[a4paper,top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry} %impaginazione e margini documento
-\usepackage[fontsize=12pt]{scrextend} %dimensione font
+\usepackage[utf8]{inputenc} % Input encoding
+\usepackage[english,italian]{babel} % Lingua principale italiana, con parti in inglese
+\usepackage{csquotes} % Dipendenza di babel e biblatex
+\usepackage{blindtext} % Fenerazione di paragrafi lorem ipsum
+\usepackage{graphicx} % Immagini esterne
+
+% Impaginazione e margini
+\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
+
+\usepackage[fontsize=12pt]{scrextend} % dimensione font
 \usepackage{setspace}
 \onehalfspacing % interlinea 1.5
-% \usepackage{graphicx}
+
 \usepackage[parfill]{parskip} % Disabilita l'indentazione dopo essere andati a capo
-% \usepackage[hang,flushmargin]{footmisc} % Disabilita l'indentazione nelle footnotes
 \usepackage{titlesec}
 \usepackage{minted} % Per i blocchi di codice
 \usepackage{float}
-\usepackage[font=scriptsize, skip=5pt]{caption} % Spazio tra la caption e l'immagine
+
+% Captions
+\usepackage[font=scriptsize, skip=5pt, justification=centering]{caption}
+
 \usepackage[backend=biber, style=numeric, backref=true]{biblatex}
+
 \usepackage[immediate]{silence}
-\WarningFilter[temp]{latex}{Command} % silence the warning
+\WarningFilter[temp]{latex}{Command}
 \usepackage{sectsty}
-\DeactivateWarningFilters[temp] % So nothing unrelated gets silenced
+\DeactivateWarningFilters[temp]
+
 \usepackage{hyperref} % Rende l'indice cliccabile
-\usepackage[justification=centering]{caption} % Per centrare le captions
-\usepackage{csquotes} % Dipendenza di babel
 \usepackage[bottom]{footmisc} % Posiziona le footnotes alla fine della pagina
 
 % ------------------------
@@ -37,11 +43,11 @@
 \raggedbottom % Se la pagina non è completa, lascia lo spazio alla fine
 
 \titleformat{\chapter}[display]
-    {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\LARGE}
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\LARGE}
 \titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \chaptertitlefont{\fontsize{22pt}{30pt}\selectfont}
 
-\hypersetup{ % Setup dell'aspetto dei link
+\hypersetup{ % Aspetto dei link
     colorlinks,
     citecolor=black,
     filecolor=black,
@@ -49,11 +55,6 @@
     urlcolor=black
 }
 
-% \renewcommand{\footnoterule}{ % Rende la linea delle footnotes larga tutta la pagina
-%   \kern -3pt
-%   \hrule width \textwidth height 1pt
-%   \kern 2pt
-% } 
 \renewcommand{\footnotesize}{\fontsize{11pt}{13pt}\selectfont} % Imposta la dimensione del testo delle footnotes
 \setlength{\footnotesep}{0.5cm} % Imposta lo spazio fra e singole footnotes
 \setlength{\skip\footins}{1.5cm} % Imposta lo spazio fra il corpo e le footnotes
@@ -63,13 +64,13 @@
 % ------------------------
 % ---- DOCUMENT START ----
 % ------------------------
-\addbibresource{bibliography.bib} % Importiamo la bibliografia
+\addbibresource{bibliography.bib} % Bibliografia
 \begin{document} % Inizio documento
 \pagenumbering{gobble} % Disabilita numerazione pagine
-\input{Frontespizio.tex} % PAGINA FRONTESPIZIO
+\input{Frontespizio} % PAGINA FRONTESPIZIO
 % \input{Dedica} % PAGINA DEDICA
 \tableofcontents  % Genera l'indice
-\newpage % Nuova pagna
+\newpage % Nuova pagina
 \pagenumbering{arabic} % Riabilita la numerazione in modo che cominci dal primo capitolo
 \setcounter{chapter}{0} % Fa risultare l'introduzione come capitolo 0
 
