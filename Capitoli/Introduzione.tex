@@ -1,27 +1,27 @@
 \chapter{Introduzione}
-% Lorem Ipsum \cite{defusco}
-% dolor sit amet \cite{Axa}.
-%Consectetuer adipiscing.\footnote{Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lo-
-%bortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent
-%imperdiet mi nec ante. }
-%
-%\begin{minted}{java}
-%// Hello.java
-%import javax.swing.JApplet;
-%import java.awt.Graphics;
-%
-%public class Hello extends JApplet {
-%    public void paintComponent(Graphics g) {
-%        g.drawString("Hello, world!", 65, 95);
-%    }    
-%}
-%\end{minted}
-%
-%\Blindtext
 
-Il progetto di tesi si propone di sviluppare uno strumento di migrazione dati per Infor LN, un sistema ERP (Enterprise Resource Planning) utilizzato a livello internazionale. 
-L'obiettivo è agevolare il processo di migrazione da sistemi legacy a Infor LN, garantendo l'integrità e la coerenza dei dati. 
-Il lavoro si concentrerà sull'analisi dei requisiti, la progettazione dell'architettura del software, documentazione e sviluppo di un prototipo funzionante.
+\section{Contesto Aziendale}
+Il progetto di tesi si propone di sviluppare uno strumento di migrazione dati per Infor LN \cite{inforLN2025},
+un sistema ERP (Enterprise Resource Planning) industriale utilizzato a livello internazionale.
+L'obiettivo è agevolare il processo di migrazione da sistemi legacy a Infor LN, garantendo l'integrità e la coerenza
+dei dati in ambienti multitenant \cite{multitenantCloud, inforCloudsuite}.
 
-Lo strumento sarà in grado di generare dinamicamente codice ed estendibile con funzioni ad hoc, per migrare dati su sistemi Cloud Multitenant, in particolare per la Infor Cloudsuite
-Enterprise.
+\section{Obiettivi del Progetto}
+Il lavoro si concentrerà sull'analisi dei requisiti, la progettazione dell'architettura del software, la stesura della
+documentazione e lo sviluppo di un prototipo funzionante.
+In particolare, lo strumento sarà in grado di generare dinamicamente codice, estendibile con funzioni ad hoc, per migrare
+dati su sistemi Cloud Multitenant, con un focus sulla Infor Cloudsuite Enterprise.
+Inoltre, è richiesto lo sviluppo di un importer capace di interpretare il formato di import/export di Infor Exchange al
+fine di ricreare le definizioni dei file da migrare, integrandolo con lo strumento aziendale già esistente per la
+produzione di specifiche di migrazione documentate.
+
+\section{Struttura della Tesi}
+L'elaborato si articola nel seguente modo:
+\begin{itemize}
+    \item \textbf{Capitolo 2}: stato attuale degli ERP moderni, architetture cloud multitenant e sfide di migrazione dati.
+    \item \textbf{Capitolo 3}: analisi dello scenario di partenza e dei requisiti funzionali e non funzionali.
+    \item \textbf{Capitolo 4}: architettura del sistema, design e scelte tecnologiche (come Importer e Generatore codice).
+    \item \textbf{Capitolo 5}: descrizione dell'implementazione concreta del progetto.
+    \item \textbf{Capitolo 6}: testing, inclusi elementi come la validazione dell'integrità dei dati.
+    \item \textbf{Capitolo 7}: conclusioni, traguardi raggiunti e possibili sviluppi futuri.
+\end{itemize}

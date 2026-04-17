@@ -1,1 +1,74 @@
-\chapter{Analisi dei Requisiti}
+﻿\chapter{Analisi dei Requisiti}
+
+\section{Scenario di Riferimento}
+\subsection{Flusso di Migrazione Esistente}
+Negli ambienti legacy, il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
+manuali e script ad hoc. L'operatore (noi) è costretto a sviluppare script personalizzati per ogni singola tabella, sessioni,
+e ogni elemento di un gestionale, con lunghi tempi di realizzazione e rischi inerenti alla trascrizione manuale delle logiche di mapping.
+
+% \subsection{Necessità di Ottimizzazione}
+Inoltre, cambiamenti da parte di Infor e nuovi standard più restrittivi hanno reso le operazioni manuali molto più
+complesse \cite{erpMigration}. Emerge quindi la necessità aziendale di innovare, ottimizzare e automatizzare il processo
+con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
+
+\section{Requisiti Funzionali}
+I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabiliti
+con gli stakeholder.
+
+\subsection{Sviluppo dell'Importer Infor Exchange}
+Il sistema dovrà supportare l'input di file e strutture generate dallo strumento preesistente nativo di Infor Exchange.
+Tali file presentano specifici layout (come formati testuali ASCII o delimitati) che dovranno essere interpretati per
+popolare il dizionario \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields).
+
+% \subsection{Generazione Dinamica del Codice}
+Il punto cruciale sarà lo strumento generatore di codice.
+Partendo dalle tabelle di mapping (es. \texttt{txamg203}), lo strumento dovrà generare script di elaborazione e
+conversione, % invocando i compilatori interni Infor e producendo file eseguibili
+senza l'intervento manuale del programmatore.
+
+\subsection{Sistema di Estendibilità con Funzioni Ad-hoc}
+Nonostante l'automazione, alcune regole di business legacy non potranno essere legate a semplici assegnazioni.
+Viene quindi la necessità di una funzionalità di callback per permettere, ad opera dello sviluppatore, l'inserimento di
+script personalizzati che verranno inseriti nel processo principale durante l'esecuzione batch (\texttt{txamg3200}).
+
+\subsection{Integrazione con lo Strumento Documentale}
+Per garantire l'allineamento con gli standard del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
+documentazione aziendale, permettendo la produzione ed esportazione di specifiche tecniche di migrazione,
+mappature, eccezioni e log generati in fase di esecuzione (necessari per debugging).
+
+\section{Requisiti Non Funzionali}
+I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali del software.
+
+\subsection{Manutenibilità ed Estensibilità}
+Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il framework Infor Tools,
+così da garantirne la compatibilità con future release dell'ERP e manutenibilità semplificata per il comparto IT aziendale.
+
+\subsection{Sicurezza e Data Integrity in Multitenancy}
+Dato che il sistema tratterà dati di tipo core (come informazioni private o riservate) dell'azienda cliente in contesti
+Cloud, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono priorità assolute e
+fondamentali.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
+
+%\subsection{Prestazioni e Affidabilità}
+Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
+una elaborazione a blocchi al fine di minimizzare i tempi morti nati a causa della latenza di rete verso i server CloudSuite remoti.
+
+\section{Modello dei Dati (Entità della Migrazione)}
+\subsection{Analisi Strutture Dati Coinvolte}
+Per supportare in modo efficace il processo di migrazione, è stata definita un'architettura dati, basata su
+package \textit{tx} (\textit{custom}).
+
+Il modello dati è suddiviso in diverse entità:
+
+\begin{itemize}
+    \item \textbf{Parametrizzazione:}: tramite tabelle di configurazione come \texttt{txamg000} (AlteaIN Migration Tool Parameters).
+    \item \textbf{Gestione dei Datafile:} tabelle come \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields) permettono di definire le strutture dei file originali da importare.
+    \item \textbf{Elaborazione Batch:} la configurazione e l'esecuzione tramite batch è regolata da tabelle come \texttt{txamg200} (Batch), \texttt{txamg201} (Batch Sequences) e \texttt{txamg202} (Target Tables), insieme ad altre tabelle dedicate al mapping dei campi (\texttt{txamg203}).
+    \item \textbf{Tracciamento Esecuzioni:} lo stato e l'esito delle operazioni, oltre all'eventuale presenza di errori, vengono memorizzati all'interno delle tabelle \texttt{txamg300}, \texttt{txamg301}, \texttt{txamg302} e \texttt{txamg303} (Runs Errors).
+\end{itemize}
+
+I Domini includono sia tipi strettamente descrittivi (es. \texttt{txamg.cdom}, \texttt{txamg.fdnm}) sia tipi enumerativi
+per la validazione e il workflow (es. \texttt{txamg.migt} o \texttt{txamg.mapl}).
+Esempi di Domini essenziali sono quelli relativi ai formati ASCII (\texttt{txamg.fast}), alle regole di mapping (\texttt{txamg.mapl})
+o al tracciamento dei file (\texttt{txamg.dfil}).
+
+Questi elementi compongono le fondamenta sulla quale si poggia l'integrazione per la generazione del codice di migrazione e dell'importer Infor Exchange.
