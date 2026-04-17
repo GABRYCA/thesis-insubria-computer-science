@@ -1,0 +1,21 @@
+|******************************************************************************
+|* txamg1100m000  0  VRC B61O a  ext
+|* Data File Groups
+|* Bevacqua Roberto
+|* 2026-03-20
+|******************************************************************************
+|* Main table txamg100 Table Groups, Form Type 1
+|******************************************************************************
+
+|****************************** declaration section ***************************
+declaration:
+#include "itxadv0000"
+
+	table	ttxamg100 |* Table Groups
+
+	domain	tcbool	dummy.ret
+|****************************** program section ********************************
+before.program:
+	dummy.ret = switch.to.company(ADVCMP)
+
+|****************************** group section **********************************

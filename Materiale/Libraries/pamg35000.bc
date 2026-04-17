@@ -1,0 +1,21 @@
+|******************************************************************************
+|* txamg3500  0  VRC B61O a  ext
+|* Runs by Batch
+|* Bevacqua Roberto
+|* 2026-04-10
+|******************************************************************************
+|* Main table txamg300 Runs by Batch, Form Type 1
+|******************************************************************************
+
+|****************************** declaration section ***************************
+declaration:
+#include "itxadv0000"
+	domain	tcbool	dummy.ret
+	table	ttxamg300 |* Runs by Batch
+
+
+|****************************** program section ********************************
+before.program:
+	dummy.ret = switch.to.company(ADVCMP)
+
+|****************************** group section **********************************

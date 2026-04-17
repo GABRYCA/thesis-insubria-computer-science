@@ -1,0 +1,30 @@
+|******************************************************************************
+|* txamg2101m000  0  VRC B61O a  ext
+|* Batch Target Tables
+|* Bevacqua Roberto
+|* 2026-03-20
+|******************************************************************************
+|* Main table txamg201 Batch Target Tables, Form Type 1
+|******************************************************************************
+
+|****************************** declaration section ***************************
+declaration:
+#include "itxadv0000"
+	domain	tcbool	dummy.ret
+	table	ttxamg202 |* BatchSequences
+
+
+|****************************** program section ********************************
+before.program:
+	dummy.ret = switch.to.company(ADVCMP)
+
+|****************************** group section **********************************
+functions:
+function extern refresh.table.definition()
+{
+	|* aggiorno i dati di testata della tabella
+	|*(descrizione e VRC di appartenenza)
+	txamg.dll0011.refresh.table.definition(	 txamg202.cbat
+						,txamg202.sequ
+						,txamg202.sseq)
+}

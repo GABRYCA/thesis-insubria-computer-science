@@ -1,0 +1,509 @@
+|******************************************************************************
+|* txamgdll0012  B61O_a_ext
+|* AlteaIN Migration Tool - Script Generator - Load dll
+|* rbevacqu
+|* 2026-03-25 [10:49]
+|******************************************************************************
+|* Script Type: Library
+|******************************************************************************
+#include <bic_desktop>
+#include <bic_dam>
+
+#define dim_enum 3
+#define dim_set  3
+#define dim_date 8
+#define dim_time 6
+#define dim_text 10
+#define dim_utcd 8
+#define DATE_FORMAT "%D(%04Y%02m%02d)"
+#define UTCD_FORMAT "%D(%02d%02m%04Y)"
+#define UTCT_FORMAT "%U(%02h%02m%02s)"
+
+	table	ttxamg000	|* AlteaIN Migration Tool Parameters
+	table	ttxamg100	|* Table Groups
+	table	ttxamg110	|* DataFiles
+	table	ttxamg111	|* DataFile Fields
+
+	table	tttadv115	|* Directories of Software Components
+	table	tttadv230	|* Program Scripts
+	table	tttadv400	|* Domains
+	table	tttadv420	|* Table Definitions
+	table	tttadv421	|* Table Indices
+	table	tttadv422	|* Table Fields
+
+	table	tttext000	|* Extensibility Parameters
+
+	domain 	ttadv.cpac 	s.cpac
+	domain 	ttadv.cmod 	s.cmod
+	domain 	ttadv.cprs 	s.cprs
+	domain	ttadv.vers	vers, d.vers
+	domain	ttadv.rele	rele, d.rele
+	domain	ttadv.cust	cust, d.cust
+
+	domain	tcmcs.str215	script.path,
+				include.path
+		long	fp, fps, fpi
+		long 	lung_tot,rep
+
+
+function extern long txamg.dll0012.read.parameters()
+{
+	select  txamg000.*
+	from    txamg000
+	order by txamg000._index1
+	as set with 1 rows
+	selectdo
+		return(true)
+	endselect
+	message("Parameters are not set!")
+	return(false)
+}
+
+function extern txamg.dll0012.generate.load.script( domain txamg.grou grou,
+							domain txamg.dfil dfil)
+{
+	domain	tcyesno exis, modi
+
+	txadv.dll0012.read.parameters()
+	txamg.dll0012.read.parameters()
+	txamg.dll0010.read.current.pvrc(d.vers,d.rele,d.cust)
+	|* verifico se Ã¨ giÃ  indicato il codice del programma o se devo crearne uno nuovo
+	select  txamg100.*
+	from    txamg100
+	where   txamg100._index1 = {:grou}
+	as set with 1 rows
+	selectdo
+		db.retry.point()
+		select  txamg110.*
+		from    txamg110 for update
+		where   txamg110._index1 = {:grou,:dfil}
+		as set with 1 rows
+		selectdo
+			if txamg110.frzn = tcyesno.no then
+				if isspace(txamg110.cprs) then
+					select  txamg000.*
+					from    txamg000 for update
+					order by txamg000._index1
+					as set with 1 rows
+					selectdo
+						txamg110.cprs = edit$(txamg000.loff,"99999999")
+						txamg000.loff = txamg000.loff + 1
+						db.update(ttxamg000,db.retry)
+					endselect
+				endif
+				db.update(ttxamg110,db.retry)
+				s.cpac = txamg000.lopk
+				s.cmod = txamg000.lomd
+				s.cprs = txamg110.cprs
+				if not isspace(s.cpac) and not isspace(s.cmod) and not isspace(s.cprs) then
+					txamg.dll0010.read.current.script.definition(	s.cpac, s.cmod ,s.cprs,
+											vers, rele, cust, exis, modi)
+				endif
+			else
+				message("Script "&txamg000.lopk&txamg000.lomd&"dll"&trim$(txamg110.cprs)&" is frozen!")
+				return
+			endif
+		selectempty
+			message("DataFile definition not found")
+			return
+		endselect
+		commit.transaction()
+	selectempty
+		message("DataFile Group not found")
+		return
+	endselect
+	|* verifico se il programma puo' essere generato
+
+	|* verifico se il programma e' stato modificato manualmente e in tal caso chiedo conferma
+	if d.vers = vers and d.rele = rele and d.cust = cust then
+	|se il VRC non e' quello di sviluppo allora non devo chiedere nulla
+		if exis = tcyesno.yes then
+			if modi = tcyesno.yes then
+				|verifico se posso sovrascrivere
+				if ask.enum("txamg.cprs.mod",tcyesno.no, s.cpac&s.cmod&s.cprs) = tcyesno.no then
+				|* Library %1$s modified by user after
+				|* generation, do you want to overwrite it?
+					message("Script generation aborted by user")
+					return
+				endif
+			endif
+		else
+			|chiedo se vuole crearne uno nuovo dato che non l'ho trovato
+			if ask.enum("txamg.cprs.new",tcyesno.yes, s.cpac&s.cmod&s.cprs) = tcyesno.no then
+			|* Library %1$s not found, do yu wnat to create it?
+				message("Script generation aborted by user")
+				return
+			endif
+		endif
+	endif
+	|* genero ll sorgente
+	refresh.library()
+	generate.library.file()
+	|* end of generation process
+}
+function refresh.library()
+{
+	domain	tcncmp start.comp
+
+	start.comp = get.compnr()
+	switch.to.company(0)
+	db.retry.point()
+	select  ttadv230.*
+	from    ttadv230 for update
+	where   ttadv230._index1 = {:s.cpac,:s.cmod,:s.cprs,:d.vers,:d.rele,:d.cust}
+	and	ttadv230._compnr = 0
+	selectdo
+		dal.change.object("ttadv230")
+		dal.set.field("ttadv230.desc",trim$(txamg110.grou)&" - "&txamg110.dfil)
+		dal.set.field("ttadv230.crus",logname$)
+		dal.set.field("ttadv230.crdt",utc.num())
+		dal.set.field("ttadv230.ptyp",etol(ttadv.styp.library))
+		dal.set.field("ttadv230.expi", etol(ttyeno.no))
+		dal.set.field("ttadv230.vari(1)", 1)
+		dal.set.field("ttadv230.upus(1,1)", "")
+		dal.set.field("ttadv230.updt(1)", 0)
+		dal.set.field("ttadv230.uptm(1)", 0)
+		dal.set.field("ttadv230.xc_btiv", 2350)
+		dal.save.object("ttadv230",db.retry)
+	selectempty
+		dal.new.object("ttadv230")
+		dal.set.field("ttadv230._compnr",0)
+		dal.set.field("ttadv230.cpac", s.cpac)
+		dal.set.field("ttadv230.cmod", s.cmod)
+		dal.set.field("ttadv230.cprs", s.cprs)
+		dal.set.field("ttadv230.vers", d.vers)
+		dal.set.field("ttadv230.rele", d.rele)
+		dal.set.field("ttadv230.cust", d.cust)
+		dal.set.field("ttadv230.desc",trim$(txamg110.grou)&" - "&txamg110.dfil)
+		dal.set.field("ttadv230.crus", logname$)
+		dal.set.field("ttadv230.crdt", utc.num())
+		dal.set.field("ttadv230.ptyp", etol(ttadv.styp.library))
+		dal.set.field("ttadv230.expi", etol(ttyeno.no))
+		dal.set.field("ttadv230.vari(1)", 1)
+		dal.set.field("ttadv230.upus(1,1)", "")
+		dal.set.field("ttadv230.updt(1)", 0)
+		dal.set.field("ttadv230.uptm(1)", 0)
+		dal.set.field("ttadv230.xc_btiv", 2350)
+		dal.save.object("ttadv230",db.retry)
+	endselect
+	select  ttadv260.*
+	from    ttadv260 for update
+	where   ttadv260._index1 = {:s.cpac,:s.cmod,:s.cprs,:d.vers,:d.rele,:d.cust}
+	and	ttadv260._compnr = 0
+	selectdo
+		dal.change.object("ttadv260")
+		dal.set.field("ttadv260.desc",trim$(txamg110.grou)&" - "&txamg110.dfil)
+		dal.set.field("ttadv260.crus",logname$)
+		dal.set.field("ttadv260.crdt",utc.num())
+		dal.set.field("ttadv260.expi", etol(ttyeno.no))
+		dal.set.field("ttadv260.vari(1)", 1)
+		dal.set.field("ttadv260.upus(1,1)", "")
+		dal.set.field("ttadv260.updt(1)", 0)
+		dal.set.field("ttadv260.uptm(1)", 0)
+		dal.set.field("ttadv260.mwhu", etol(ttyeno.no))
+		dal.save.object("ttadv260",db.retry)
+	selectempty
+		dal.new.object("ttadv260")
+		dal.set.field("ttadv260._compnr",0)
+		dal.set.field("ttadv260.cpac", s.cpac)
+		dal.set.field("ttadv260.cmod", s.cmod)
+		dal.set.field("ttadv260.cfun", s.cprs)
+		dal.set.field("ttadv260.vers", d.vers)
+		dal.set.field("ttadv260.rele", d.rele)
+		dal.set.field("ttadv260.cust", d.cust)
+		dal.set.field("ttadv260.desc",trim$(txamg110.grou)&" - "&txamg110.dfil)
+		dal.set.field("ttadv260.crus",logname$)
+		dal.set.field("ttadv260.crdt",utc.num())
+		dal.set.field("ttadv260.expi", etol(ttyeno.no))
+		dal.set.field("ttadv260.vari(1)", 1)
+		dal.set.field("ttadv260.upus(1,1)", "")
+		dal.set.field("ttadv260.updt(1)", 0)
+		dal.set.field("ttadv260.uptm(1)", 0)
+		dal.set.field("ttadv260.mwhu", etol(ttyeno.no))
+		dal.save.object("ttadv260",db.retry)
+	endselect
+	commit.transaction()
+	switch.to.company(start.comp)
+}
+function void generate.library.file()
+{
+	domain	ttaad.pacc	pacc
+	long inizio, fine
+
+	|* purtroppo gli ambienti cloud non supportano la scrittura diretta
+	|* dello scrpit, quindi occorre ricopiarlo a manina da LN Studio
+	|* verifico quindi prima di tutto se siamo in cloud
+
+	|* DA SOSTITUIRE CON CHIAMATA A WEBSERVICE PER AMBIENTI CLOUD
+
+	pacc = curr.pacc$
+	select	ttext000.*
+	from	ttext000
+	where   ttext000._index1 = {:pacc}
+	and 	ttext000._compnr = 0
+	as set with 1 rows
+	selectdo
+		if ttext000.erfc = ttyeno.yes then
+			|script.path = creat.tmp.file$(bse.tmp.dir$())
+			script.path = "${BSE}\appdata\loadscript_"&s.cpac&s.cmod&trim$(s.cprs)&".txt"
+			include.path = "${BSE}\appdata\loadinclude_"&s.cpac&s.cmod&trim$(s.cprs)&".txt"
+			|* cancello il file
+			file.rm(script.path)
+			file.rm(include.path)
+			|* lo riapro per popolarlo
+			fps = seq.open(script.path,"w")
+			fpi = seq.open(include.path,"w")
+			|* creo la library in base alle scelte impostate
+			fp = fps
+			generate.library(trim$(txamg110.grou)&"_"&trim$(txamg110.dfil))
+			fp = fpi
+			generate.include(trim$(txamg110.grou)&"_"&trim$(txamg110.dfil))
+			|* posso richiuderlo
+			seq.close(fps)
+			seq.close(fpi)
+			client.show.file(script.path
+					,true
+					,"loadscript_"&s.cpac&s.cmod&trim$(s.cprs))
+			message("Library generated")
+			client.show.file(include.path
+					,true
+					,"loadinclude_"&s.cpac&s.cmod&trim$(s.cprs))
+		else
+|			select  ttadv115.*
+|			from    ttadv115
+|			where   ttadv115._index1 = {:s.cpac,:d.vers,:d.rele,:d.cust}
+|			and	ttadv115.kord = ttadv.kord.program.script
+|			and 	ttadv115._compnr = 0
+|			selectdo
+|				|* determino il nome del file
+|				script.path = ttadv115.prdd
+|				while pos(script.path,"${") <> 0
+|					inizio = pos(script.path,"${")+1
+|					fine   = pos(script.path,"}")
+|					if inizio <=2 then
+|						script.path = getenv$(script.path(inizio+1;fine-inizio-1))&script.path(fine+1;len(script.path))
+|					else
+|						script.path = script.path(1;inizio)&getenv$(script.path(inizio+1;fine-inizio-1))&script.path(fine+1;len(ttadv115.prdd))
+|					endif
+|				endwhile
+|				script.path = trim$(script.path)&"\"&s.cpac&trim$(d.vers)&"_"&trim$(d.rele)&"_"&trim$(d.cust)&"\p"&s.cpac&s.cmod&"\p"&s.cmod&trim$(s.cprs)&"0"
+|				|* cancello il file
+|				file.rm(script.path)
+|				|* lo riapro per popolarlo
+|				fp = seq.open(script.path,"w")
+|				|* creo la library in base alle scelte impostate
+|				generate.library(txamg110.dfil)
+|				|* posso richiuderlo
+|				seq.close(fp)
+|			endselect
+		endif
+	endselect
+}
+function generate.include(domain txamg.dfil datafile)
+{
+    GeneraDich(datafile)
+    GeneraDichImport(datafile)
+}
+function generate.library(domain txamg.dfil datafile)
+{
+    Riga("|******************************************************************************************")
+    Riga("|* Import Datafile " & datafile)
+    Riga("|* "&s.cpac&s.cmod&s.cprs&"")
+    Riga("|*")
+    Riga("|*                                           Copyright ALTEA IN S.r.L.")
+    Riga("|*                                           Written by Roberto Bevacqua")
+    Riga("|****************************** DECLARATION SECTION ***************************************")
+    Riga("|****************************** COMMON DECLARATIONS ***************************************")
+    Riga("#include <bic_dam>")
+    Riga("#pragma used dll ""otxamgdll0011""")
+    Riga("#include ""i"&s.cpac&s.cmod&trim$(s.cprs)&"""")
+    Riga("|****************************** FUNCTION SECTION ***************************************")
+    Riga("|****************************** PUBLIC FUNCTIONS ***************************************")
+    GeneraCheckFile(datafile)
+    GeneraImportUnpack(datafile)
+    GeneraDirOpen(datafile)
+    GeneraDirGetFile(datafile)
+    GeneraDirClose(datafile)
+    Riga("|****************************** PRIVATE FUNCTIONS ***************************************")
+}
+function GeneraDich(domain txamg.dfil datafile)
+{
+    Riga("|******************************************************************************************")
+    Riga("|* Import Datafile " & datafile)
+    Riga("|* i"&s.cpac&s.cmod&s.cprs&"")
+    Riga("|*")
+    Riga("|*                                           Copyright ALTEA IN S.r.L.")
+    Riga("|*                                           Written by Roberto Bevacqua")
+    Riga("|****************************** DECLARATION SECTION ***************************************")
+    Riga("|****************************** COMMON DECLARATIONS ***************************************")
+    Riga("#define  OK  0")
+    Riga("#define  ERRORE  1")
+    Riga("#include <bic_dam>")
+    Riga("#pragma used dll ""otxamgdll0011""")
+    Riga("")
+    Riga("     extern  domain  tcpath2     path.file."&trim$(datafile)&"      |file di dati")
+    Riga("     |extern  domain  tcpath2     plog."&trim$(datafile)&"      |file di log errori")
+    Riga("     extern  domain  tcmcs.str215m	error.message")
+    Riga("     extern  domain  tcmcs.long  record."&trim$(datafile)&"    |numero record elaborati")
+    Riga("     |                long        fperr."&trim$(datafile))
+    Riga("                     long        fpdat."&trim$(datafile))
+    Riga("                     string      buffer_"&trim$(datafile)&"(4096)    |buffer lettura record")
+    Riga("                     string      print_format_"&trim$(datafile)&"(4096)")
+    Riga("	extern			   long		dirp."&trim$(datafile))
+    Riga("")
+    Riga("                     table	   ttxamg000	|* Parameters")
+    Riga("                     table	   ttxamg100	|* Groups")
+    Riga("                     table	   ttxamg110	|* Tables")
+    Riga("                     table	   ttxamg111	|* Table Fields")
+    Riga("		       table	   ttxamg300")
+    Riga("		       table	   ttxamg301")
+    Riga("		       table	   ttxamg302")
+    Riga("")
+    Riga("             	       long	ret, dummy")
+    Riga("     extern  domain  tcmcs.str80 error.desc  ")
+    Riga("                     long        record.check")
+    Riga("                     long        lung."&trim$(datafile))
+    Riga("")
+}
+function GeneraDichImport(domain txamg.dfil datafile)
+{
+    Riga("|****************************** IMPORT DECLARATIONS ***************************************")
+    Riga("")
+	lung_tot = 0
+	select  txamg111.*
+	from    txamg111
+	where   txamg111._index1 = {:txamg110.grou, :txamg110.dfil}
+	order by txamg111.grou, txamg111.dfil, txamg111.fdno
+	selectdo
+		on case txamg111.atyp
+		case txamg.atyp.number:
+Riga("     extern    domain    tcmcs.long" & "     lung." & trim$(txamg111.fdnm))
+Riga("     extern    string    imp.str." & trim$(txamg111.fdnm) & "(" & str$(txamg111.adgb+txamg111.adga+1) & ")" )
+			lung_tot = lung_tot + txamg111.adgb+txamg111.adga + 1
+			break
+		case txamg.atyp.string:
+Riga("     extern     domain    tcmcs.long" & "     lung." & trim$(txamg111.fdnm))
+Riga("     extern     string    imp.str." & trim$(txamg111.fdnm) & "(" & str$(txamg111.leng+1) & ")" )
+			lung_tot = lung_tot + txamg111.leng + 1
+			break
+		case txamg.atyp.date:
+Riga("     extern     domain    tcmcs.long" & "     lung." & trim$(txamg111.fdnm))
+Riga("     extern     string    imp.str." & trim$(txamg111.fdnm) & "(" & str$(txamg111.leng+1) & ")" )
+			lung_tot = lung_tot + txamg111.leng + 1
+			break
+		case txamg.atyp.utc:
+Riga("     extern     domain    tcmcs.long" & "     lung." & trim$(txamg111.fdnm))
+Riga("     extern     string    imp.str." & trim$(txamg111.fdnm) & "(" & str$(txamg111.leng+1) & ")" )
+			lung_tot = lung_tot + txamg111.leng + 1
+			break
+		default:
+			message("Datatype "&enum.descr$("txamg.atyp",txamg111.atyp)&" not supported!")
+			|* File Field Type
+		endcase
+	selectempty
+	endselect
+}
+function void GeneraCheckFile(domain txamg.dfil datafile)
+{
+    Riga("function extern long "&s.cpac&s.cmod&"."&trim$(s.cprs)&".check.file."&datafile&"(domain txamg.cbat cbat")
+    Riga("										,domain tcmcs.long runs")
+    Riga("										,domain tcmcs.long sequ)")
+    Riga("{")
+    Riga(" long ret")
+    Riga(" if (txamg.dll0011.check.access(path.file."&trim$(datafile)&")=ERRORE) then")
+    Riga("     txamg.dll0011.log.error(cbat,runs,sequ,1,0,-13,""Unable to access: ""&trim$(path.file."&trim$(datafile)&"))")
+    Riga("     return(ERRORE)")
+    Riga(" else")
+    Riga("     lung."&datafile&" = 9999")
+    Riga(" endif")
+    Riga(" return(OK)")
+    Riga("}")
+}
+function void GeneraImportUnpack(domain txamg.dfil datafile)
+{
+	string print_format(4096)
+	string string_list(4096)
+	string comma(1)
+	string first.pipe(1)
+
+    	print_format = ""
+    	string_list = ""
+    	comma = ""		|per la prima stringa non metto la virgola
+    	first.pipe = "|"
+	select  txamg111.*
+	from    txamg111
+	where   txamg111._index1 = {:txamg110.grou, :txamg110.dfil}
+	order by txamg111.grou, txamg111.dfil, txamg111.fdno
+	selectdo
+		print_format = print_format & first.pipe & "%s|"
+		string_list = string_list & comma & "imp.str." & trim$(txamg111.fdnm)
+		comma = ","    	|imposto la virgola per le stringhe accodate successivamente
+		first.pipe = ""	|dopo il primo non ne metto altri
+	endselect
+    Riga("function extern long "&s.cpac&s.cmod&"."&trim$(s.cprs)&".unpack."&datafile&"(domain txamg.cbat cbat")
+    Riga("										,domain tcmcs.long runs")
+    Riga("										,domain tcmcs.long sequ")
+    Riga("										,domain tcmcs.long sseq)")
+    Riga("{")
+    Riga("	string str.err(255)")
+    Riga("	long ret")
+    Riga("	long dummy")
+    |Riga("	ret = string.scan(buffer_"&datafile&","""&trim$(print_format)&""","&trim$(string_list)&")")
+    Riga("	ret = string.scan(buffer_"&trim$(datafile)&"")
+    Riga("			,"""&trim$(print_format)&"""")
+    Riga("			,"&trim$(string_list)&")")
+    Riga("	if ret > 0 then")
+    Riga("	else")
+    Riga("		txamg.dll0011.log.error(cbat,runs,sequ,sseq,record."&datafile&",-1,""Can't read record on data file"")")
+    Riga("	endif")
+    Riga(" 	return(OK)")
+    Riga("}")
+}
+function void GeneraDirOpen(domain txamg.dfil datafile)
+{
+    Riga("function extern long "&s.cpac&s.cmod&"."&trim$(s.cprs)&".dir.open."&datafile&"(domain txamg.cbat cbat")
+    Riga("										,domain tcmcs.long runs")
+    Riga("										,domain tcmcs.long sequ)")
+    Riga("{")
+    Riga("	|* questa parte e' gestita dinamicamente per consentire cambi senza ricompilare")
+    Riga("	if txamg110.mufi = tcyesno.no then")
+    Riga("		|* se non e' multifile")
+    Riga("		dirp."&datafile&"=0")
+    Riga("	else")
+    Riga("		|* se e' multifile")
+    Riga("		path.file."&datafile&" = path.combine(txamg000.bpat,txamg100.bpat,txamg110.bpat)")
+    Riga("		dirp."&datafile&" = dir.open(path.file."&datafile&")")
+    Riga("		if dirp."&trim$(datafile)&"<0 then")
+    Riga("     			txamg.dll0011.log.error(cbat,runs,sequ,1,record."&datafile&",-13,""Unable to access: ""&trim$(path.file."&trim$(datafile)&"))")
+    Riga("			return(ERRORE)")
+    Riga("		endif")
+    Riga("	endif")
+    Riga("	return(OK)")
+    Riga("}")
+}
+function void GeneraDirGetFile(domain txamg.dfil datafile)
+{
+    Riga("function extern domain tcpath2 "&s.cpac&s.cmod&"."&trim$(s.cprs)&".dir.get.file."&datafile&"()")
+    Riga("{")
+    Riga("	|* questa parte e' gestita dinamicamente per consentire cambi senza ricompilare")
+    Riga("	if txamg110.mufi = tcyesno.no then")
+    Riga("		|* se non e' multifile")
+    Riga("		path.file."&datafile&" = path.combine(txamg000.bpat,txamg100.bpat,trim$(txamg110.bpat))")
+    Riga("	else")
+    Riga("		|* se e' multifile")
+    Riga("		path.file."&datafile&" = dir.entry(dirp."&datafile&", TFILE)")
+    Riga("	endif")
+    Riga("	return(path.file."&datafile&")")
+    Riga("}")
+}
+function void GeneraDirClose(domain txamg.dfil datafile)
+{
+    Riga("function extern void "&s.cpac&s.cmod&"."&trim$(s.cprs)&".dir.close."&datafile&"()")
+    Riga("{")
+    Riga("	dir.close(dirp."&datafile&")")
+    Riga("}")
+}
+function void Riga(domain tcmcs.s999 statement.line)
+{
+	seq.puts(statement.line,fp)
+}

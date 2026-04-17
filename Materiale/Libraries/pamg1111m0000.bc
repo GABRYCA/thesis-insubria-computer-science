@@ -1,0 +1,30 @@
+|******************************************************************************
+|* txamg1111m000  0  VRC B61O a  ext
+|* DataFile Fields
+|* Bevacqua Roberto
+|* 2026-03-20
+|******************************************************************************
+|* Main table txamg111 DataFile Fields, Form Type 1
+|******************************************************************************
+
+|****************************** declaration section ***************************
+declaration:
+#include "itxadv0000"
+
+	table	ttxamg111 |* DataFile Fields
+
+
+	domain	tcbool	dummy.ret
+
+|****************************** program section ********************************
+before.program:
+	dummy.ret = switch.to.company(ADVCMP)
+
+|****************************** group section **********************************
+functions:
+function extern generate.load.script()
+{
+	|* Genero il programma di migrazione
+	txamg.dll0012.generate.load.script(txamg111.grou,txamg111.dfil)
+	refresh()
+}
