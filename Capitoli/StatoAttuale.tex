@@ -2,15 +2,15 @@
 
 \section{Sistemi ERP}
 I sistemi ERP (Enterprise Resource Planning) rappresentano un elemento essenziale del sistema gestionale aziendale \cite{erpMigration},
-consentendo l'integrazione dei processi di business principali di un'azienda (vendite, acquisti, gestione inventario, contabilità).
+consentendo l'integrazione dei processi di business principali di un'azienda come: vendite, acquisti, gestione inventario, contabilità.
 
-\subsection{Evoluzione dai Sistemi Legacy al Cloud}
+\subsection{Evoluzione dei Sistemi Legacy al Cloud}
 Nel tempo, i sistemi ERP si sono evoluti partendo da architetture on-premise legacy, spesso caratterizzate da un elevato
 grado di personalizzazione (customization, in Infor LN definiti come tx) e importanti costi di mantenimento.
-Tuttavia, oggi si sta assistendo ad uno spostamento verso nuove soluzioni Cloud.
+Tuttavia, oggi si sta assistendo ad una transizione verso nuove soluzioni Cloud.
 
 % \subsection{Architetture Multitenant}
-Il modello Cloud Multitenant rappresenta l'architettura degli ERP odierni \cite{multitenantCloud}.
+Di fatto, il modello Cloud Multitenant rappresenta l'architettura degli ERP odierni \cite{multitenantCloud}.
 Ove, una singola istanza del software e infrastruttura servono più clienti (definiti come tenant).
 Questo approccio offre scalabilità, aggiornamenti continui e ottimizzazione dei costi, ma anche diverse sfide nell'ambito
 della gestione e segregazione dei dati, nonché della sicurezza, richiedendo che ogni processo di migrazione operi
@@ -25,13 +25,13 @@ e produzione \cite{inforCloudsuite}.
 Infor LN è basato su un'architettura che separa il framework tecnologico (gli Infor Tools) dalla logica di business.
 Ogni applicazione è composta da diversi oggetti:
 \begin{itemize}
-    \item \textbf{Tabelle (Tables):} I dati fisici, definiti tramite Data Dictionary.
+    \item \textbf{Tabelle (Tables):} I dati fisici, definiti tramite Data Dictionary, con domini standard o \textit{custom}.
     \item \textbf{Sessioni (Sessions):} Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
     \item \textbf{DAL (Data Access Layer):} L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni.
 \end{itemize}
 
 \subsection{Linguaggio Baan C: 3GL e 4GL}
-Per lo sviluppo e personalizzazione, Infor LN utilizza un linguaggio proprietario chiamato \textbf{Baan C}.
+Per lo sviluppo e personalizzazione, Infor LN utilizza un linguaggio proprietario, di nome \textbf{Baan C}.
 
 Esso si divide a sua volta in:
 \begin{itemize}
@@ -55,14 +55,14 @@ mappatura superano la complessità gestibile nativamente dall'Exchange.
 
 \section{Migrazione Dati nei Sistemi ERP}
 \subsection{Sfide e Problematiche Comuni}
-La migrazione da un sistema legacy a un nuovo ERP cloud, richiede un'attenta fase di analisi per evitare perdite o
+La migrazione da un sistema legacy a un nuovo ERP cloud richiede un'attenta fase di analisi per evitare perdite o
 disallineamenti di informazioni storiche e master data.
 
-Attualmente, molte migrazioni sono per la maggior parte gestite manualmente, con l'integrazioni di script scritti
-ad hoc, con tutti i rischi che ne conseguono.
+Attualmente, molte migrazioni sono gestite manualmente, con l'integrazioni di script scritti
+ad hoc, con un alto livello di complessità e rischio d'errore.
 Per questo, nasce l'idea del Tool di Migrazione (\textit{Migration Tool}) oggetto di questa tesi.
 
 %\subsection{Migrazione verso ambienti Cloud e SaaS}
-Per la migrazione verso il Cloud, sono necessari tool robusti in grado di lavorare sia con logiche batch sia che con API e servizi web (\textit{webservices} o WS in breve),
+Per la migrazione verso il Cloud, sono necessari tool robusti in grado di lavorare sia con logiche batch sia con API e servizi web (\textit{webservices} o WS in breve),
 adattandosi alle regole di business e garantendo la qualità di ogni singolo dato prima ancora che venga scritto nel
 database del nuovo tenant.
