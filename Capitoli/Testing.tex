@@ -5,6 +5,9 @@ Il testing di un software per la migrazione dei dati è un aspetto fondamentale.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti Cloud Multitenant,
 ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema target.
 
+Inoltre, per il generatore dinamico di codice Baan C, le procedure di collaudo
+hanno dovuto coprire non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli script generati a runtime dalle DLL \texttt{txamgdll0012} e \texttt{txamgdll0013}.
+
 \subsection{Unit Testing sui Moduli di Parsing}
 I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
 degli Infor Exchange sono stati collaudati su porzioni specifiche di file.
@@ -14,7 +17,8 @@ decimali a virgola mobile e codifiche caratteri ASCII, simulando una diversità 
 
 \subsection{Test di Integrazione del Flusso di Migrazione}
 L'integrazione end-to-end è validata eseguendo flussi di test governati dalle logiche di batch (\texttt{txamg2100}
-e \texttt{txamg3200}).
+e \texttt{txamg3200}). Durante questi test, il sistema genera gli script di elaborazione e li sottopone al compilatore interno \texttt{bic\_compiler}.
+Se la generazione avviene correttamente, lo script compilato viene agganciato al batch e lanciato.
 
 I \textit{Runs Errors} offrono un riscontro immediato di blocchi logici o semantici.
 Sono stati eseguiti scenari in cui la validazione è forzata per respingere record privi di riferimenti chiave,
