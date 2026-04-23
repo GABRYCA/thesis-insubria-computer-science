@@ -6,18 +6,18 @@ consentendo l'integrazione dei processi di business principali di un'azienda com
 
 \subsection{Evoluzione dei Sistemi Legacy al Cloud}
 Nel tempo, i sistemi ERP si sono evoluti partendo da architetture on-premise legacy, spesso caratterizzate da un elevato
-grado di personalizzazione (customization, in Infor LN definiti come tx) e importanti costi di mantenimento.
+grado di personalizzazione (customization, in Infor LN definiti come tx) e importanti costi di manutenzione.
 Tuttavia, oggi si sta assistendo ad una transizione verso nuove soluzioni Cloud.
 
 % \subsection{Architetture Multitenant}
 Di fatto, il modello Cloud Multitenant rappresenta l'architettura degli ERP odierni \cite{multitenantCloud}.
 Ove, una singola istanza del software e infrastruttura servono più clienti (definiti come tenant).
-Questo approccio offre scalabilità, aggiornamenti continui e ottimizzazione dei costi, ma anche diverse sfide nell'ambito
+Questo approccio offre scalabilità, aggiornamenti continui e ottimizzazione dei costi, ma anche grandi sfide nell'ambito
 della gestione e segregazione dei dati, nonché della sicurezza, richiedendo che ogni processo di migrazione operi
 secondo specifici vincoli di integrità \cite{dataMigrationStrategies}.
 
 \section{Infor LN e CloudSuite Enterprise}
-Infor LN, nato con il nome di Baan ERP, è uno dei principali ERP nel settore manifatturiero \cite{inforLN2025} a livello internazionale.
+Infor LN, nato con il nome di Baan ERP, è uno dei principali ERP nel settore manifatturiero industriale \cite{inforLN2025} a livello internazionale.
 Viene integrato all'interno della Infor CloudSuite Enterprise, il quale offre funzionalità per la gestione della supply chain
 e produzione \cite{inforCloudsuite}.
 
@@ -25,30 +25,35 @@ e produzione \cite{inforCloudsuite}.
 Infor LN è basato su un'architettura che separa il framework tecnologico (gli Infor Tools) dalla logica di business.
 Ogni applicazione è composta da diversi oggetti:
 \begin{itemize}
-    \item \textbf{Tabelle (Tables):} I dati fisici, definiti tramite Data Dictionary, con domini standard o \textit{custom}.
-    \item \textbf{Sessioni (Sessions):} Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
-    \item \textbf{DAL (Data Access Layer):} L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni.
+    \item \textbf{Tabelle (\textit{Tables}):} I dati fisici, definiti tramite Data Dictionary, con domini standard o \textit{custom}.
+    \item \textbf{Sessioni (\textit{Sessions}):} Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
+    \item \textbf{DAL (\textit{Data Access Layer}):} L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni.
+    \item \textbf{Domini (\textit{Domains}):} Definiscono i tipi di dati, con regole di validazione e formati, che possono essere standard o personalizzati (\textit{custom}).
+    \item \textbf{Etichette (\textit{Labels}):} Utilizzate per la localizzazione e la visualizzazione dei campi nelle Sessioni, con supporto multilingue (es.
+    02 corrisponde alla lingua inglese, e 06 alla lingua italiano).
 \end{itemize}
 
 \subsection{Linguaggio Baan C: 3GL e 4GL}
-Per lo sviluppo e personalizzazione, Infor LN utilizza un linguaggio proprietario, di nome \textbf{Baan C}.
+Per lo sviluppo e personalizzazione degli script e librerie, Infor LN utilizza un linguaggio proprietario, di nome \textbf{Baan C}.
 
 Esso si divide a sua volta in:
 \begin{itemize}
-    \item \textbf{4GL (Fourth-Generation Language):} La versione più recente e moderna.
+    \item \textbf{4GL (\textit{Fourth-Generation Language}):} La versione più recente e moderna.
     Infor LN Tools genera automaticamente operazioni standard di Sessione e database (CRUD). In 4GL non è necessario
     scrivere codice per gestire il salvataggio o il caricamento di un record, ma ci si concentra sulla gestione
     degli \textit{eventi} legati ai componenti della Sessione o del database (tramite DAL).
-    \item \textbf{3GL (Third-Generation Language):} Precedente a 4GL, e totalmente integrato con esso, viene utilizzato
-    per operazioni come gestione di logiche di business complesse.
+    \item \textbf{3GL (\textit{Third-Generation Language}):} Precedente a 4GL, e totalmente integrato con esso, viene utilizzato
+    per la gestione di logiche di business complesse.
     Permette un approccio più procedurale e a basso livello per implementare funzioni matematiche, algoritmi personalizzati,
-    DLL (Dynamic Link Libraries) proprietarie, funzioni e routine di manipolazione stringhe o file.
+    DLL (Dynamic Link Libraries) proprietarie, funzioni e routine di manipolazione stringhe o file, nonchè di estensioni (\textit{extensions})
+    che rappresentano in alcuni casi, l'unico modo di interagire e personalizzare tabelle e procedure standard.
 \end{itemize}
 
 \subsection{Infor Exchange e Strumenti di Import/Export}
 Per lo scambio di informazioni, Infor fornisce un modulo denominato \textit{Exchange}.
-Si tratta di una piattaforma per l'importazione e l'esportazione di file (es. CSV, XML, testo a larghezza fissa)
-mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN.
+Si tratta di una piattaforma per l'importazione e l'esportazione di file (es.
+CSV, XML, testo a larghezza fissa)
+mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN .
 
 Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tramite Baan C, che quindi risulta essenziale quando le regole di
 mappatura superano la complessità gestibile nativamente dall'Exchange.
