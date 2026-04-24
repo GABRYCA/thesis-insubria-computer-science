@@ -2,9 +2,39 @@
 
 \section{Panoramica dell'Architettura di Sistema}
 L'architettura del Migration Tool è stata definita per essere modulare e scalabile.
-Alla base del sistema vi è una separazione netta tra il modulo di input (Importer), il motore per l'elaborazione dei metadati,
+Alla base del sistema vi è una netta separazione tra il modulo di input (Importer), il motore per l'elaborazione dei metadati,
 e il Generatore di Codice.
-Questo approccio garantisce una separazione tra il layout dei dati preesistenti e la struttura del database Infor CloudSuite.
+Questo approccio garantisce la distinzione tra il layout dei dati preesistenti e la struttura del database Infor CloudSuite.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=2cm]
+        % Attori
+        \node (user) [draw, circle, minimum size=1cm] {User};
+        \node (actor_label) [below of=user, node distance=0.8cm] {Utente/Sviluppatore};
+
+        % Casi d'uso
+        \node (uc1) [draw, ellipse, right of=user, node distance=4cm] {Setup Parametri};
+        \node (uc2) [draw, ellipse, below of=uc1, node distance=1.5cm] {Import Metadata};
+        \node (uc3) [draw, ellipse, below of=uc2, node distance=1.5cm] {Definizione Mapping};
+        \node (uc4) [draw, ellipse, below of=uc3, node distance=1.5cm] {Generazione Codice};
+        \node (uc5) [draw, ellipse, below of=uc4, node distance=1.5cm] {Esecuzione Batch};
+
+        % Collegamenti
+        \draw [arrow] (user) -- (uc1);
+        \draw [arrow] (user) -- (uc2);
+        \draw [arrow] (user) -- (uc3);
+        \draw [arrow] (user) -- (uc4);
+        \draw [arrow] (user) -- (uc5);
+
+        % Sistema
+        \begin{scope}[on background layer]
+            \node [fill=gray!10, fit=(uc1) (uc5), draw, dashed, label={above:Migration Tool System}] {};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{Diagramma dei Casi d'Uso del Migration Tool.}
+    \label{fig:use_case}
+\end{figure}
 
 \subsection{Modello Dati e Dizionario}
 L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
@@ -30,6 +60,36 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice \ref{a
     record letti, processati o ignorati in base a date e sequenze.
     Eventuali criticità e troncamenti vengono inseriti sulla tabella \texttt{txamg303} (Run Errors).
 \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=1.5cm, every node/.style={rectangle, draw, fill=blue!10, text centered, minimum width=2.5cm}]
+        % Tabelle
+        \node (t000) {txamg000};
+        \node (t100) [right of=t000, node distance=4cm] {txamg100};
+        \node (t110) [below of=t100] {txamg110};
+        \node (t111) [below of=t110] {txamg111};
+
+        \node (t200) [left of=t111, node distance=4cm] {txamg200};
+        \node (t201) [below of=t200] {txamg201};
+        \node (t202) [below of=t201] {txamg202};
+        \node (t203) [below of=t202] {txamg203};
+
+        \node (t300) [right of=t203, node distance=4cm] {txamg300};
+        \node (t303) [below of=t300] {txamg303};
+
+        % Relazioni
+        \draw [thick] (t100) -- (t110) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t110) -- (t111) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t200) -- (t201) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t201) -- (t202) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t202) -- (t203) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [dashed] (t110) -- (t201);
+        \draw [thick] (t300) -- (t303) node[midway, right, draw=none, fill=none] {1:N};
+    \end{tikzpicture}
+    \caption{Diagramma ER semplificato del \textit{package} txamg.}
+    \label{fig:er_diagram}
+\end{figure}
 
 La Tabella \ref{tab:txamg000} nell'appendice mostra i parametri di configurazione per gestire i percorsi di I/O e le librerie dinamiche.
 

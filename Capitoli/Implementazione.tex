@@ -12,6 +12,42 @@ l'enumerato \texttt{txamg.fast}.
 
 Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o padding dei campi vuoti.
 
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function void GeneraImportUnpack(domain txamg.dfil datafile)
+{
+    |* Generazione dinamica della scansione della riga ASCII
+    |* print_format conterrà una stringa tipo "|%s|%s|%s|"
+    |* string_list conterrà la lista delle variabili di destinazione
+
+    select txamg111.* from txamg111
+    where txamg111._index1 = {:txamg110.grou, :txamg110.dfil}
+    order by txamg111.fdno
+    selectdo
+        print_format = print_format & first.pipe & "%s|"
+        string_list = string_list & comma & "imp.str."
+                      & trim$(txamg111.fdnm)
+        comma = ","
+        first.pipe = ""
+    endselect
+
+    Riga("function extern long unpack."&datafile&"(...) {")
+    Riga("    ret = string.scan(buffer_"
+              &trim$(datafile)&","""
+              &trim$(print_format)&""","&trim$(string_list)&")")
+    Riga("    ...")
+    Riga("}")
+}
+\end{minted}
+\caption{Esempio di generazione del codice per il parsing di stringhe ASCII (da \texttt{txamgdll0012}).}
+\label{lst:parsing_gen}
+\end{listing}
+
+In questo estratto viene mostrato come il generatore iteri sui campi definiti per
+il \textit{datafile} (\texttt{txamg111}) per costruire una chiamata a \texttt{string.scan}.
+Questa funzione Baan C viene poi usata nello script generato per "spacchettare" la riga letta dal file ASCII nelle
+variabili corrispondenti ai campi.
+
 \subsection{Ricostruzione delle Definizioni dei File da Migrare}
 L'obiettivo secondario dell'importer è auto-compilare il setup dello stesso \textit{Migration Tool}.
 Utilizzando le definizioni originarie dei file (le tabelle legacy), il programma crea dinamicamente o aggiorna una
@@ -38,6 +74,45 @@ rispetti rigorosamente le definizioni fisiche.
 Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
 per generare script eseguibili, riducendo drasticamente il tempo manuale richiesto per configurare le regole di trasformazione
 standard e garantendo che il codice finale aderisca alla logica di business (\textit{business logic}).
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function void GeneraMap(domain tcmcs.str8 tabella)
+{
+    Riga("function long map."&tabella&".record() {")
+    select txamg203.*, txamg111.* from txamg203, txamg111
+    where txamg203._index1 =
+    {:txamg202.cbat, :txamg202.sequ, :txamg202.sseq}
+    and txamg203.cmbd refers to txamg111
+    selectdo
+        on case txamg203.type
+            case txamg.type.long:
+                Riga("    "&tabella&trim$(txamg203.fdnm)
+                          &" = lval(imp.str."&trim$(txamg203.fdnm)&")")
+                break
+            case txamg.type.string:
+                Riga("    tt.align.according.domain(imp.str."
+                         &trim$(txamg111.fdnm)&","
+                         &tabella&trim$(txamg203.fdnm)&",...)")
+                break
+            |* Altri tipi (date, enum, etc.)
+        endcase
+    endselect
+    Riga("    return(OK)")
+    Riga("}")
+}
+\end{minted}
+\caption{Logica di generazione della funzione di mapping (da \texttt{txamgdll0013}).}
+\label{lst:mapping_gen}
+\end{listing}
+
+Nel seguente esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
+file alla struttura della tabella target:
+\begin{itemize}
+    \item \textbf{Riga 4-6:} Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
+    \item \textbf{Riga 9-10:} Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
+    \item \textbf{Riga 12-13:} Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire correttamente lunghezze e allineamenti secondo il dominio Infor LN.
+\end{itemize}
 
 \subsection{Supporto alle Funzioni di Trasformazione Ad-hoc}
 Oltre alle regole predefinite, l'interprete ammette la dichiarazione e l'aggancio di funzioni custom.
@@ -184,3 +259,35 @@ formattandolo utilizzando layout predefiniti.
 L'esportazione documenta in PDF ogni singolo dominio trasferito, documentando sia
 i campi copiati senza modifiche (\textit{one-to-one}) (in accordo con \texttt{txamg.mapl}) sia quei casi
 particolari per cui è stato inserito del codice personalizzato, semplificando una possibile manutenzione logica dell'architettura in futuro.
+
+\section{Ciclo di Vita del Dato}
+Il processo di migrazione segue un flusso lineare, descritto nel seguente diagramma:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=2cm]
+        \node (legacy) [startstop] {Legacy Data (ASCII)};
+        \node (extract) [process, below of=legacy] {Estrazione};
+        \node (parse) [process, below of=extract] {Parsing (Importer)};
+        \node (map) [process, below of=parse] {Mapping \& Trasformazione};
+        \node (gen) [process, below of=map] {Generazione Codice DLL};
+        \node (exec) [process, below of=gen] {Esecuzione Batch};
+        \node (db) [io, below of=exec] {Infor CloudSuite DB};
+        \node (error) [startstop, right of=exec, node distance=5cm] {Log Errori (txamg303)};
+
+        \draw [arrow] (legacy) -- (extract);
+        \draw [arrow] (extract) -- (parse);
+        \draw [arrow] (parse) -- (map);
+        \draw [arrow] (map) -- (gen);
+        \draw [arrow] (gen) -- (exec);
+        \draw [arrow] (exec) -- (db);
+        \draw [arrow] (exec) -- (error);
+        \draw [arrow] (parse) -- (error);
+    \end{tikzpicture}
+    \caption{Diagramma di Flusso del Ciclo di Vita del Dato.}
+    \label{fig:flowchart}
+\end{figure}
+
+Il flusso garantisce che ogni record sia tracciato.
+In caso di errore durante il parsing (formato scorretto) o durante l'esecuzione (vincoli di database), l'engine
+scrive un record dettagliato nella tabella \texttt{txamg303}, permettendo la ripartenza selettiva della migrazione.
