@@ -40,11 +40,20 @@ Questo approccio garantisce la distinzione tra il layout dei dati preesistenti e
 L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
 Il modello relazionale si basa su un raggruppamento logico identificato dai prefissi delle tabelle
 (sviluppate nel package \texttt{amg} / modulo \textit{custom} \texttt{tx}).
-Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice \ref{appendix:tabelle}.
+Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{appendix:tabelle}.
 
 \begin{itemize}
     \item \textbf{Setup e Parametrizzazione (\texttt{txamg000}):} Raccoglie i parametri globali del tool, incluse le
     impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i package/moduli su cui generare il codice.
+    L'interfaccia di configurazione (Figura~\ref{fig:params}) permette di definire i percorsi di rete e le preferenze di compilazione.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{Parameters_txamg0100m000}
+        \caption{Sessione di setup dei parametri globali (\texttt{txamg0100m000}).}
+        \label{fig:params}
+    \end{figure}
+
     \item \textbf{Gestione Metadati (\texttt{txamg1xx}):} Le tabelle \texttt{txamg110} (Datafiles)
     e \texttt{txamg111} (Datafile Fields) costituiscono il dizionario della sorgente.
     Mappano i file di input, includendo il formato (es.
@@ -91,7 +100,7 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice \ref{a
     \label{fig:er_diagram}
 \end{figure}
 
-La Tabella \ref{tab:txamg000} nell'appendice mostra i parametri di configurazione per gestire i percorsi di I/O e le librerie dinamiche.
+La Tabella~\ref{tab:txamg000} nell'appendice mostra i parametri di configurazione per gestire i percorsi di I/O e le librerie dinamiche.
 
 \section{Progettazione del Software}
 \subsection{Design dell'Importer e del Parser dei Dati}

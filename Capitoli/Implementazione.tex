@@ -45,7 +45,7 @@ function void GeneraImportUnpack(domain txamg.dfil datafile)
 
 In questo estratto viene mostrato come il generatore iteri sui campi definiti per
 il \textit{datafile} (\texttt{txamg111}) per costruire una chiamata a \texttt{string.scan}.
-Questa funzione Baan C viene poi usata nello script generato per "spacchettare" la riga letta dal file ASCII nelle
+Questa funzione Baan C viene poi usata nello script generato per \enquote{spacchettare} la riga letta dal file ASCII nelle
 variabili corrispondenti ai campi.
 
 \subsection{Ricostruzione delle Definizioni dei File da Migrare}
@@ -57,8 +57,35 @@ Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) ed i tipi di dominio
 riversati nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
 di data-mapping manuale verso le tabelle target CloudSuite.
 
+L'utente può gestire i gruppi di file ed i singoli file sorgente tramite le sessioni mostrate in
+Figura~\ref{fig:datafile_groups} e~\ref{fig:datafiles}.
+
+\begin{figure}[H]
+    \centering
+        \centering
+        \includegraphics[width=\textwidth]{DataFile_Groups_txamg1100m000}
+        \caption{DataFile Groups (\texttt{txamg1100m000}).}
+        \label{fig:datafile_groups}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{DataFiles_txamg1110m000}
+    \caption{DataFiles (\texttt{txamg1110m000}).}
+    \label{fig:datafiles}
+\end{figure}
+
+I dettagli dei campi per ogni file, inclusi i domini e le lunghezze, è gestito in una sessione specifica (Figura~\ref{fig:fields_session}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{DataFile_Fields_txamg1111m000}
+    \caption{Datafile Fields (\texttt{txamg1111m000}).}
+    \label{fig:fields_session}
+\end{figure}
+
 \section{Implementazione del Generatore di Codice}
-\subsection{Template Engine e Creazione Dinamica}
+\subsection{Creazione Dinamica del Codice}
 La generazione dinamica del codice è gestita mediante apposite librerie DLL (\textit{Dynamic Link Library}) fornite
 nel sistema Infor, quali \texttt{txamgdll0012} (Script Generator - Load dll) e \texttt{txamgdll0013} (Script Generator - Process dll).
 
@@ -69,10 +96,10 @@ sistema tramite le tabelle di sistema \texttt{ttadv} (in particolare \texttt{ttt
 tabelle, \texttt{tttadv422} per i campi e \texttt{tttadv400} per i domini).
 Questa interrogazione è delegata al componente \texttt{txamgdll0010} (DD Integration Library), che funge
 da strato di astrazione estraendo in automatico tipi di dato, lunghezze massime e array per assicurare che lo script
-rispetti rigorosamente le definizioni fisiche.
+rispetti le definizioni fisiche corrette.
 
 Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
-per generare script eseguibili, riducendo drasticamente il tempo manuale richiesto per configurare le regole di trasformazione
+per generare script eseguibili, riducendo drasticamente il tempo manuale richiesto per configurare le regole di conversione
 standard e garantendo che il codice finale aderisca alla logica di business (\textit{business logic}).
 
 \begin{listing}[H]
@@ -114,7 +141,7 @@ file alla struttura della tabella target:
     \item \textbf{Riga 12-13:} Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire correttamente lunghezze e allineamenti secondo il dominio Infor LN.
 \end{itemize}
 
-\subsection{Supporto alle Funzioni di Trasformazione Ad-hoc}
+\subsection{Funzioni di Trasformazione Ad-hoc}
 Oltre alle regole predefinite, l'interprete ammette la dichiarazione e l'aggancio di funzioni custom.
 Durante il processo, eventuali routine di validazione o pulizia del dato possono essere inoltrate ad altre
 interfacce di esecuzione (come \texttt{txamg3200} - Execute Batch Runs).
@@ -126,6 +153,40 @@ contenenti eventuali errori (Error Logging).
 L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o
 \textit{s-sessions} a seconda della loro finalità operativa.
 
+Le sessioni principali per la gestione dei \texttt{batch} e dei \texttt{mapping} sono visualizzabili nelle
+Figure~\ref{fig:batches}, ~\ref{fig:batch_sequences}, ~\ref{fig:batch_target_tables},
+~\ref{fig:table_mappings}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Batches_txamg2100m000}
+    \caption{Batches (\texttt{txamg2100m000}).}
+    \label{fig:batches}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{BatchSequences_txamg2101m000}
+    \caption{Batch Sequences (\texttt{txamg2101m000}).}
+    \label{fig:batch_sequences}
+\end{figure}
+
+Nelle sessioni dei mapping si definiscono le tabelle target e le logiche di conversione per singolo campo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{BatchTargetTables_txamg2102m000}
+    \caption{Batch Target Tables (\texttt{txamg2102m000}).}
+    \label{fig:batch_target_tables}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{TableMappings_txamg2103m000}
+    \caption{Table Mappings (\texttt{txamg2103m000}).}
+    \label{fig:table_mappings}
+\end{figure}
+
 Si evidenziano, per esempio:
 \begin{itemize}
     \item \textbf{Setup iniziale:} la Sessione \texttt{txamg0100m000} permette la parametrizzazione globale dello strumento.
@@ -135,6 +196,32 @@ Si evidenziano, per esempio:
 \end{itemize}
 
 Nelle seguenti sezioni vengono riportati gli elenchi dei componenti software sviluppati, suddivisi per tipologia.
+
+\subsection{Esecuzione e Monitoraggio}
+Una volta configurati i mapping e generato il codice, il tool permette l'esecuzione dei batch tramite la sessione \texttt{txamg3200m000} (Figura~\ref{fig:execute_run}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ExecuteBatchRuns_txamg3200m000}
+    \caption{Execute Batch Runs (\texttt{txamg3200m000}).}
+    \label{fig:execute_run}
+\end{figure}
+
+Al termine dell'esecuzione, è possibile consultare alcune statistiche come momento di inizio e di fine e i log d'errore per ogni run (Figura~\ref{fig:runs_by_batch} e~\ref{fig:runs_errors}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{RunsByBatch_txamg3500m000}
+    \caption{Runs By Batch (\texttt{txamg3500m000}).}
+    \label{fig:runs_by_batch}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{RunsErrors_txamg3503m000}
+    \caption{Runs Errors (\texttt{txamg3503m000}).}
+    \label{fig:runs_errors}
+\end{figure}
 
 \subsection{Librerie (DLL) e Data Access Layer (DAL)}
 
@@ -166,7 +253,7 @@ Nelle seguenti sezioni vengono riportati gli elenchi dei componenti software svi
 
 \subsection{Tabelle di Sistema e Sessioni Operative}
 
-Elenco delle principali tabelle (le strutture dettagliate sono consultabili nell'Appendice \ref{appendix:tabelle}) e
+Elenco delle principali tabelle (le strutture dettagliate sono consultabili nell'Appendice~\ref{appendix:tabelle}) e
 delle sessioni utilizzate.
 
 \begin{table}[H]

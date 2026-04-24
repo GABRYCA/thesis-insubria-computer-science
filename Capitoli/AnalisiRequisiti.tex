@@ -77,48 +77,45 @@ per la validazione e il workflow (es. \texttt{txamg.migt} o \texttt{txamg.mapl})
 Esempi di Domini essenziali sono quelli relativi ai formati ASCII (\texttt{txamg.fast}), alle regole di mapping (\texttt{txamg.mapl})
 o al tracciamento dei file (\texttt{txamg.dfil}).
 
-Schema ER del modello dati del Migration Tool:
+Schema ER del modello dati del Migration Tool (Figura~\ref{fig:er_schema}):
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{Immagini/Schema_1}
+    \includegraphics[width=\textwidth]{Immagini/Schema_1}
     \caption{Schema ER del Modello Dati del modello dati del Migration Tool}
     \label{fig:er_schema}
 \end{figure}
 
 Tabella delle tabelle principali del Migration Tool:
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c|c|p{5.5cm}|}
-        \hline
-        \textbf{Tabella} & \textbf{Nome logico} & \textbf{Funzione} \\
-        \hline
-        \texttt{txamg000} & AlteaIN Migration Tool Parameters & Parametri globali e configurazione generale del tool \\
-        \hline
-        \texttt{txamg100} & Table groups & Parametri specifici per i batch di migrazione \\
-        \hline
-        \texttt{txamg110} & Datafiles & Definizione dei file di input \\
-        \hline
-        \texttt{txamg111} & DataFile Fields & Dettagli dei campi dei file di input \\
-        \hline
-        \texttt{txamg200} & Batch & Configurazione processi batch di migrazione \\
-        \hline
-        \texttt{txamg201} & Batch Sequences & Sequenze e dipendenze tra batch \\
-        \hline
-        \texttt{txamg202} & Target Tables & Definizione delle tabelle target in CloudSuite \\
-        \hline
-        \texttt{txamg203} & MappedFields & Mapping logico tra campi di origine e destinazione \\
-        \hline
-        \texttt{txamg300} & Runs by Batch & Tracciamento delle esecuzioni dei batch \\
-        \hline
-        \texttt{txamg301} & Runs by Batch/Datafile & Tracciamento delle esecuzioni per file specifico \\
-        \hline
-        \texttt{txamg302} & Runs by Batch/Datafile/Table & Tracciamento delle esecuzioni per tabella specifica \\
-        \hline
-        \texttt{txamg303} & Runs Errors & Dettaglio degli errori riscontrati durante le esecuzioni \\
-        \hline
-    \end{tabular}
-    \caption{Dizionario delle Tabelle Principali del Migration Tool}
-    \label{tab:dizionario_tabelle}
-\end{table}
+
+\begin{longtable}{@{} l p{5cm} p{6cm} @{}}
+    \toprule
+    \textbf{Tabella} & \textbf{Nome logico} & \textbf{Funzione} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Tabella} & \textbf{Nome logico} & \textbf{Funzione} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{3}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Dizionario delle Tabelle Principali del Migration Tool} \label{tab:dizionario_tabelle} \\
+    \endlastfoot
+    \texttt{txamg000} & AlteaIN Migration Tool Parameters & Parametri globali e configurazione generale del tool \\
+    \texttt{txamg100} & Table groups & Parametri specifici per i batch di migrazione \\
+    \texttt{txamg110} & Datafiles & Definizione dei file di input \\
+    \texttt{txamg111} & DataFile Fields & Dettagli dei campi dei file di input \\
+    \texttt{txamg200} & Batch & Configurazione processi batch di migrazione \\
+    \texttt{txamg201} & Batch Sequences & Sequenze e dipendenze tra batch \\
+    \texttt{txamg202} & Target Tables & Definizione delle tabelle target in CloudSuite \\
+    \texttt{txamg203} & MappedFields & Mapping logico tra campi di origine e destinazione \\
+    \texttt{txamg300} & Runs by Batch & Tracciamento delle esecuzioni dei batch \\
+    \texttt{txamg301} & Runs by Batch/Datafile & Tracciamento delle esecuzioni per file specifico \\
+    \texttt{txamg302} & Runs by Batch/Datafile/Table & Tracciamento delle esecuzioni per tabella specifica \\
+    \texttt{txamg303} & Runs Errors & Dettaglio degli errori riscontrati durante le esecuzioni \\
+\end{longtable}
+
 
 Questi elementi compongono le fondamenta dell'integrazione per la generazione del codice di migrazione e dell'importer Infor Exchange.

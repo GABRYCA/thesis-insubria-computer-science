@@ -3,12 +3,12 @@
 
 Viene qui riportata la struttura dettagliata delle tabelle progettate, sviluppate e utilizzate all'interno del Migration Tool.
 Ogni tabella è identificata da un codice univoco con prefisso \texttt{txamg}.
-Ove le prime due lettere (\texttt{tx}) indicano il package \textit{custom}, le successive tre lettere (\texttt{amg}) rappresentano il modulo).
+Ove le prime due lettere (\texttt{tx}) indicano il package \textit{custom}, le successive tre lettere (\texttt{amg}) rappresentano il modulo.
 
 \section{Tabelle di Configurazione e Metadati}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg000 (Parametri Generali)} \label{tab:txamg000} \\
+\caption{Struttura della tabella txamg000 (AlteaIN Migration Tool Parameters)} \label{tab:txamg000} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -37,12 +37,12 @@ bpat & tc path2 & String & 128 & Base Path for Files \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg100 (Gruppi Tabelle)} \label{tab:txamg100} \\
+\caption{Struttura della tabella txamg100 (Table groups)} \label{tab:txamg100} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg100 (Gruppi Tabelle) -- Continua} \\
+\caption[]{Struttura della tabella txamg100 (Table groups) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -53,7 +53,7 @@ bpat & tc path2 & String & 128 & Subfolder \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg110 (Data Files)} \label{tab:txamg110} \\
+\caption{Struttura della tabella txamg110 (Datafiles)} \label{tab:txamg110} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -78,12 +78,12 @@ bpat & tc path2 & String & 128 & Subfolder \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg111 (Campi Data File)} \label{tab:txamg111} \\
+\caption{Struttura della tabella txamg111 (DataFile Fields)} \label{tab:txamg111} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg111 (Campi Data File) -- Continua} \\
+\caption[]{Struttura della tabella txamg111 (DataFile Fields) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -123,12 +123,12 @@ bpat & tc path2 & String & 128 & Subfolder \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg201 (Sequenza Batch)} \label{tab:txamg201} \\
+\caption{Struttura della tabella txamg201 (Batch Sequences)} \label{tab:txamg201} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg201 (Sequenza Batch) -- Continua} \\
+\caption[]{Struttura della tabella txamg201 (Batch Sequences) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -146,12 +146,12 @@ frzn & tc yesno & Enumerated & 5 & Frozen \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg202 (Tabelle di Destinazione)} \label{tab:txamg202} \\
+\caption{Struttura della tabella txamg202 (Target Tables)} \label{tab:txamg202} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg202 (Tabelle di Destinazione) -- Continua} \\
+\caption[]{Struttura della tabella txamg202 (Target Tables) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -172,12 +172,12 @@ txta & tc txtn & Text & 0 & Functional Notes \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg203 (Campi Mappati)} \label{tab:txamg203} \\
+\caption{Struttura della tabella txamg203 (Mapped Fields)} \label{tab:txamg203} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg203 (Campi Mappati) -- Continua} \\
+\caption[]{Struttura della tabella txamg203 (Mapped Fields) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -211,12 +211,12 @@ dept & tc mcs.int & Integer & 3 & Depth \\
 \section{Tabelle di Esecuzione e Log}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg300 (Run di Esecuzione)} \label{tab:txamg300} \\
+\caption{Struttura della tabella txamg300 (Runs by Batch)} \label{tab:txamg300} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg300 (Run di Esecuzione) -- Continua} \\
+\caption[]{Struttura della tabella txamg300 (Runs by Batch) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -229,12 +229,12 @@ endt & tc date & UTC Date/Time & 22 & End Date \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg301 (Log Esecuzione per Batch)} \label{tab:txamg301} \\
+\caption{Struttura della tabella txamg301 (Runs by Batch/Datafile)} \label{tab:txamg301} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg301 (Log Esecuzione per Batch) -- Continua} \\
+\caption[]{Struttura della tabella txamg301 (Runs by Batch/Datafile) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -250,12 +250,12 @@ reer & tc mcs.long & Long & 10 & Records Discarded \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg302 (Log Esecuzione per SubSeq)} \label{tab:txamg302} \\
+\caption{Struttura della tabella txamg302 (Runs by Batch/Datafile/Table)} \label{tab:txamg302} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg302 (Log Esecuzione per SubSeq) -- Continua} \\
+\caption[]{Struttura della tabella txamg302 (Runs by Batch/Datafile/Table) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
@@ -269,12 +269,12 @@ endt & tc date & UTC Date/Time & 22 & End Date \\
 \end{longtable}
 
 \begin{longtable}{@{} l l l r p{6cm} @{}}
-\caption{Struttura della tabella txamg303 (Errori di Esecuzione)} \label{tab:txamg303} \\
+\caption{Struttura della tabella txamg303 (Runs Errors)} \label{tab:txamg303} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
 \endfirsthead
-\caption[]{Struttura della tabella txamg303 (Errori di Esecuzione) -- Continua} \\
+\caption[]{Struttura della tabella txamg303 (Runs Errors) -- Continua} \\
 \toprule
 \textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
 \midrule
