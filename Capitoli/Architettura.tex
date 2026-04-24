@@ -6,6 +6,29 @@ Alla base del sistema vi è una separazione netta tra il modulo di input (Import
 e il Generatore di Codice.
 Questo approccio garantisce una separazione tra il layout dei dati preesistenti e la struttura del database Infor CloudSuite.
 
+\subsection{Modello Dati e Dizionario}
+L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
+Il modello relazionale si basa su un raggruppamento logico identificato dai prefissi delle tabelle
+(sviluppate nel package \texttt{amg} / modulo \textit{custom} \texttt{tx}):
+\begin{itemize}
+    \item \textbf{Setup e Parametrizzazione (\texttt{txamg000}):} Raccoglie i parametri globali del tool, incluse le
+    impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i package/moduli su cui generare il codice.
+    \item \textbf{Gestione Metadati (\texttt{txamg1xx}):} Le tabelle \texttt{txamg110} (Datafiles)
+    e \texttt{txamg111} (Datafile Fields) costituiscono il dizionario della sorgente.
+    Mappano i file di input, includendo il formato (es.
+    separatori ASCII, lunghezza fissa) e i domini di ciascun campo (tipo di dato, posizioni iniziali e lunghezze).
+    \item \textbf{Regole di Mapping (\texttt{txamg2xx}):} Rappresentano la parte di logica transazionale.
+    In \texttt{txamg202} (Target Tables) si definiscono le entità, le logiche di aggiornamento
+    del database e i vincoli di condivisione (\textit{Shared}). Successivamente con \texttt{txamg203}
+    (Mapped Fields), vengono stabilite le relazioni uno-a-uno e uno-a-molti, standardizzate per le funzioni
+    obbligatorie o opzionali.
+    \item \textbf{Esecuzione e Log (\texttt{txamg3xx}):} Il sistema adotta una politica di esecuzione strutturata in
+    \textit{run} (elaborazioni).
+    Attraverso \texttt{txamg300}, \texttt{txamg301} e \texttt{txamg302} viene memorizzato il conteggio esatto dei
+    record letti, processati o ignorati in base a date e sequenze.
+    Eventuali criticità e troncamenti vengono inseriti sulla tabella \texttt{txamg303} (Run Errors).
+\end{itemize}
+
 \section{Progettazione del Software}
 \subsection{Design dell'Importer e del Parser dei Dati}
 L'Importer funge da punto d'ingresso per i dati ed è progettato per interpretare il formato proprietario di Infor Exchange,
@@ -16,10 +39,9 @@ relativi \textit{Fields} (\texttt{txamg111}).
 Questo design del caricamento rende possibile supportare sia architetture multitenant cloud, sia installazioni legacy on-premise.
 
 \subsection{Motore di Generazione del Codice}
-Il nucleo computazionale è rappresentato dal motore di generazione.
-Basato su librerie compilate (DLL come \texttt{txamgdll0012} e \texttt{txamgdll0013}), il modulo interpreta il
-dizionario di mapping (definito in \texttt{txamg203} o \textit{MappedFields}) e traduce i legami e le regole di
-trasformazione in script nativi Baan C.
+U motore generatore di codice è basato su librerie compilate (DLL come \texttt{txamgdll0012} e \texttt{txamgdll0013}),
+il modulo interpreta il dizionario di mapping (definito in \texttt{txamg203} (\textit{MappedFields})) e
+traduce i legami e le regole di trasformazione in script nativi Baan C.
 
 Questo meccanismo previene di dover scrivere manualmente codice, garantendo il rispetto dei framework CloudSuite:
 il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
@@ -29,14 +51,14 @@ Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune reg
 specifici a causa della loro complessità.
 Vengono quindi esposte a livello architetturale delle interfacce \textit{callback}.
 
-In appositi \textit{module script}, gli sviluppatori possono iniettare blocchi di codice chiamati asincronamente dall'engine.
+In pratica, in appositi \textit{module script}, gli sviluppatori possono inserire blocchi di codice chiamati asincronamente dall'\textit{engine}.
 Questi script personalizzati usufruiscono degli stessi vantaggi transazionali dell'utility principale.
 
 \section{Scelte Tecnologiche}
 \subsection{Linguaggi e Framework}
-L'intero ecosistema è sviluppato sfruttando l'Infor Tools Framework, programmando in \textbf{Baan C (sia 3GL che 4GL)}.
-In parte sono state adottate le \textit{DAL (Data Access Layer)},
-per il restante, sono state utilizzati approcci più classici e a basso livello.
+L'intero ecosistema è sviluppato sfruttando il Framework Infor Tools, programmando in \textbf{Baan C (sia 3GL che 4GL)}.
+In parte sono state adottate le \textit{DAL (Data Access Layer)}, per la parte restante, sono state utilizzati approcci
+più classici e a basso livello.
 
 \subsection{Librerie di Supporto e Strumenti di Build}
 Tutto il coordinamento della configurazione, logging (\texttt{txamgdll0011}) e le \textit{string utility} si basano sulle librerie
@@ -45,4 +67,3 @@ del sistema ERP (DLL native Baan e tool come il \texttt{ttdll string}).
 Le build non prevedono toolchain esterni complessi
 (come Maven o MSBuild), ma si appoggiano direttamente al toolset interno dell'ERP, il quale gestisce i
 legami VRC (Version Release Customer) multitenant per garantirne l'incapsulamento del codice generato al corretto Tenant.
-

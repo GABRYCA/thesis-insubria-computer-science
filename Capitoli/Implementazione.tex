@@ -31,9 +31,11 @@ Il codice sorgente Baan C viene generato riga per riga, definendo le firme delle
 Per farlo in modo conforme all'infrastruttura di Infor LN, il generatore interroga direttamente il Data Dictionary del
 sistema tramite le tabelle di sistema \texttt{ttadv} (in particolare \texttt{tttadv420} per le definizioni delle
 tabelle, \texttt{tttadv422} per i campi e \texttt{tttadv400} per i domini).
-In questo modo, tipi di dato, lunghezze e array sono estratti in automatico dal dizionario.
+Questa interrogazione è delegata al componente \texttt{txamgdll0010} (DD Integration Library), che funge
+da strato di astrazione estraendo in automatico tipi di dato, lunghezze massime e array per assicurare che lo script
+rispetti rigorosamente le definizioni fisiche.
 
-Tali librerie servono ad analizzare la configurazione definita nelle tabelle di mapping (ad esempio \texttt{txamg203})
+Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
 per generare script eseguibili, riducendo drasticamente il tempo manuale richiesto per configurare le regole di trasformazione
 standard e garantendo che il codice finale aderisca alla logica di business (\textit{business logic}).
 
