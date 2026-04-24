@@ -1,0 +1,292 @@
+\chapter{Dettaglio della Struttura delle Tabelle}
+\label{appendix:tabelle}
+
+Viene qui riportata la struttura dettagliata delle tabelle progettate, sviluppate e utilizzate all'interno del Migration Tool.
+Ogni tabella è identificata da un codice univoco con prefisso \texttt{txamg}.
+Ove le prime due lettere (\texttt{tx}) indicano il package \textit{custom}, le successive tre lettere (\texttt{amg}) rappresentano il modulo).
+
+\section{Tabelle di Configurazione e Metadati}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg000 (Parametri Generali)} \label{tab:txamg000} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}%
+{{\bfseries \tablename\ \thetable{} -- Continua dalla pagina precedente}} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{{Continua nella pagina successiva}} \\
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+indt & tc date & UTC Date/Time & 22 & Introduction Date \\
+dsca & tc mcs.str50m & Multibyte String & 50 & Description \\
+lopk & tx amg.cpac & String & 2 & Load Library Package \\
+lomd & tx amg.cmod & String & 3 & Load Library Module \\
+loff & tc mcs.long & Long & 10 & Load Library First Free Number \\
+prpk & tx amg.cpac & String & 2 & Process Library Package \\
+prmd & tx amg.cmod & String & 3 & Process Library Module \\
+prff & tc mcs.long & Long & 10 & Process Library First Free Number \\
+bpat & tc path2 & String & 128 & Base Path for Files \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg100 (Gruppi Tabelle)} \label{tab:txamg100} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg100 (Gruppi Tabelle) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+grou & tx amg.grou & String & 20 & Table Group \\
+dsca & tc dsca & Multibyte String & 30 & Description \\
+bpat & tc path2 & String & 128 & Subfolder \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg110 (Data Files)} \label{tab:txamg110} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg110 (Data Files) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+grou & tx amg.grou & String & 20 & Table Group \\
+dfil & tx amg.dfil & String & 20 & Data File \\
+dsca & tc dsca & Multibyte String & 30 & Description \\
+fast & tx amg.fast & Enumerated & 10 & File Type \\
+sepa & tc mcs.str1 & String & 1 & Separator \\
+frzn & tc yesno & Enumerated & 5 & Frozen \\
+cprs & tx amg.cprs & String & 9 & Load Library \\
+cpac & tx amg.cpac & String & 2 & Ref Table Package \\
+cmod & tx amg.cmod & String & 3 & Ref Table Module \\
+flno & tx amg.flno & String & 3 & Ref Table \\
+mufi & tc yesno & Enumerated & 5 & Multifile Datafile \\
+bpat & tc path2 & String & 128 & Subfolder \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg111 (Campi Data File)} \label{tab:txamg111} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg111 (Campi Data File) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+grou & tx amg.grou & String & 20 & Table Group \\
+dfil & tx amg.dfil & String & 20 & Data File \\
+fdno & tx amg.fdno & Integer & 4 & Field Number \\
+fdnm & tx amg.dfnm & String & 20 & Field Name \\
+dsca & tc dsca & Multibyte String & 30 & Description \\
+stpn & tx amg.fdno & Integer & 4 & Start Position \\
+leng & tx amg.fdno & Integer & 4 & Length \\
+atyp & tx amg.atyp & Enumerated & 10 & Dafile Field Type \\
+adgb & tc mcs.int & Integer & 3 & Digits Before \\
+adga & tc mcs.int & Integer & 3 & Digits After \\
+cpac & tx amg.cpac & String & 2 & Ref Table Package \\
+cmod & tx amg.cmod & String & 3 & Ref Table Module \\
+flno & tx amg.flno & String & 3 & Ref Table \\
+rfnm & tx amg.fdnm & String & 8 & Ref Field Name \\
+\end{longtable}
+
+\section{Tabelle di Mapping e Logica}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg200 (Batch)} \label{tab:txamg200} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg200 (Batch) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+dsca & tc dsca & Multibyte String & 30 & Description \\
+bpat & tc path2 & String & 128 & Subfolder \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg201 (Sequenza Batch)} \label{tab:txamg201} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg201 (Sequenza Batch) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+sequ & tc mcs.int & Integer & 3 & Seq. \\
+grou & tx amg.grou & String & 20 & Table Group \\
+dfil & tx amg.dfil & String & 20 & Data File \\
+migt & tx amg.migt & Enumerated & 10 & Migration Type \\
+cprs & tx amg.cprs & String & 9 & Process Library \\
+ilgn & tx amg.logn & String & 8 & Internal Owner \\
+elgn & tx amg.logn & String & 8 & External Owner \\
+txta & tc txtn & Text & 0 & Notes \\
+frzn & tc yesno & Enumerated & 5 & Frozen \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg202 (Tabelle di Destinazione)} \label{tab:txamg202} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg202 (Tabelle di Destinazione) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+sequ & tc mcs.int & Integer & 3 & Seq. \\
+sseq & tc mcs.int & Integer & 3 & SubSeq. \\
+cpac & tx amg.cpac & String & 2 & Package \\
+cmod & tx amg.cmod & String & 3 & Module \\
+flno & tx amg.flno & String & 3 & Table \\
+flnm & tc dsca & Multibyte String & 30 & Table Name \\
+ilgn & tx amg.logn & String & 8 & Internal Owner \\
+elgn & tx amg.logn & String & 8 & External Owner \\
+shrd & tc yesno & Enumerated & 5 & Shared \\
+udal & tc yesno & Enumerated & 5 & Use DAL \\
+utyp & tx amg.utyp & Enumerated & 10 & DB Operation \\
+txta & tc txtn & Text & 0 & Functional Notes \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg203 (Campi Mappati)} \label{tab:txamg203} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg203 (Campi Mappati) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+sequ & tc mcs.int & Integer & 3 & Seq. \\
+sseq & tc mcs.int & Integer & 3 & SubSeq. \\
+cpac & tx amg.cpac & String & 2 & Package \\
+cmod & tx amg.cmod & String & 3 & Module \\
+flno & tx amg.flno & String & 3 & Table \\
+fdno & tx amg.fdno & Integer & 4 & Field N. \\
+fdnm & tx amg.fdnm & String & 8 & Field Name \\
+icdf & tc yesno & Enumerated & 5 & CDF \\
+isml & tc yesno & Enumerated & 5 & ML \\
+fdsc & tc dsca & Multibyte String & 30 & Field Desc \\
+comb & tc yesno & Enumerated & 5 & Comb. \\
+pacd & tx amg.cpac & String & 2 & Domain Package \\
+cdom & tx amg.cdom & String & 12 & Domain \\
+type & tx amg.type & Enumerated & 10 & Data Type \\
+digb & tc mcs.int & Integer & 3 & Digit Before \\
+diga & tc mcs.int & Integer & 3 & Digit After \\
+iniv & tc dsca & Multibyte String & 30 & Initial Value \\
+mand & tc yesno & Enumerated & 5 & Mandatory \\
+rfpa & tx amg.cpac & String & 2 & Ref. Table Package \\
+rfmo & tx amg.cmod & String & 3 & Ref. Table Module \\
+rffn & tx amg.cmod & String & 3 & Ref. Table \\
+rffd & tx amg.fdnm & String & 8 & Ref. Field \\
+dept & tc mcs.int & Integer & 3 & Depth \\
+\end{longtable}
+
+\section{Tabelle di Esecuzione e Log}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg300 (Run di Esecuzione)} \label{tab:txamg300} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg300 (Run di Esecuzione) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+runs & tc mcs.long & Long & 10 & Run \\
+ncmp & tc ncmp & Integer & 4 & Target Company \\
+stdt & tc date & UTC Date/Time & 22 & Start Date \\
+endt & tc date & UTC Date/Time & 22 & End Date \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg301 (Log Esecuzione per Batch)} \label{tab:txamg301} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg301 (Log Esecuzione per Batch) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+runs & tc mcs.long & Long & 10 & Run \\
+sequ & tc mcs.long & Long & 10 & Sequence \\
+stdt & tc date & UTC Date/Time & 22 & Start Date \\
+endt & tc date & UTC Date/Time & 22 & End Date \\
+rere & tc mcs.long & Long & 10 & Records Read \\
+repr & tc mcs.long & Long & 10 & Record Processed \\
+reer & tc mcs.long & Long & 10 & Records Discarded \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg302 (Log Esecuzione per SubSeq)} \label{tab:txamg302} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg302 (Log Esecuzione per SubSeq) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+runs & tc mcs.long & Long & 10 & Run \\
+sequ & tc mcs.long & Long & 10 & Sequence \\
+sseq & tc mcs.long & Long & 10 & Subsequence \\
+stdt & tc date & UTC Date/Time & 22 & Start Date \\
+endt & tc date & UTC Date/Time & 22 & End Date \\
+\end{longtable}
+
+\begin{longtable}{@{} l l l r p{6cm} @{}}
+\caption{Struttura della tabella txamg303 (Errori di Esecuzione)} \label{tab:txamg303} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endfirsthead
+\caption[]{Struttura della tabella txamg303 (Errori di Esecuzione) -- Continua} \\
+\toprule
+\textbf{Campo} & \textbf{Dominio} & \textbf{Tipo Dato} & \textbf{Lung.} & \textbf{Descrizione} \\
+\midrule
+\endhead
+cbat & tx amg.cbat & String & 20 & Batch \\
+runs & tc mcs.long & Long & 10 & Run \\
+sequ & tc mcs.long & Long & 10 & Sequence \\
+sseq & tc mcs.long & Long & 10 & Subsequence \\
+rere & tc mcs.long & Long & 10 & Read Record \\
+line & tc mcs.long & Long & 10 & Line \\
+errc & tc mcs.int & Integer & 3 & Error Code \\
+errm & tc mcs.s999m & Multibyte String & 999 & Error Message \\
+\end{longtable}
+
+

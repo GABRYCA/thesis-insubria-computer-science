@@ -59,181 +59,116 @@ Si evidenziano, per esempio:
     destinazione avviene nelle interfacce di visualizzazione delle tabelle \textit{target} (\texttt{txamg2102m000}) e \textit{fields mapping} (\texttt{txamg2103m000}).
 \end{itemize}
 
-Tabella di riepilogo Librerie (DLL) e DAL sviluppate:
+Nelle seguenti sezioni vengono riportati gli elenchi dei componenti software sviluppati, suddivisi per tipologia.
+
+\subsection{Librerie (DLL) e Data Access Layer (DAL)}
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|p{7cm}|}
-        \hline
-        \textbf{Tipo} & \textbf {Codice} & \textbf{Descrizione} \\
-        \hline
-        \textbf{Libreria (DLL)} & \texttt{txamgdll0010} & AlteaIN Migration Tool - DD Integration Library \\
-        \hline
-        \textbf{Libreria (DLL)} & \texttt{txamgdll0011} & AlteaIN Migration Tool - Metadata Management \& Error Logging \\
-        \hline
-        \textbf{Libreria (DLL)} & \texttt{txamgdll0012} & AlteaIN Migration Tool - Script Generator - Load DLL \\
-        \hline
-        \textbf{Libreria (DLL)} & \texttt{txamgdll0013} & AlteaIN Migration Tool - Script Generator - Process DLL \\
-        \hline
-        \textbf{DAL} & \texttt{txamg000} & DAL for txamg000 \\
-        \hline
-        \textbf{DAL} & \texttt{txamg111} & DAL for txamg111 \\
-        \hline
-        \textbf{DAL} & \texttt{txamg203} & DAL for txamg203 \\
-        \hline
-        \textbf{DAL} & \texttt{txamg1110} & Data Files \\
-        \hline
-        \textbf{DAL} & \texttt{txamg3200} & Execute Batch Runs \\
-        \hline
-        \textbf{DAL} & \texttt{txamg3500} & Runs by Batch \\
-        \hline
-        \textbf{DAL} & \texttt{txamg3501} & Runs by Batch/Datafile \\
-        \hline
-        \textbf{DAL} & \texttt{txamg3502} & Runs by Batch/Datafile/Table \\
-        \hline
-        \textbf{DAL} & \texttt{txamg3503} & Runs Errors \\
-        \hline
+    \begin{tabular}{l l p{8cm}}
+        \toprule
+        \textbf{Tipo} & \textbf{Codice} & \textbf{Descrizione} \\
+        \midrule
+        Libreria & \texttt{txamgdll0010} & AlteaIN Migration Tool - DD Integration Library \\
+        Libreria & \texttt{txamgdll0011} & AlteaIN Migration Tool - Metadata Management \& Error Logging \\
+        Libreria & \texttt{txamgdll0012} & AlteaIN Migration Tool - Script Generator - Load DLL \\
+        Libreria & \texttt{txamgdll0013} & AlteaIN Migration Tool - Script Generator - Process DLL \\
+        \addlinespace
+        DAL & \texttt{txamg000} & DAL for txamg000 \\
+        DAL & \texttt{txamg111} & DAL for txamg111 \\
+        DAL & \texttt{txamg203} & DAL for txamg203 \\
+        DAL & \texttt{txamg1110} & Data Files \\
+        DAL & \texttt{txamg3200} & Execute Batch Runs \\
+        DAL & \texttt{txamg3500} & Runs by Batch \\
+        DAL & \texttt{txamg3501} & Runs by Batch/Datafile \\
+        DAL & \texttt{txamg3502} & Runs by Batch/Datafile/Table \\
+        DAL & \texttt{txamg3503} & Runs Errors \\
+        \bottomrule
     \end{tabular}
-    \caption{Librerie (DLL) e DAL - Migration Tool}
+    \caption{Elenco delle Librerie (DLL) e DAL sviluppati.}
     \label{tab:dll_dal}
 \end{table}
 
-Tabella di riepilogo delle Tabelle:
+\subsection{Tabelle di Sistema e Sessioni Operative}
+
+Elenco delle principali tabelle (le strutture dettagliate sono consultabili nell'Appendice \ref{appendix:tabelle}) e
+delle sessioni utilizzate.
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{Codice} & \textbf{Descrizione} \\
-        \hline
+    \begin{tabular}{l p{9cm}}
+        \toprule
+        \textbf{Tabella} & \textbf{Descrizione} \\
+        \midrule
         \texttt{txamg000} & AlteaIN Migration Tool Parameters \\
-        \hline
-        \texttt{txamg100} & Table groups \\
-        \hline
-        \texttt{txamg110} & Datafiles \\
-        \hline
-        \texttt{txamg111} & DataFile Fields \\
-        \hline
-        \texttt{txamg200} & Batch \\
-        \hline
-        \texttt{txamg201} & BatchSequences \\
-        \hline
-        \texttt{txamg202} & Target Tables \\
-        \hline
-        \texttt{txamg203} & MappedFields \\
-        \hline
-        \texttt{txamg300} & Runs by Batch \\
-        \hline
-        \texttt{txamg301} & Runs by Batch/Datafile \\
-        \hline
-        \texttt{txamg302} & Runs by Batch/Datafile/Table \\
-        \hline
-        \texttt{txamg303} & Runs Errors \\
-        \hline
+        \texttt{txamg100} & Table groups definitions \\
+        \texttt{txamg110} & Datafiles source definitions \\
+        \texttt{txamg111} & DataFile Fields specifications \\
+        \texttt{txamg200} & Batch definitions \\
+        \texttt{txamg201} & Batch Sequences execution order \\
+        \texttt{txamg202} & Target Tables mapping \\
+        \texttt{txamg203} & MappedFields specific logic \\
+        \texttt{txamg300} & Runs by Batch execution logs \\
+        \texttt{txamg301} & Runs by Batch/Datafile detailed logs \\
+        \texttt{txamg302} & Runs by Batch/Datafile/Table detailed logs \\
+        \texttt{txamg303} & Runs Errors repository \\
+        \bottomrule
     \end{tabular}
-    \caption{Tabelle del Migration Tool}
+    \caption{Riepilogo delle tabelle introdotte dal Migration Tool.}
     \label{tab:tabelle}
 \end{table}
 
-Tabella di riepilogo delle sessioni:
-
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{Codice Sessione} & \textbf{Descrizione} \\
-        \hline
+    \begin{tabular}{l p{9cm}}
+        \toprule
+        \textbf{Sessione} & \textbf{Descrizione} \\
+        \midrule
         \texttt{txamg0100m000} & Parameters \\
-        \hline
         \texttt{txamg1100m000} & Datafile Groups \\
-        \hline
-        \texttt{txamg1100m900} & Datafile Groups \\
-        \hline
         \texttt{txamg1110m000} & Data Files \\
-        \hline
-        \texttt{txamg1110m900} & Data Files \\
-        \hline
         \texttt{txamg1111m000} & DataFile Fields \\
-        \hline
         \texttt{txamg2100m000} & Batches \\
-        \hline
-        \texttt{txamg2100m900} & Batches \\
-        \hline
         \texttt{txamg2101m000} & Batch Sequences \\
-        \hline
-        \texttt{txamg2101m900} & Batch Sequences \\
-        \hline
         \texttt{txamg2102m000} & Batch Target Tables \\
-        \hline
-        \texttt{txamg2102m900} & Batch Target Tables \\
-        \hline
         \texttt{txamg2103m000} & Table Mappings \\
-        \hline
-        \texttt{txamg2103s000} & Table Mappings \\
-        \hline
         \texttt{txamg3200m000} & Execute Batch Runs \\
-        \hline
         \texttt{txamg3500m000} & Runs by Batch \\
-        \hline
-        \texttt{txamg3501m000} & Runs by Batch/Datafile \\
-        \hline
-        \texttt{txamg3502m000} & Runs by Batch/Datafile/Table \\
-        \hline
         \texttt{txamg3503m000} & Runs Errors \\
-        \hline
+        \bottomrule
     \end{tabular}
-    \caption{Sessioni (m-sessions e s-sessions) del Migration Tool}
+    \caption{Sessioni principali sviluppate per il Migration Tool.}
     \label{tab:sessioni}
 \end{table}
 
-Tabella di riepilogo dei Domini:
-
 \begin{table}[H]
     \centering
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{Codice Domain} & \textbf{Descrizione} \\
-        \hline
-        \texttt{txamg.atyp} & DataFile Field Type - Enumerated \\
-        \hline
-        \texttt{txamg.cbat} & Batch - String \\
-        \hline
-        \texttt{txamg.cdom} & Domain - String \\
-        \hline
-        \texttt{txamg.cmod} & Module - String \\
-        \hline
-        \texttt{txamg.cpac} & Package - String \\
-        \hline
-        \texttt{txamg.cprs} & Script/Library Code - String \\
-        \hline
-        \texttt{txamg.dfil} & Data File - String \\
-        \hline
-        \texttt{txamg.dfnm} & Data File Field Name - String \\
-        \hline
-        \texttt{txamg.fast} & ASCII File Format - Enumerated \\
-        \hline
-        \texttt{txamg.fdnm} & Field Name - String \\
-        \hline
-        \texttt{txamg.fdno} & Field Number - Integer \\
-        \hline
-        \texttt{txamg.flno} & Table - String \\
-        \hline
-        \texttt{txamg.grou} & Table Groups - String \\
-        \hline
-        \texttt{txamg.logn} & Login - String \\
-        \hline
-        \texttt{txamg.mapl} & Map Logic - Enumerated \\
-        \hline
-        \texttt{txamg.migt} & Migration Type - Enumerated \\
-        \hline
-        \texttt{txamg.refm} & Reference Mode - Enumerated \\
-        \hline
-        \texttt{txamg.type} & Domain Type - Enumerated \\
-        \hline
-        \texttt{txamg.utyp} & Update Type - Enumerated \\
-        \hline
+    \begin{tabular}{l p{9cm}}
+        \toprule
+        \textbf{Dominio} & \textbf{Descrizione} \\
+        \midrule
+        \texttt{txamg.atyp} & DataFile Field Type (Enumerated) \\
+        \texttt{txamg.cbat} & Batch (String) \\
+        \texttt{txamg.cdom} & Domain (String) \\
+        \texttt{txamg.cmod} & Module (String) \\
+        \texttt{txamg.cpac} & Package (String) \\
+        \texttt{txamg.cprs} & Script/Library Code (String) \\
+        \texttt{txamg.dfil} & Data File (String) \\
+        \texttt{txamg.dfnm} & Data File Field Name (String) \\
+        \texttt{txamg.fast} & ASCII File Format (Enumerated) \\
+        \texttt{txamg.fdnm} & Field Name (String) \\
+        \texttt{txamg.fdno} & Field Number (Integer) \\
+        \texttt{txamg.flno} & Table (String) \\
+        \texttt{txamg.grou} & Table Groups (String) \\
+        \texttt{txamg.logn} & Login (String) \\
+        \texttt{txamg.mapl} & Map Logic (Enumerated) \\
+        \texttt{txamg.migt} & Migration Type (Enumerated) \\
+        \texttt{txamg.refm} & Reference Mode (Enumerated) \\
+        \texttt{txamg.type} & Domain Type (Enumerated) \\
+        \texttt{txamg.utyp} & Update Type (Enumerated) \\
+        \bottomrule
     \end{tabular}
-    \caption{Domini personalizzati del Migration Tool}
+    \caption{Domini personalizzati tx del Migration Tool.}
     \label{tab:domini}
 \end{table}
 
