@@ -3,40 +3,40 @@
 \section{Obiettivi Raggiunti e Risultati Ottenuti}
 Nel percorso di questa tesi, è stato analizzato, implementato e documentato un completo \textit{Migration Tool}
 (pacchetto aziendale \texttt{txamg}) per l'ambiente Infor LN. C'erano requisiti particolarmente sfidanti dietro a questo progetto, nati per la
-maggior parte dalla natura multitenant dei nuovi ambienti CloudSuite, che sono stati affrontati offrendo un approccio fortemente parametrico
+maggior parte dalla natura \textit{multitenant} dei nuovi ambienti \textit{CloudSuite}, che sono stati affrontati offrendo un approccio fortemente parametrico
 e automatizzato.
 
-Lo sviluppo di librerie capaci di generare dinamicamente codice leggendo il dizionario (come \texttt{txamgdll0012} e \texttt{txamgdll0013}) e un importer capace di decifrare nativamente i formati Infor Exchange,
+Lo sviluppo di librerie capaci di generare dinamicamente codice leggendo il dizionario (come \texttt{txamgdll0012} e \texttt{txamgdll0013}) e un \textit{importer} capace di decifrare nativamente i formati Infor \textit{Exchange},
 ha permesso di centrare in pieno l'obiettivo aziendale richiesto.
-In questo modo si sono potuti garantire ottimi risultati in termini di affidabilità e performance, alleggerendo notevolmente i consulenti dallo snervante e ripetitivo compito della trascrizione manuale, che spesso si traduceva in facili errori.
+In questo modo si sono potuti garantire ottimi risultati in termini di affidabilità e \textit{performance}, alleggerendo notevolmente i consulenti dallo snervante e ripetitivo compito della trascrizione manuale, che spesso si traduceva in facili errori.
 
 \section{Sfide Incontrate}
-Le principali difficoltà che hanno accompagnato tutto il periodo di progetto sono nate dal dover imporre un mapping rigoroso, lavorando in gran parte su un sistema chiuso (proprietario Infor),
+Le principali difficoltà che hanno accompagnato tutto il periodo di progetto sono nate dal dover imporre un \textit{mapping} rigoroso, lavorando in gran parte su un sistema chiuso (proprietario Infor),
 in cui l'utilizzo esclusivo dei linguaggi Baan C (3GL e 4GL) ha rappresentato il vincolo tecnico ineliminabile.
 
-Lavorando in questo ecosistema ristretto, avere la possibilità di interfacciarsi con il compilatore interno (e validare il codice target a runtime su ogni specifico tenant)
-ha fatto un'enorme differenza dal punto di vista dell'analisi e debug.
-Tuttavia, standardizzare formati eterogenei del mondo legacy ha imposto la creazione di strumenti di parsing e configurazione di \textit{Runs} batch piuttosto complessi per il modulo \texttt{txamg200}.
+Lavorando in questo ecosistema ristretto, avere la possibilità di interfacciarsi con il compilatore interno (e validare il codice \textit{target} a \textit{runtime} su ogni specifico \textit{tenant})
+ha fatto un'enorme differenza dal punto di vista dell'analisi e \textit{debug}.
+Tuttavia, standardizzare formati eterogenei del mondo \textit{legacy} ha imposto la creazione di strumenti di \textit{parsing} e configurazione di \textit{Runs} \textit{batch} piuttosto complessi per il modulo \texttt{txamg200}.
 
-Durante lo fase di studio e sviluppo, è stato necessario affrontare una fase di training sia base che avanzata dei tool
-Infor, quali struttura, nomenclatura, linguaggi, logica di funzionamento, architettura come \textit{middleware ION}, BOD, API e \textit{Web Services}
-con formati XML legacy come SOAP (non REST), in tempi molto brevi rispetto a quanto normalmente previsto (diversi mesi), al fine
+Durante lo fase di studio e sviluppo, è stato necessario affrontare una fase di \textit{training} sia base che avanzata dei \textit{tool}
+Infor, quali struttura, nomenclatura, linguaggi, logica di funzionamento, architettura come \textit{middleware} \textit{ION}, \textit{BOD}, \textit{API} e \textit{Web Services}
+con formati \textit{XML} \textit{legacy} come \textit{SOAP} (non \textit{REST}), in tempi molto brevi rispetto a quanto normalmente previsto (diversi mesi), al fine
 di completare il progetto in tempo e completare questa tesi.
 
-Si fa anche notare la natura molto restrittiva dell'ERP Infor, che non permette l'accesso nemmeno ad amministratori di sistema
-a parti di API o funzionalità che semplificherebbero lo sviluppo, oltre alla mancata documentazione delle stesse in molti casi
-a causa di transizioni a più alto livello aziendale, lasciando allo sviluppatore finale (noi) "scoprire" ed esplorare
-tramite trial-and-error delle soluzioni, spesso non standard, ove possibile.
+Si fa anche notare la natura molto restrittiva dell'\textit{ERP} Infor, che non permette l'accesso nemmeno ad amministratori di sistema
+a parti di \textit{API} o funzionalità che semplificherebbero lo sviluppo, oltre alla mancata documentazione delle stesse in molti casi
+a causa di transizioni a più alto livello aziendale, lasciando allo sviluppatore finale (noi) \enquote{scoprire} ed esplorare
+tramite \textit{trial-and-error} delle soluzioni, spesso non \textit{standard}, ove possibile.
 Questo ha dato origine molti tempi morti, complicando il contesto generale
 
 
 \section{Sviluppi Futuri}
-Nonostante lo standard d'eccellenza raggiunto, si ritiene possibile evolvere ulteriormente il tool in diverse direzioni.
+Nonostante lo \textit{standard} d'eccellenza raggiunto, si ritiene possibile evolvere ulteriormente il \textit{tool} in diverse direzioni.
 
-In primo luogo, lo schema architetturale per le estensioni \textit{Custom} potrebbe venire affiancato da procedure di \textit{Machine Learning} (addestrate sui mapping legacy)
-in grado di suggerire i mapping e i moduli di conversione per grandi volumi di tabelle non ancora definite
-(senza l'input umano in interfacce e Sessioni \texttt{txamg2103}).
+In primo luogo, lo schema architetturale per le estensioni \textit{Custom} potrebbe venire affiancato da procedure di \textit{Machine Learning} (addestrate sui \textit{mapping} \textit{legacy})
+in grado di suggerire i \textit{mapping} e i moduli di conversione per grandi volumi di tabelle non ancora definite
+(senza l'\textit{input} umano in interfacce e Sessioni \texttt{txamg2103}).
 Inoltre, la visualizzazione delle specifiche tramite esportazione
-a modelli UML o grafi digitali, se automatizzata nativamente dal framework, fornirebbe reportistica in \textit{real-time} durante
+a modelli \textit{UML} o grafi digitali, se automatizzata nativamente dal \textit{framework}, fornirebbe reportistica in \textit{real-time} durante
 la fase di studio del cliente prima dell'operazione di caricamento, riducendo di fatto tempi e costi
-e supportando i consulenti AlteaIN, funzionali e Infor verso transizioni Cloud più semplici.
+e supportando i consulenti AlteaIN, funzionali e Infor verso transizioni \textit{Cloud} più semplici.

@@ -2,14 +2,14 @@
 
 \section{Scenario di Riferimento}
 \subsection{Strumento di Migrazione Esistente}
-Negli ambienti legacy, come già menzionato nel capitolo precedente,il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
-manuali e script ad hoc.
+Negli ambienti \textit{legacy}, come già menzionato nel capitolo precedente,il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
+manuali e \textit{script} \textit{ad hoc}.
 
-L'operatore (noi) era costretto a sviluppare script personalizzati per ogni singola tabella e sessione, 
-con tempi lunghi di realizzazione e grandi rischi inerenti alla trascrizione manuale delle logiche di mapping.
+L'operatore (noi) era costretto a sviluppare \textit{script} personalizzati per ogni singola tabella e sessione, 
+con lunghi tempi di realizzazione e grandi rischi inerenti alla trascrizione manuale delle logiche di \textit{mapping}.
 
 % \subsection{Necessità di Ottimizzazione}
-Inoltre, cambiamenti da parte di Infor e nuovi standard più restrittivi hanno reso le operazioni manuali molto più
+Inoltre, cambiamenti da parte di Infor e nuovi \textit{standard} più restrittivi hanno reso le operazioni manuali molto più
 complesse \cite{erpMigration}.
 Emerge quindi la necessità aziendale di innovare, ottimizzare e automatizzare il processo
 con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
@@ -19,43 +19,43 @@ I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovreb
 con gli stakeholder.
 
 \subsection{Sviluppo dell'Importer Infor Exchange}
-Il sistema dovrà supportare l'input di file e strutture generate dallo strumento preesistente nativo di Infor Exchange.
+Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo strumento preesistente nativo di Infor \textit{Exchange}.
 
-Tali file presentano specifici layout (come formati testuali ASCII o delimitati) che dovranno essere interpretati per
-popolare il dizionario \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields).
+Tali file presentano specifici \textit{layout} (come formati testuali \textit{ASCII} o delimitati) che dovranno essere interpretati per
+popolare il dizionario \texttt{txamg110} (\textit{Datafiles}) e \texttt{txamg111} (\textit{DataFile Fields}).
 
 % \subsection{Generazione Dinamica del Codice}
 Alla base del \textit{Migration Tool} ci sarà lo strumento generatore di codice.
-Partendo dalle tabelle di mapping (es. \texttt{txamg203}), lo strumento dovrà generare script di elaborazione e
+Partendo dalle tabelle di \textit{mapping} (es. \texttt{txamg203}), lo strumento dovrà generare \textit{script} di elaborazione e
 conversione, % invocando i compilatori interni Infor e producendo file eseguibili
 senza l'intervento manuale del programmatore.
 
 \subsection{Estensibilità con Funzioni Ad-hoc}
-Nonostante l'automazione, alcune regole di legacy di business non potranno essere legate a semplici assegnazioni.
+Nonostante l'automazione, alcune regole di \textit{legacy} di \textit{business} non potranno essere legate a semplici assegnazioni.
 
-Viene quindi la necessità di una funzionalità di callback per permettere, ad opera dello sviluppatore, l'inserimento di
-script personalizzati che verranno inseriti nel processo principale durante l'esecuzione batch (\texttt{txamg3200}).
+Viene quindi la necessità di una funzionalità di \textit{callback} per permettere, ad opera dello sviluppatore, l'inserimento di
+\textit{script} personalizzati che verranno inseriti nel processo principale durante l'esecuzione \textit{batch} (\texttt{txamg3200}).
 
 \subsection{Integrazione con lo Strumento Documentale}
-Per garantire l'allineamento con gli standard del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
+Per garantire l'allineamento con gli \textit{standard} del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
 documentazione aziendale, permettendo la produzione ed esportazione di specifiche tecniche di migrazione,
-mappature, eccezioni e log generati in fase di esecuzione (necessari per debugging).
+\textit{mappature}, eccezioni e \textit{log} generati in fase di esecuzione (necessari per \textit{debugging}).
 
 \section{Requisiti Non Funzionali}
 I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali del software.
 
 \subsection{Manutenibilità ed Estensibilità}
-Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il framework Infor Tools,
-così da garantirne la compatibilità con future release dell'ERP e manutenibilità semplificata per il comparto IT aziendale.
+Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il \textit{framework} Infor Tools,
+così da garantirne la compatibilità con future \textit{release} dell'\textit{ERP} e manutenibilità semplificata per il comparto IT aziendale.
 
 \subsection{Sicurezza e Data Integrity in Multitenancy}
-Dato che il sistema tratterà dati di tipo core (come informazioni private o riservate) dell'azienda cliente in contesti
-Cloud, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono priorità assolute e
+Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti
+\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono priorità assolute e
 fondamentali.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
 
 %\subsection{Prestazioni e Affidabilità}
 Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
-una elaborazione a blocchi al fine di minimizzare i tempi morti generati dalla latenza di rete verso i server CloudSuite remoti.
+una elaborazione a blocchi al fine di minimizzare i tempi morti generati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
 
 \section{Modello dei Dati}
 \subsection{Analisi Strutture Dati Coinvolte}
@@ -81,7 +81,7 @@ Schema ER del modello dati del Migration Tool (Figura~\ref{fig:er_schema}):
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{Immagini/Schema_1}
-    \caption{Schema ER del Modello Dati del modello dati del Migration Tool}
+    \caption{Schema ER del Modello Dati del Migration Tool}
     \label{fig:er_schema}
 \end{figure}
 

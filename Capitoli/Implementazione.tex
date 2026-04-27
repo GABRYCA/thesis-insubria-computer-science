@@ -3,14 +3,14 @@
 \section{Sviluppo dell'Importer Infor Exchange}
 
 \subsection{Gestione dei Formati e Parsing}
-L'importer è stato sviluppato come un modulo d'input che si interpone tra i file d'ingresso
-(prodotti dai vecchi server o estratti tramite tool legacy, a volte anche Access) e le tabelle di definizione del nuovo sistema.
+L'importer è stato sviluppato come un modulo d'\textit{input} che si interpone tra i file d'ingresso
+(prodotti dai vecchi \textit{server} o estratti tramite \textit{tool} \textit{legacy}, a volte anche Access) e le tabelle di definizione del nuovo sistema.
 
-La libreria dedicata alla gestione dei metadata (\texttt{txamgdll0011}) prende in carico l'interpretazione dei metadati
-(quali formati delimitati o logiche ASCII a lunghezza fissa) eseguendo conversioni su base parametrica secondo
+La libreria dedicata alla gestione dei \textit{metadata} (\texttt{txamgdll0011}) prende in carico l'interpretazione dei metadati
+(quali formati delimitati o logiche \textit{ASCII} a lunghezza fissa) eseguendo conversioni su base parametrica secondo
 l'enumerato \texttt{txamg.fast}.
 
-Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o padding dei campi vuoti.
+Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o \textit{padding} dei campi vuoti.
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
@@ -39,23 +39,23 @@ function void GeneraImportUnpack(domain txamg.dfil datafile)
     Riga("}")
 }
 \end{minted}
-\caption{Esempio di generazione del codice per il parsing di stringhe ASCII (da \texttt{txamgdll0012}).}
+\caption{Esempio di generazione del codice per il \textit{parsing} di stringhe \textit{ASCII} (da \texttt{txamgdll0012}).}
 \label{lst:parsing_gen}
 \end{listing}
 
 In questo estratto viene mostrato come il generatore iteri sui campi definiti per
 il \textit{datafile} (\texttt{txamg111}) per costruire una chiamata a \texttt{string.scan}.
-Questa funzione Baan C viene poi usata nello script generato per \enquote{spacchettare} la riga letta dal file ASCII nelle
+Questa funzione Baan C viene poi usata nello \textit{script} generato per \enquote{spacchettare} la riga letta dal file \textit{ASCII} nelle
 variabili corrispondenti ai campi.
 
 \subsection{Ricostruzione delle Definizioni dei File da Migrare}
-L'obiettivo secondario dell'importer è auto-compilare il setup dello stesso \textit{Migration Tool}.
-Utilizzando le definizioni originarie dei file (le tabelle legacy), il programma crea dinamicamente o aggiorna una
-mappatura interna dei \textit{Data Files} attraverso Sessioni back-end come \texttt{txamg1110m000}.
+L'obiettivo secondario dell'importer è auto-compilare il \textit{setup} dello stesso \textit{Migration Tool}.
+Utilizzando le definizioni originarie dei file (le tabelle \textit{legacy}), il programma crea dinamicamente o aggiorna una
+mappatura interna dei \textit{Data Files} attraverso Sessioni \textit{back-end} come \texttt{txamg1110m000}.
 
 Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) ed i tipi di dominio correlati (\texttt{txamg.atyp}) vengono
 riversati nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
-di data-mapping manuale verso le tabelle target CloudSuite.
+di \textit{data-mapping} manuale verso le tabelle \textit{target} \textit{CloudSuite}.
 
 L'utente può gestire i gruppi di file ed i singoli file sorgente tramite le sessioni mostrate in
 Figura~\ref{fig:datafile_groups} e~\ref{fig:datafiles}.
@@ -86,16 +86,16 @@ I dettagli dei campi per ogni file, inclusi i domini e le lunghezze, è gestito 
 
 \section{Implementazione del Generatore di Codice}
 \subsection{Creazione Dinamica del Codice}
-La generazione dinamica del codice è gestita mediante apposite librerie DLL (\textit{Dynamic Link Library}) fornite
-nel sistema Infor, quali \texttt{txamgdll0012} (Script Generator - Load dll) e \texttt{txamgdll0013} (Script Generator - Process dll).
+La generazione dinamica del codice è gestita mediante apposite librerie \textit{DLL} (\textit{Dynamic Link Library}) fornite
+nel sistema Infor, quali \texttt{txamgdll0012} (\textit{Script Generator - Load dll}) e \texttt{txamgdll0013} (\textit{Script Generator - Process dll}).
 
 Il codice sorgente Baan C viene generato riga per riga, definendo le firme delle funzioni
 (es. \texttt{function extern long process.import.file...()}) e le variabili necessarie.
-Per farlo in modo conforme all'infrastruttura di Infor LN, il generatore interroga direttamente il Data Dictionary del
+Per farlo in modo conforme all'infrastruttura di Infor LN, il generatore interroga direttamente il \textit{Data Dictionary} del
 sistema tramite le tabelle di sistema \texttt{ttadv} (in particolare \texttt{tttadv420} per le definizioni delle
 tabelle, \texttt{tttadv422} per i campi e \texttt{tttadv400} per i domini).
-Questa interrogazione è delegata al componente \texttt{txamgdll0010} (DD Integration Library), che funge
-da strato di astrazione estraendo in automatico tipi di dato, lunghezze massime e array per assicurare che lo script
+Questa interrogazione è delegata al componente \texttt{txamgdll0010} (\textit{DD Integration Library}), che funge
+da strato di astrazione estraendo in automatico tipi di dato, lunghezze massime e \textit{array} per assicurare che lo \textit{script}
 rispetti le definizioni fisiche corrette.
 
 Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
