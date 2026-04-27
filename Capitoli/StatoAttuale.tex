@@ -10,11 +10,23 @@ grado di personalizzazione (\textit{customization}, in Infor LN definiti come \t
 Tuttavia, oggi si sta assistendo ad una transizione verso nuove soluzioni \textit{Cloud}.
 
 % \subsection{Architetture Multitenant}
-Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura degli \textit{ERP} moderni \cite{multitenantCloud}.
-Ove, una singola istanza del software e infrastruttura servono più clienti (definiti come \textit{tenant}).
-Questo approccio offre scalabilità, aggiornamenti continui e ottimizzazione dei costi, ma anche grandi sfide nell'ambito
-della gestione e segregazione dei dati, nonché della sicurezza, richiedendo che ogni processo di migrazione operi
-secondo specifici vincoli di integrità \cite{dataMigrationStrategies}.
+\subsection{Architetture Multitenant e Segregazione dei Dati}
+Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni \cite{multitenantCloud}. 
+A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software 
+fisicamente isolata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici organizzazioni clienti (i cosiddetti \textit{tenant}, in un ambiente \textit{cloud}).
+
+Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi, 
+ottimizzazione delle risorse e abbassamento dei costi di manutenzione server), ma pone grandi sfide architetturali. La principale problematica risiede 
+nell'isolamento logico delle informazioni: essendo i dati fisicamente residenti nello stesso database, è vitale garantire una rigorosa divisione (segregazione) per evitare violazioni di sicurezza e 
+fughe di dati (data leak) tra aziende ospitate sulla stessa piattaforma.
+
+Nei sistemi come Infor \textit{CloudSuite Enterprise}, la segregazione dei dati viene applicata a più livelli. A livello di infrastruttura \textit{Cloud}, 
+l'isolamento del \textit{tenant} è garantito da chiavi di crittografia specifiche e partizionamenti logici. A livello di applicativo, la storicizzazione e l'isolamento 
+avvengono tramite l'uso sistematico di identificativi aziendali (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti implicitamente dal \textit{framework} in ogni query al database. 
+
+Da questa architettura deriva la necessità che ogni processo di migrazione operi secondo vincoli di integrità estremamente rigidi \cite{dataMigrationStrategies}. Qualsiasi inserimento massivo di dati deve necessariamente 
+passare attraverso strati intermedi di validazione (come i \textit{Data Access Layer}) che assicurino che il dato venga assegnato non solo alla tabella corretta, ma anche e soprattutto all'identificativo del \textit{tenant} 
+di destinazione, senza possibilità di errore o sovrascrittura accidentale errata.
 
 \section{Infor LN e CloudSuite Enterprise}
 Infor LN, nato con il nome di Baan \textit{ERP}, è uno dei principali \textit{ERP} nel settore manifatturiero industriale \cite{inforLN2025} a livello internazionale.
@@ -69,6 +81,30 @@ Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tra
 mappatura superano la complessità gestibile nativamente dall'\textit{Exchange}.
 
 \section{Migrazione Dati nei Sistemi ERP}
+\subsection{Il Paradigma ETL (Extract, Transform, Load)}
+Per capire appieno le dinamiche e le difficoltà che nascono dal processo di migrazione dei dati, è essenziale inquadrare tali operazioni all'interno del paradigma 
+architetturale \textit{ETL} (\textit{Extract, Transform, Load}). Questo modello teorico descrive le tre fasi fondamentali necessarie per prelevare dati da uno o 
+più sistemi sorgenti (\textit{source}), spesso eterogenei e obsoleti, per prepararli e infine inserirli in un sistema di destinazione (\textit{target}).
+
+Nello specifico, le tre fasi si articolano nel seguente modo:
+\begin{itemize}
+    \item \textbf{Extract (Estrazione):} Rappresenta il processo di lettura e acquisizione delle informazioni dal sistema \textit{legacy}. In questa fase i dati spesso 
+    si presentano in formati non strutturati o debolmente strutturati (come file CSV, esportazioni ASCII a larghezza fissa o vecchi archivi 
+    relazionali non normalizzati). La priorità in questa fase è estrarre il dato senza alterarne la semantica originale, gestendo le problematiche di codifica 
+    dei caratteri (ad esempio \textit{UTF-8} contro vecchie codifiche \textit{ISO}) e di formattazione.
+    \item \textbf{Transform (Trasformazione):} È la fase più complessa e importante dell'intero paradigma. I dati grezzi appena estratti vengono analizzati, 
+    ripuliti e manipolati per adattarsi alle regole di \textit{business} del nuovo \textit{ERP}. Ciò include operazioni di \textit{data cleansing} 
+    (rimozione dei duplicati o record corrotti), \textit{data mapping} (associazione logica tra i campi del vecchio sistema e del nuovo), e \textit{casting} dei tipi 
+    (ad esempio, la conversione di una stringa testuale di dati in un \textit{timestamp} UTC). 
+    \item \textbf{Load (Caricamento):} L'ultima fase consiste nella scrittura fisica dei dati processati nel database \textit{target}. In ambienti complessi, 
+    questa scrittura non avviene quasi mai tramite interrogazioni SQL dirette, bensì passando attraverso \textit{API} o livelli di astrazione (come il DAL) che si 
+    occupano di avviare eventi aziendali, ricalcolare saldi e far scattare controlli di integrità referenziale.
+\end{itemize}
+
+Lo sviluppo di uno strumento software automatizzato (\textit{tool}), come quello trattato in questa tesi, risponde all'esigenza di coprire tutte le fasi del 
+paradigma \textit{ETL} all'interno del medesimo ecosistema. L'obiettivo è superare le classiche frammentazioni dove sviluppatori diversi usano codici, linguaggi,
+e metodoligie diverse per le tre fasi, aumentando vertiginosamente la probabilità di errori semantici durante il trasferimento delle informazioni.
+
 \subsection{Sfide e Problematiche Comuni}
 La migrazione da un sistema \textit{legacy} a un nuovo \textit{ERP} \textit{cloud} richiede un'attenta fase di analisi per evitare perdite o
 disallineamenti di informazioni storiche e \textit{master data}.
@@ -78,7 +114,20 @@ Attualmente, molte migrazioni sono gestite manualmente, con l'integrazioni di \t
 Per questo, nasce l'idea del Tool di Migrazione (\textit{Migration Tool}) oggetto di questa tesi.
 
 %\subsection{Migrazione verso ambienti Cloud e SaaS}
-Per la migrazione verso il \textit{Cloud}, sono necessari \textit{tool} robusti in grado di lavorare sia con logiche \textit{batch} sia con \textit{API} e servizi \textit{web} (\textit{webservices} o \textit{WS} in breve),
-adattandosi alle regole di \textit{business} e garantendo la qualità di ogni singolo dato prima ancora che venga scritto nel
-database del nuovo \textit{tenant}.
+\subsection{Necessità di Strumenti di Automazione e Generazione Dinamica}
+Per la migrazione verso il \textit{Cloud}, non è più sostenibile un approccio basato esclusivamente su procedure di inserimento manuali 
+o sullo sviluppo isolato di \textit{script} monouso scritti \textit{ad hoc} per ogni singola tabella aziendale. 
+Questa pratica, oltre a comportare un ingente dispendio di ore lavorative per i consulenti, espone il progetto a continui errori umani 
+derivanti dal copia-incolla delle logiche.
+
+Inoltre, i moderni \textit{ERP SaaS} richiedono strumenti robusti in grado di interfacciarsi con il database non solo in 
+esecuzione \textit{batch} locale, ma anche attraverso servizi \textit{web} (\textit{WebServices} o \textit{API REST}) in scenari distribuiti. 
+Il dato deve essere normalizzato, validato a livello applicativo e controllato prima ancora di essere introdotto al \textit{database server}. 
+
+Emerge quindi una lacuna tra i vecchi processi operativi e le stringenti necessità dell'infrastruttura Infor \textit{CloudSuite}. Diviene 
+imperativo lo sviluppo di \textit{framework} di migrazione che automatizzino la fase di scrittura del codice: partendo da mappature logiche 
+definite dall'utente tramite interfacce grafiche (per quanto possibile), il \textit{tool} deve essere in grado di generare a \textit{runtime} 
+le procedure di conversione. Solo eliminando la scrittura manuale degli script di mapping è possibile garantire la ripetibilità del processo, 
+una diagnostica precisa degli errori e la totale tracciabilità di ogni singolo record rifiutato, requisito essenziale per la riuscita del 
+progetto verso il nuovo sistema.
 
