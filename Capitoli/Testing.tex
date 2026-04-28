@@ -1,12 +1,13 @@
 \chapter{Testing e Validazione}
 
 \section{Strategia di Testing}
-Il testing di un software per la migrazione dei dati è un aspetto fondamentale.
+Testare un software per la migrazione dei dati è un aspetto fondamentale.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti Cloud Multitenant,
-ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema target.
+ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema di destinazione.
 
-Inoltre, per il generatore dinamico di codice Baan C, le procedure di collaudo
-hanno dovuto coprire non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli script generati a runtime dalle DLL \texttt{txamgdll0012} e \texttt{txamgdll0013}.
+Inoltre, per il generatore dinamico di codice in Baan C, le procedure di prova
+hanno incluso non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli script
+generati a runtime dalle DLL \texttt{txamgdll0012} e \texttt{txamgdll0013}.
 
 \subsection{Unit Testing sui Moduli di Parsing}
 I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
