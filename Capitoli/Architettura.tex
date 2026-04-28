@@ -9,25 +9,21 @@ Questo approccio garantisce la distinzione tra il \textit{layout} dei dati prees
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[node distance=2cm]
-        % Attori
         \node (user) [draw, circle, minimum size=1cm] {User};
         \node (actor_label) [below of=user, node distance=0.8cm] {Utente/Sviluppatore};
 
-        % Casi d'uso
         \node (uc1) [draw, ellipse, right of=user, node distance=4cm] {Setup Parametri};
         \node (uc2) [draw, ellipse, below of=uc1, node distance=1.5cm] {Import Metadata};
         \node (uc3) [draw, ellipse, below of=uc2, node distance=1.5cm] {Definizione Mapping};
         \node (uc4) [draw, ellipse, below of=uc3, node distance=1.5cm] {Generazione Codice};
         \node (uc5) [draw, ellipse, below of=uc4, node distance=1.5cm] {Esecuzione Batch};
 
-        % Collegamenti
         \draw [arrow] (user) -- (uc1);
         \draw [arrow] (user) -- (uc2);
         \draw [arrow] (user) -- (uc3);
         \draw [arrow] (user) -- (uc4);
         \draw [arrow] (user) -- (uc5);
 
-        % Sistema
         \begin{scope}[on background layer]
             \node [fill=gray!10, fit=(uc1) (uc5), draw, dashed, label={above:Migration Tool System}] {};
         \end{scope}
@@ -66,7 +62,7 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
     \item \textbf{Esecuzione e Log (\texttt{txamg3xx}):} Il sistema adotta una politica di esecuzione strutturata in
     \textit{run} (elaborazioni).
     Attraverso \texttt{txamg300}, \texttt{txamg301} e \texttt{txamg302} viene memorizzato il conteggio esatto dei
-    record letti, processati o ignorati in base a date e sequenze.
+    record letti, processati o ignorati in base a tempi e sequenze.
     Eventuali criticità e troncamenti vengono inseriti sulla tabella \texttt{txamg303} (\textit{Run Errors}).
 \end{itemize}
 
@@ -116,7 +112,7 @@ Il generatore di codice è basato su librerie compilate (\textit{DLL} come \text
 il modulo interpreta il dizionario di \textit{mapping} (definito in \texttt{txamg203} (\textit{MappedFields})) e
 traduce i legami e le regole di trasformazione in \textit{script} nativi Baan C.
 
-Questo meccanismo previene di dover scrivere manualmente codice, garantendo il rispetto del \textit{framework} \textit{CloudSuite}:
+Questo meccanismo previene la scrittura manuale di codice, garantendo il rispetto del \textit{framework} \textit{CloudSuite}:
 il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
 
 \subsection{Modulo di Integrazione Ad-hoc e Callbacks}

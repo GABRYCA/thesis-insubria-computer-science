@@ -46,14 +46,21 @@ Se la generazione avviene correttamente, lo script compilato viene agganciato al
 		\end{tikzpicture}
 	}
 	\caption{Rappresentazione logica del matching numerico di integrità}
+	\label{fig:matching_logico_testing}
 \end{figure}
 
-Un aspetto rilevante del testing d'integrazione riguarda la profilazione dei tempi di run. Durante le simulazioni, con recordset di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $50.000$ righe), sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento cloud e dai vincoli di referenzialità. In parallelo, per assicurare le prestazioni e le procedure di rollback, qualora ci siano intoppi a livello di rete, il motore transazionale LN è stato istruito affinchè le commit avvengano con raggruppamento stabilito del numero di record. Questo è stato empiricamente confermato dai casi d'uso in cui il server restituisce messaggi di \textit{Timeout}.
+Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei tempi di run.
+Durante le simulazioni, con recordset di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $50.000$ righe),
+sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento cloud e dai vincoli di referenzialità.
+In parallelo, per assicurare le prestazioni e le procedure di rollback, qualora ci siano rallentamenti o blocchi a livello di rete,
+il motore transazionale LN è stato istruito affinché le commit avvengano a blocchi così come stabilito del numero di record.
+Questo è stato confermato dai casi d'uso in cui il server restituisce messaggi di \textit{Timeout}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/ExecuteBatchRuns_txamg3200m000}
 	\caption{Sessione di Esecuzione Batch (txamg3200m000)}
+	\label{fig:sessione_esecuzione_batch}
 \end{figure}
 
 I \textit{Runs Errors} offrono un riscontro immediato di blocchi logici o semantici.
@@ -64,6 +71,7 @@ verificando che la linea errata fosse elaborata senza però interromperne il car
 	\centering
 	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/RunsErrors_txamg3503m000}
 	\caption{Dettaglio degli errori di migrazione (txamg3503m000)}
+	\label{fig:dettaglio_errori_migrazione}
 \end{figure}
 
 Gli errori segnalati sono dettagliati all'interno della tabella \texttt{txamg303}, le cui colonne principali permettono
@@ -121,4 +129,5 @@ Il tool si comporta in maniera deterministica e produce riscontri sempre validat
 	\centering
 	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/RunsByBatch_txamg3500m000}
 	\caption{Storico e validazione delle esecuzioni (txamg3500m000)}
+	\label{fig:storico_validazione_runs}
 \end{figure}

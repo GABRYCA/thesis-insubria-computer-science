@@ -47,15 +47,164 @@ I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali d
 \subsection{Manutenibilità ed Estensibilità}
 Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il \textit{framework} Infor Tools,
 così da garantirne la compatibilità con future \textit{release} dell'\textit{ERP} e manutenibilità semplificata per il comparto IT aziendale.
+Tale scelta rappresenta inoltre uno stringente vincolo architetturale: l'ecosistema Infor LN non permetteva agevolmente altre alternative
+per questo genere di operazioni \texttt{massive}.
+Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche ad un aggiornamento
+ai \textit{Web Services} REST sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
+essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
+fondamentalmente inadatti alle performance richieste e alla complessità di manipolazione di grandi moli di dati
+(mancanza di primitive complete per elaborazioni \textit{batch} complesse).
+Generalmente inoltre, molti endpoint sono protetti internamente e bloccati da Infor stessa e resi quindi inutilizzabili per
+sviluppatori esterni (noi).
+Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione valida, performance e completamente integrabile.
 
 \subsection{Sicurezza e Data Integrity in Multitenancy}
 Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti
-\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono priorità assolute e
-fondamentali.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
+\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono delle priorità importanti.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
 
 %\subsection{Prestazioni e Affidabilità}
 Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
 una elaborazione a blocchi al fine di minimizzare i tempi morti generati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
+
+\section{Casi d'Uso (Use Cases)}
+Come sarà introdotto dal diagramma dei casi d'uso (Figura~\ref{fig:use_case}), per ogni scenario sono state definite le azioni intraprese del sistema.
+Vengono quindi mostrate di seguito le tabelle descrittive per ciascun caso d'uso del \textit{Migration Tool}.
+
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Setup Parametri} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Setup Parametri (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Setup Parametri.} \label{tab:uc_setup_parametri} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Accesso alla sessione dei parametri generici (\texttt{txamg000}). \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente accede ai parametri e configura i percorsi dei file, i package/moduli di riferimento. \\
+    \midrule
+    \textbf{Post-condizioni}  & I parametri fondamentali sono salvati. \\
+    \midrule
+    \textbf{Eccezioni} & Errore nel salvataggio, parametri obbligatori mancanti. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Import Metadata} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Import Metadata (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Import Metadata.} \label{tab:uc_import_metadata} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & I file legacy e le loro definizioni (tracciati record) sono pronti. \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente richiama la routine \textit{Importer} che interpreta i metadati dal formato sorgente e popola i dizionari (\texttt{txamg110}, \texttt{txamg111}). \\
+    \midrule
+    \textbf{Post-condizioni} & Il dizionario \textit{input} auto-compilato con le strutture dati esterne. \\
+    \midrule
+    \textbf{Eccezioni} & Formato sorgente corrotto, tipo non supportato, mancanza di permessi I/O. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Definizione Mapping} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Definizione Mapping (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Definizione Mapping.} \label{tab:uc_definizione_mapping} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & I metadati sorgente sono stati importati e le tabelle LN target sono note. \\
+    \midrule
+    \textbf{Flusso Principale}& L'attore associa i file d'ingresso alle tabelle Infor (Target Tables \texttt{txamg202}) e definisce le regole campo per campo (\texttt{txamg203}). \\
+    \midrule
+    \textbf{Post-condizioni} & Le logiche di \textit{mapping} sono finalizzate nel Data Entry. \\
+    \midrule
+    \textbf{Eccezioni} & Campi target non esistenti, errata associazione di tipo dato. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Generazione Codice} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Generazione Codice (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Generazione Codice.} \label{tab:uc_generazione_codice} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Mapping correttamente definito per un determinato Batch. \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente avvia l'interfaccia di generazione. Il motore converte il database di regole in script nativi Baan C (inclusi array, API DAL, check). Compila il codice in \textit{object-file} eseguibili. \\
+    \midrule
+    \textbf{Post-condizioni} & Codice generato, validato dal compilatore interno e pronto per il \textit{deploy}. \\
+    \midrule
+    \textbf{Eccezioni} & Regole complesse custom errate (sintassi non valida), lock sui file da compilare. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Esecuzione Batch} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Esecuzione Batch (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Esecuzione Batch.} \label{tab:uc_esecuzione_batch} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Il codice generato compilato. È stato parametrizzato un \textit{Run} (\texttt{txamg300}). \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente lancia il caricamento, leggendo fisicamente i file dati grezzi e instanziando la validazione ed inserimento via DAL sul server LN. \\
+    \midrule
+    \textbf{Post-condizioni} & Dati importati nell'ERP. \textit{Log} di risultato salvati nelle specifiche tabelle interne. \\
+    \midrule
+    \textbf{Eccezioni} & Record in errore per vincoli DB (Foreign Key o Domain constraint), file dati \textit{missing} o disconnessioni server. \\
+\end{longtable}
 
 \section{Modello dei Dati}
 \subsection{Analisi Strutture Dati Coinvolte}

@@ -8,9 +8,28 @@ L'obiettivo è agevolare il processo di migrazione da sistemi \textit{legacy} a 
 dei dati in ambienti \textit{multitenant} \cite{multitenantCloud, inforCloudsuite}.
 
 In primis, questo strumento sarà sviluppato all'interno dell'azienda \textbf{AlteaIN}, azienda parte del gruppo di
-Altea Federation e \textit{partner} ufficiale Infor in Italia. AlteaIN è specializzata nella consulenza informatica, e
-si occupat di supportare le aziende del comparto manifatturiero e logistico nei loro processi di trasformazione digitale e 
-innovazione tecnologica.
+Altea Federation e \textit{partner} ufficiale Infor in Italia (Figura~\ref{fig:loghi_aziendali}).
+AlteaIN è specializzata nella consulenza informatica, e si occupa di supportare le aziende del comparto
+manifatturiero e logistico nei loro processi di trasformazione digitale e innovazione tecnologica.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.65\textwidth}
+        \centering
+        \includegraphics[height=1.5cm]{Immagini/AlteaIN_Logo_rgb}
+        \caption{Logo AlteaIN}
+        \label{fig:logo_alteain}
+    \end{subfigure}
+    \hspace{0.05\textwidth}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[height=2cm]{Immagini/Infor_Logo_rgb}
+        \caption{Logo Infor}
+        \label{fig:logo_infor}
+    \end{subfigure}
+    \caption{Loghi di AlteaIN e Infor, rispettivamente azienda ospitante e fornitore del software.}
+    \label{fig:loghi_aziendali}
+\end{figure}
 
 \section{Obiettivi del Progetto}
 Il lavoro si concentrerà sull'analisi dei requisiti, la progettazione dell'architettura del software, la stesura della
@@ -18,12 +37,12 @@ documentazione e lo sviluppo di un prototipo funzionante.
 
 In particolare, lo strumento sarà in grado di generare dinamicamente codice, estendibile con funzioni ad hoc, per migrare
 dati su sistemi \textit{Cloud Multitenant}, con un focus sulla Infor \textit{Cloudsuite Enterprise}.
-Questa generazione permetterà di abbattere drasticamente i tempi di sviluppo di \textit{script} \textit{customizzati} per ciascuna
+Questa generazione permetterà di abbattere drasticamente i tempi di sviluppo di \textit{script} personalizzati per ciascuna
 migrazione, riducendo i classici errori manuali e aumentandone l'efficienza.
 
 Inoltre, è richiesto lo sviluppo di un \textit{importer} capace di interpretare il formato proprietario di \textit{import/export} di
 Infor \textit{Exchange} al fine di ricreare automaticamente le definizioni fisiche dei file dall'origine da migrare.
-L'intero sistema andrà ad interfacciarsi e integrarsi con lo strumento aziendale già esistente per la
+L'intero sistema andrà a interfacciarsi e integrarsi con lo strumento aziendale già esistente per la
 produzione di specifiche di migrazione e la relativa esportazione documentale.
 
 \section{Metodologia e Strumenti}
@@ -38,7 +57,8 @@ regole imposte dall'architettura Infor.
 
 Per il tracciamento delle attività, l'analisi dei requisiti e la stesura della documentazione tecnica, si è fatto affidamento 
 su strumenti di collaborazione aziendale, garantendo così una continua sinergia tra la figura dello sviluppatore (il sottoscritto) 
-e i consulenti funzionali. Quest'ultimi, in quanto futuri utenti finali del \textit{tool}, hanno giocato un ruolo chiave nel 
+e i consulenti funzionali.
+Quest'ultimi, in quanto futuri utenti finali del \textit{tool}, hanno giocato un ruolo chiave nel
 definire gli \textit{Use Case} e nel testare le \textit{release} intermedie del generatore di codice.
 
 \section{Contesto Tecnologico e Curva di Apprendimento}
@@ -51,7 +71,7 @@ Il linguaggio di programmazione impiegato è il \textbf{Baan C} (nelle sue versi
 event-driven strettamente legato al dizionario dati (\textit{Data Dictionary}) del database sottostante (che può essere di diversi tipi,
 a noi non noti per motivi riservati). 
 Questa peculiarità ha richiesto un importante periodo iniziale di \textit{training} e studio della documentazione ufficiale 
-(come \textit{progguide} e videolezioni registrate create per altri colleghi e clienti), necessario per 
+(come \textit{progguide} e videolezioni registrate create per altri colleghi e clienti), necessario per
 padroneggiare concetti avanzati come le \textit{Dynamic Link Libraries} (DLL) proprietarie, i \textit{Data Access Layer} 
 (DAL), la gestione della memoria in un contesto \textit{Enterprise} e l'utilizzo degli strumenti dedicati. Solo a valle di 
 questa significativa curva di apprendimento è stato possibile ideare e implementare i moduli architetturali che 

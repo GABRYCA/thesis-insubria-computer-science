@@ -31,7 +31,7 @@ di destinazione, senza possibilità di errore o sovrascrittura accidentale errat
 \section{Infor LN e CloudSuite Enterprise}
 Infor LN, nato con il nome di Baan \textit{ERP}, è uno dei principali \textit{ERP} nel settore manifatturiero industriale \cite{inforLN2025} a livello internazionale.
 Viene integrato all'interno della Infor \textit{CloudSuite Enterprise}, il quale offre funzionalità per la gestione della \textit{supply chain}
-e produzione \cite{inforCloudsuite}.
+e produzione~\cite{inforCloudsuite}.
 
 L'interfaccia utente Web (nota come \texttt{LNUI}) permette agli utenti finali di navigare tra le diverse sessioni
 tramite \textit{menu} contestuali o ricerca diretta (Figura~\ref{fig:ln_ui}).
@@ -102,8 +102,9 @@ Nello specifico, le tre fasi si articolano nel seguente modo:
 \end{itemize}
 
 Lo sviluppo di uno strumento software automatizzato (\textit{tool}), come quello trattato in questa tesi, risponde all'esigenza di coprire tutte le fasi del 
-paradigma \textit{ETL} all'interno del medesimo ecosistema. L'obiettivo è superare le classiche frammentazioni dove sviluppatori diversi usano codici, linguaggi,
-e metodoligie diverse per le tre fasi, aumentando vertiginosamente la probabilità di errori semantici durante il trasferimento delle informazioni.
+paradigma \textit{ETL} all'interno del medesimo ecosistema.
+L'obiettivo è superare le classiche frammentazioni dove sviluppatori diversi usano codici, linguaggi,
+e metodologie diverse per le tre fasi, aumentando vertiginosamente la probabilità di errori semantici durante il trasferimento delle informazioni.
 
 \subsection{Sfide e Problematiche Comuni}
 La migrazione da un sistema \textit{legacy} a un nuovo \textit{ERP} \textit{cloud} richiede un'attenta fase di analisi per evitare perdite o
@@ -122,11 +123,12 @@ derivanti dal copia-incolla delle logiche.
 
 Inoltre, i moderni \textit{ERP SaaS} richiedono strumenti robusti in grado di interfacciarsi con il database non solo in 
 esecuzione \textit{batch} locale, ma anche attraverso servizi \textit{web} (\textit{WebServices} o \textit{API REST}) in scenari distribuiti. 
-Il dato deve essere normalizzato, validato a livello applicativo e controllato prima ancora di essere introdotto al \textit{database server}. 
+Il dato deve essere normalizzato, validato a livello applicativo e controllato prima ancora di essere introdotto al \textit{database server}.
 
-Emerge quindi una lacuna tra i vecchi processi operativi e le stringenti necessità dell'infrastruttura Infor \textit{CloudSuite}. Diviene 
-imperativo lo sviluppo di \textit{framework} di migrazione che automatizzino la fase di scrittura del codice: partendo da mappature logiche 
+Emerge quindi una lacuna tra i vecchi processi operativi e le stringenti necessità dell'infrastruttura Infor \textit{CloudSuite}.
+Diventa quindi imperativo lo sviluppo di \textit{framework} di migrazione che automatizzino la fase di scrittura del codice: partendo da mappature logiche
 definite dall'utente tramite interfacce grafiche (per quanto possibile), il \textit{tool} deve essere in grado di generare a \textit{runtime} 
-le procedure di conversione. Solo eliminando la scrittura manuale degli script di mapping è possibile garantire la ripetibilità del processo, 
+le procedure di conversione.
+Solo eliminando la scrittura manuale degli script di mapping è possibile garantire la ripetibilità del processo,
 una diagnostica precisa degli errori e la totale tracciabilità di ogni singolo record rifiutato, requisito essenziale per la riuscita del 
 progetto verso il nuovo sistema.

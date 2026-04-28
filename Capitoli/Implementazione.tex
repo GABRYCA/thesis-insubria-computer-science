@@ -142,16 +142,78 @@ file alla struttura della tabella target:
 \end{itemize}
 
 \subsection{Funzioni di Trasformazione Ad-hoc}
-Oltre alle regole predefinite, l'interprete ammette la dichiarazione e l'aggancio di funzioni custom.
+Oltre alle regole predefinite, l'interprete permette la dichiarazione e l'inserimento di funzioni \textit{custom}.
 Durante il processo, eventuali routine di validazione o pulizia del dato possono essere inoltrate ad altre
 interfacce di esecuzione (come \texttt{txamg3200} - Execute Batch Runs).
 
-L'ausilio del componente \texttt{txamgdll0011} è importante in quanto si occupa del management dei metadati e dei log
+Diventa quindi essenziale consentire allo sviluppatore di interagire con il tool attraverso \textit{callback} \textit{ad-hoc}.
+Per esempio, nel caso in cui una data proveniente dal sistema \textit{legacy} necessiti di \textit{parsing} complesso
+o validazioni logiche \textit{custom}, lo sviluppatore può definire uno script aggiuntivo inserito in fase di \textit{mapping}.
+A seguire un esempio teorico pratico del codice di una funzione di trasformazione implementata in Baan C:
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function extern domain tcdate
+converti.data.legacy(domain tcmcs.str10 legacy_date)
+{
+    long yy, mm, dd
+    domain tcdate target_date
+
+    |* Parsing manuale "YYYY-MM-DD" o formati non standard
+    if isspace(legacy_date) then
+        |* Return con data nulla
+        return(0)
+    endif
+
+    yy = lval(legacy_date(1;4))
+    mm = lval(legacy_date(6;2))
+    dd = lval(legacy_date(9;2))
+
+    |* Validazione e conversione nel formato numerico (giorni) di LN
+    if mm >= 1 and mm <= 12 and dd >= 1 and dd <= 31 then
+        target_date = date.to.num(yy, mm, dd)
+        return(target_date)
+    else
+        dal.set.error.message("@Data non valida nel legacy: %s", legacy_date)
+        return(0)
+    endif
+}
+\end{minted}
+\caption{Esempio di una funzione di trasformazione \textit{ad-hoc} sviluppata per manipolare date non standard.}
+\label{lst:callback_ad_hoc}
+\end{listing}
+
+L'ausilio del componente \texttt{txamgdll0011} è necessario in quanto si occupa del management dei metadati e dei log
 contenenti eventuali errori (Error Logging).
 
 \section{Interfacce Utente (Sessioni)}
 L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o
 \textit{s-sessions} a seconda della loro finalità operativa.
+
+\subsection{Design dell'Interfaccia Utente e Scelte UX/UI in Baan}
+Lo sviluppo e l'elaborazione dell'interfaccia si sono dovuti adattare a specifi vincoli e \textit{design pattern} di
+Infor LN, in modo da fornire all'utente una \textit{UX} (\textit{User Experience}) coerente e uniforme.
+
+Gli elementi chiave della \textit{UI} implementati comprendono:
+\begin{itemize}
+    \item \textbf{Sessioni Multi-Main (Multi-Occorrenza) vs Details (Dettaglio):} Gran parte delle maschere previste
+    (come l'elenco dei \textit{Datafiles} o \textit{Batch}) sono state progettate come sessioni multi-occorrenza (lista tabellare).
+    L'utente può scorrere e filtrare grandi quantità di \textit{record} e aggiungere o modificare dati \textit{inline},
+    o richiamare una sessione di dettaglio secondaria in caso di presenza di decine di campi \textit{settings} o a scelta multipla.
+    Questo \textit{pattern} aumenta l'intuibilità e la facilità d'uso dello strumento senza commettere errori,
+    garantendo il rispetto degli standard sull'usabilità LN\@.
+    \item \textbf{Formati e Maschere (Formats):} I campi a \textit{video} non sono semplici \textit{text-input}, ma
+    si basano su \textit{formati} specifici imposti a livello di \textit{Data Dictionary}.
+    Questa scelta fa in modo che il cursore e il \textit{parsing} dell'input costringano \textit{out-of-the-box}
+    l'inserimento solo di dati previsti e corretti (per esempio:
+    forzando il Maiuscolo, o aggiungendo i separatori alle cifre decimali), eliminando una buona porzione di
+    possibili errori prima ancora dell'esecuzione e successivo salvataggio.
+    \item \textbf{Zoom (Lookups/Selettori Dati):} Altro strumento essenziale nell'interfaccia del \textit{Migration Tool} è l'uso degli \textit{zoom}.
+    Gli \textit{zoom} consentono all'utente, all'interno dei campi di \textit{foreign key} (ad esempio: per scegliere a
+    quale \textit{Package} logico appartiene una tabella, ma non solo), di
+    lanciare una sub-sessione modale per ricercare e prelevare un valore da tabelle o da enum (opzioni predefinite) preesistenti, invece di
+    memorizzare le codifiche mnemonicamente.
+\end{itemize}
 
 Le sessioni principali per la gestione dei \texttt{batch} e dei \texttt{mapping} sono visualizzabili nelle
 Figure~\ref{fig:batches}, ~\ref{fig:batch_sequences}, ~\ref{fig:batch_target_tables},
