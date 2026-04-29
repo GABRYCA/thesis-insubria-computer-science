@@ -8,7 +8,7 @@ Sono illustrati snippet in Baan C per descrivere la logica interna del Tool.}
 
 \subsection{Gestione dei Formati e Parsing}
 L'importer è stato sviluppato come un modulo d'\textit{input} che si interpone tra i file d'ingresso
-(prodotti dai vecchi \textit{server} o estratti tramite \textit{tool} \textit{legacy}, a volte anche Access) e le tabelle di definizione del nuovo sistema.
+(prodotti dai vecchi server o estratti tramite \textit{tool} \textit{legacy}, a volte anche Access) e le tabelle di definizione del nuovo sistema.
 
 La libreria dedicata alla gestione dei \textit{metadata} (\texttt{txamgdll0011}) prende in carico l'interpretazione dei metadati
 (quali formati delimitati o logiche \textit{ASCII} a lunghezza fissa) eseguendo conversioni su base parametrica secondo
@@ -195,9 +195,9 @@ L'ausilio del componente \texttt{txamgdll0011} è necessario in quanto si occupa
 contenenti eventuali errori (Error Logging).
 
 \subsection{Gestione delle Latenze Transazionali}
-Un ulteriore aspetto essenziale del \textit{Tool} riguarda l'elaborazione dei commit a blocchi durante la trasformazione dati. 
-In ecosistemi Cloud da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
-per ogni operazione di INSERT o UPDATE verso i Layer Infor in datacenter distanti (aws). Raggruppando migliaia di record (\textit{array insertion}) 
+Un ulteriore aspetto essenziale del \textit{Tool} riguarda l'elaborazione dei \textit{commit} a blocchi durante la trasformazione dati. 
+In ecosistemi \textit{Cloud} da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
+per ogni operazione di INSERT o UPDATE verso i \textit{layer} Infor in \textit{datacenter} distanti (AWS). Raggruppando migliaia di record (\textit{array insertion}) 
 l'impatto della latenza TCP si abbatte marginalmente (fino al 90\%). Di contro l'impiego delle transazioni a gruppi necessita attenzioni per il \textit{rollback} 
 parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i check del DAL). Questa gestione interna incrementa l'adattabilità mantenendo altissime velocità sui carichi.
 

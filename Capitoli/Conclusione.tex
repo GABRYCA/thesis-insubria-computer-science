@@ -23,12 +23,12 @@ ha fatto un'enorme differenza dal punto di vista dell'analisi e \textit{debug}.
 Tuttavia, standardizzare formati eterogenei del mondo \textit{legacy} ha imposto la creazione di strumenti di \textit{parsing} e configurazione di \textit{Runs} \textit{batch} piuttosto complessi per il modulo \texttt{txamg200}.
 
 Durante lo fase di studio e sviluppo, è stato necessario affrontare una fase di \textit{training} sia base che avanzata dei \textit{tool}
-Infor, quali struttura, nomenclatura, linguaggi, logica di funzionamento, architettura come \textit{middleware} \textit{ION}, \textit{BOD}, \textit{API} e \textit{Web Services}
-con formati \textit{XML} \textit{legacy} come \textit{SOAP} (non \textit{REST}), in tempi molto brevi rispetto a quanto normalmente previsto (diversi mesi), al fine
+Infor, quali struttura, nomenclatura, linguaggi, logica di funzionamento, architettura come \textit{middleware} ION, BOD, API e \textit{web service}
+con formati XML \textit{legacy} come SOAP (non REST), in tempi molto brevi rispetto a quanto normalmente previsto (diversi mesi), al fine
 di completare il progetto in tempo e completare questa tesi.
 
-Si fa anche notare la natura molto restrittiva dell'\textit{ERP} Infor, che non permette l'accesso nemmeno ad amministratori di sistema
-a parti di \textit{API} o funzionalità che semplificherebbero lo sviluppo, oltre alla mancata documentazione delle stesse in molti casi
+Si fa anche notare la natura molto restrittiva dell'ERP Infor, che non permette l'accesso nemmeno ad amministratori di sistema
+a parti di API o funzionalità che semplificherebbero lo sviluppo, oltre alla mancata documentazione delle stesse in molti casi
 a causa di transizioni a più alto livello aziendale, lasciando allo sviluppatore finale (noi) \enquote{scoprire} ed esplorare
 tramite \textit{trial-and-error} delle soluzioni, spesso non \textit{standard}, ove possibile.
 Questo ha dato origine molti tempi morti, complicando il contesto generale
@@ -37,7 +37,7 @@ Questo ha dato origine molti tempi morti, complicando il contesto generale
 \section{Sviluppi Futuri}
 Nonostante lo \textit{standard} d'eccellenza raggiunto, si ritiene possibile evolvere ulteriormente il \textit{tool} in diverse direzioni.
 
-In primo luogo, lo schema architetturale per le estensioni \textit{Custom} potrebbe venire affiancato da procedure di \textit{Machine Learning} (addestrate sui \textit{mapping} \textit{legacy})
+In primo luogo, lo schema architetturale per le estensioni \textit{custom} potrebbe venire affiancato da procedure di \textit{Machine Learning} (addestrate sui \textit{mapping} \textit{legacy})
 in grado di suggerire i \textit{mapping} e i moduli di conversione per grandi volumi di tabelle non ancora definite
 (senza l'\textit{input} umano in interfacce e Sessioni \texttt{txamg2103}).
 Inoltre, la visualizzazione delle specifiche tramite esportazione
@@ -45,8 +45,8 @@ a modelli \textit{UML} o grafi digitali, se automatizzata nativamente dal \texti
 la fase di studio del cliente prima dell'operazione di caricamento, riducendo di fatto tempi e costi
 e supportando i consulenti AlteaIN, funzionali e Infor verso transizioni \textit{Cloud} più semplici.
 
-Un'altra possibilità riguarda l'integrazione di \textit{Continuous Integration / Continuous Deployment (CI/CD)}. 
-Attualmente, tutto lo sviluppo dipende dal repository interno dell'IDE (LN Studio) e script Infor proprietari. Lo sviluppo ed interfacciamento con 
-Git o versioning code repository (VCR) moderni (come Github/GitLab/Azure DevOps) attraverso l'implementazione di CI/CD nativa su Infor Tools consentirebbe ad un 
-team di DevOps di monitorare lo stato degli unit test e automatizzare i rilasci delle logiche d'esportazione su diverse macchine virtuali e \textit{tenant} 
-aziendali senza richiedere l'uso costante di documentazione e controlli ad hoc del manager del progetto.
+Un'altra possibilità riguarda l'integrazione di \textit{Continuous Integration / Continuous Deployment} (\textit{CI/CD}). 
+Attualmente, tutto lo sviluppo dipende dal \textit{repository} interno dell'IDE (LN Studio) e \textit{script} Infor proprietari. Lo sviluppo ed interfacciamento con 
+Git o \textit{versioning code repository} (\textit{VCR}) moderni (come Github/GitLab/Azure DevOps) attraverso l'implementazione di \textit{CI/CD} nativa su Infor Tools consentirebbe ad un 
+\textit{team} di DevOps di monitorare lo stato degli \textit{unit test} e automatizzare i rilasci delle logiche d'esportazione su diverse macchine virtuali e \textit{tenant} 
+aziendali senza richiedere l'uso costante di documentazione e controlli \textit{ad hoc} del \textit{manager} del progetto.

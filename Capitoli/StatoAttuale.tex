@@ -16,25 +16,25 @@ A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{sing
 fisicamente isolata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici organizzazioni clienti (i cosiddetti \textit{tenant}, in un ambiente \textit{cloud}).
 
 Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi,
-ottimizzazione delle risorse e abbassamento dei costi di manutenzione server), ma pone grandi sfide architetturali. La principale problematica risiede
+ottimizzazione delle risorse e abbassamento dei costi di manutenzione dei server), ma pone grandi sfide architetturali. La principale problematica risiede
 nell'isolamento logico delle informazioni: essendo i dati fisicamente residenti nello stesso database, è vitale garantire una rigorosa divisione (segregazione) per evitare violazioni di sicurezza e
-fughe di dati (data leak) tra aziende ospitate sulla stessa piattaforma.
+fughe di dati (\textit{data leak}) tra aziende ospitate sulla stessa piattaforma.
 
 Nei sistemi come Infor \textit{CloudSuite Enterprise}, la segregazione dei dati viene applicata a più livelli. A livello di infrastruttura \textit{Cloud},
 l'isolamento del \textit{tenant} è garantito da chiavi di crittografia specifiche e partizionamenti logici. A livello di applicativo, la storicizzazione e l'isolamento
-avvengono tramite l'uso sistematico di identificativi aziendali (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti implicitamente dal \textit{framework} in ogni query al database.
+avvengono tramite l'uso sistematico di identificativi aziendali (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti implicitamente dal \textit{framework} in ogni \textit{query} al database.
 
 Da questa architettura deriva la necessità che ogni processo di migrazione operi secondo vincoli di integrità estremamente rigidi \cite{dataMigrationStrategies}. Qualsiasi inserimento massivo di dati deve necessariamente
 passare attraverso strati intermedi di validazione (come i \textit{Data Access Layer}) che assicurino che il dato venga assegnato non solo alla tabella corretta, ma anche e soprattutto all'identificativo del \textit{tenant}
 di destinazione, senza possibilità di errore o sovrascrittura accidentale errata.
 
 \subsection{Comparazione con Piattaforme ETL Commerciali}
-Sebbene sul mercato esistano soluzioni ETL consolidate di terze parti come Talend o Informatica PowerCenter, la loro integrazione con il layer ERP di CloudSuite comporta spesso notevoli barriere architetturali (latenza durante l'interazione con servizi esterni, 
+Sebbene sul mercato esistano soluzioni ETL consolidate di terze parti come Talend o Informatica PowerCenter, la loro integrazione con il \textit{layer} ERP di CloudSuite comporta spesso notevoli barriere architetturali (latenza durante l'interazione con servizi esterni, 
 mancato accesso nativo ai Data Dictionary \textit{under-the-hood} e costosi accordi di licenza a parte), limitando il livello di \textit{customizzazione} ed efficienza esecutiva transazionale che solo uno sviluppo interno o tramite API nativa potrebbe offrire.
 
-Mentre tool completi come \textit{Talend Open Studio} consentono manipolazioni grafiche ed orchestrano i \textit{workflow} integrati (da \textit{Big Data pipelines} ai semplici database RDBMS o NoSQL), l'affidamento esclusivo alle interfacce basate su 
+Mentre \textit{tool} completi come \textit{Talend Open Studio} consentono manipolazioni grafiche ed orchestrano i \textit{workflow} integrati (da \textit{Big Data pipelines} ai semplici database RDBMS o NoSQL), l'affidamento esclusivo alle interfacce basate su 
 API o servizi SOAP standardizzati pre-esistenti impone che tutte le conversioni siano effettuate fuori dall'ecosistema di riferimento e che le uniche interfacce ad accollarsi la stesura siano le API \textit{BODs (Business Object Documents)}. 
-Un approccio di \textit{Metaprogramming} implementato all'interno del \textit{framework} gestionale (\textit{Migration Tool Infor}) evita invece gli intermediari e converte la logica con controlli di referenza Infor LN, sfruttando al massimo Baan C.
+Un approccio di \textit{Metaprogramming} implementato all'interno del \textit{framework} gestionale (\textit{Migration Tool} Infor) evita invece gli intermediari e converte la logica con controlli di referenza Infor LN, sfruttando al massimo Baan C.
 
 \section{Infor LN e CloudSuite Enterprise}
 Infor LN, nato con il nome di Baan \textit{ERP}, è uno dei principali \textit{ERP} nel settore manifatturiero industriale \cite{inforLN2025} a livello internazionale.
@@ -82,8 +82,8 @@ Esso si divide a sua volta in:
 \subsection{Infor Exchange e Strumenti di Import/Export}
 Per lo scambio di informazioni, Infor fornisce un modulo denominato \textit{Exchange} \cite{inforExchangeGuide}.
 Si tratta di una piattaforma per l'importazione e l'esportazione di file (es.
-CSV, XML, testo a larghezza fissa)
-mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN .
+CSV, XML, testo a larghezza fissa) mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN,
+esso si integra anche con sistemi esterni, permettendone lo scambio di informazioni con Infor.
 
 Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tramite Baan C, che quindi risulta essenziale quando le regole di
 mappatura superano la complessità gestibile nativamente dall'\textit{Exchange}.

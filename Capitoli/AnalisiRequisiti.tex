@@ -16,7 +16,7 @@ con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
 
 \section{Requisiti Funzionali}
 I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabilito
-con gli stakeholder.
+con gli \textit{stakeholder}.
 
 \subsection{Sviluppo dell'Importer Infor Exchange}
 Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo strumento preesistente nativo di Infor \textit{Exchange}.
@@ -52,11 +52,11 @@ per questo genere di operazioni \texttt{massive}.
 Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche ad un aggiornamento
 ai \textit{Web Services} REST sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
 essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
-fondamentalmente inadatti alle performance richieste e alla complessità di manipolazione di grandi moli di dati
+fondamentalmente inadatti alle \textit{performance} richieste e alla complessità di manipolazione di grandi moli di dati
 (mancanza di primitive complete per elaborazioni \textit{batch} complesse).
-Generalmente inoltre, molti endpoint sono protetti internamente e bloccati da Infor stessa e resi quindi inutilizzabili per
+Generalmente inoltre, molti \textit{endpoint} sono protetti internamente e bloccati da Infor stessa e resi quindi inutilizzabili per
 sviluppatori esterni (noi).
-Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione valida, performance e completamente integrabile.
+Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione valida, \textit{performante} e completamente integrabile.
 
 \subsection{Sicurezza e Data Integrity in Multitenancy}
 Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti

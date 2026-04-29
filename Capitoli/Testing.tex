@@ -5,12 +5,12 @@
 
 \section{Strategia di Testing}
 Testare un software per la migrazione dei dati è un aspetto fondamentale.
-Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti Cloud Multitenant,
+Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti \textit{Cloud Multitenant},
 ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema di destinazione.
 
 Inoltre, per il generatore dinamico di codice in Baan C, le procedure di prova
-hanno incluso non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli script
-generati a runtime dalle DLL \texttt{txamgdll0012} e \texttt{txamgdll0013}.
+hanno incluso non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli \textit{script}
+generati a \textit{runtime} dalle \textit{DLL} \texttt{txamgdll0012} e \texttt{txamgdll0013}.
 
 \subsection{Unit Testing sui Moduli di Parsing}
 I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
@@ -21,9 +21,9 @@ decimali a virgola mobile e codifiche caratteri ASCII, simulando una diversità 
 Durante questa fase si vede come i cambi di versione della destinazioni non alterino le librerie costruite se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
 
 \subsection{Test del Flusso di Migrazione}
-L'integrazione end-to-end è validata eseguendo flussi di test governati dalle logiche di batch (\texttt{txamg2100}
-e \texttt{txamg3200}). Durante questi test, il sistema genera gli script di elaborazione e li sottopone al compilatore interno \texttt{bic\_compiler}.
-Se la generazione avviene correttamente, lo script compilato viene agganciato al batch e lanciato.
+L'integrazione \textit{end-to-end} è validata eseguendo flussi di test governati dalle logiche di \textit{batch} (\texttt{txamg2100}
+e \texttt{txamg3200}). Durante questi test, il sistema genera gli \textit{script} di elaborazione e li sottopone al compilatore interno \texttt{bic\_compiler}.
+Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} e lanciato.
 
 \begin{figure}[H]
 	\centering
@@ -52,11 +52,11 @@ Se la generazione avviene correttamente, lo script compilato viene agganciato al
 	\label{fig:matching_logico_testing}
 \end{figure}
 
-Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei tempi di run.
-Durante le simulazioni, con recordset di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $50.000$ righe),
-sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento cloud e dai vincoli di referenzialità.
-In parallelo, per assicurare le prestazioni e le procedure di rollback, qualora ci siano rallentamenti o blocchi a livello di rete,
-il motore transazionale LN è stato istruito affinché le commit avvengano a blocchi così come stabilito del numero di record.
+Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei tempi di \textit{run}.
+Durante le simulazioni, con \textit{recordset} di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $50.000$ righe),
+sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento \textit{cloud} e dai vincoli di referenzialità.
+In parallelo, per assicurare le prestazioni e le procedure di \textit{rollback}, qualora ci siano rallentamenti o blocchi a livello di rete,
+il motore transazionale LN è stato istruito affinché i \textit{commit} avvengano a blocchi così come stabilito del numero di record.
 Questo è stato confermato dai casi d'uso in cui il server restituisce messaggi di \textit{Timeout}.
 
 \begin{figure}[H]
@@ -88,9 +88,9 @@ di investigare quale linea e record sia fallito:
 \end{itemize}
 
 Oltre ai controlli manuali, questo tracciamento funge da base per le strategie di \textit{retry} o per
-le \textit{sanity check} del dato prima della re-immissione: individuando la tipologia di errore, il consulente o l'operatore
-può decidere se modificarne il mapping, apportare modifiche sul file d'origine o creare estensioni
-specifiche ai moduli generati dal tool.
+i \textit{sanity check} del dato prima della re-immissione: individuando la tipologia di errore, il consulente o l'operatore
+può decidere se modificarne il \textit{mapping}, apportare modifiche sul file d'origine o creare estensioni
+specifiche ai moduli generati dal \textit{tool}.
 
 \section{Verifica dell'Integrità dei Dati}
 \subsection{Matching tra Dati Sorgente (Legacy) e Destinazione (Cloud)}
@@ -155,12 +155,12 @@ bottiglia legati alle singole commit di transazione.
             mark=square,
             thick
         ] coordinates {
-            (1000, 45)
-            (10000, 480)
-            (50000, 2600)
-            (100000, 5800)
+            (1000, 25)
+            (10000, 220)
+            (50000, 1100)
+            (100000, 2100)
         };
-        \addlegendentry{Metodo Legacy}
+        \addlegendentry{Infor Exchange}
         
         \addplot[
             color=blue,
@@ -214,7 +214,7 @@ La seguente tabella stima il risparmio in giornate/uomo (\textit{Man Days}) risp
         \textbf{Fase di Migrazione} & \textbf{Giornate (Legacy)} & \textbf{Giornate (Migration Tool)} & \textbf{Risparmio} \\
         \midrule
         Analisi e Mapping & 5 & 2 & -60\% \\
-        Sviluppo Script / Generazione Code & 12 & 1 & -91\% \\
+        Sviluppo Script / Generazione Codice & 12 & 1 & -91\% \\
         Esecuzione Test e Validazione & 4 & 2 & -50\% \\
         Fix Anomalie & 3 & 1 & -66\% \\
         \midrule

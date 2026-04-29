@@ -1,7 +1,7 @@
 \chapter{Introduzione}
 
 \emph{In questo capitolo introduttivo viene presentato il contesto aziendale in cui si è svolta la tesi, 
-inclusi agli obiettivi formativi e metodologici seguiti per lo sviluppo di uno strumento automatico di 
+inclusi agli obiettivi formativi e metodologici seguiti per lo sviluppo di uno strumento di 
 migrazione dati verso Infor CloudSuite.}
 
 
@@ -69,11 +69,11 @@ definire gli \textit{Use Case} e nel testare le \textit{release} intermedie del 
 \section{Contesto Tecnologico e Curva di Apprendimento}
 Uno degli aspetti più sfidanti e formativi del tirocinio, preliminare alla fase di sviluppo vera e propria, è stato l'inserimento 
 in un ecosistema software proprietario ed estremamente verticalizzato. A differenza dei linguaggi \textit{open-source} o dei 
-framework convenzionali largamente studiati durante il percorso accademico (come Java o framework web), l'ambiente Infor si 
+\textit{framework} convenzionali largamente studiati durante il percorso accademico (come Java o \textit{framework web}), l'ambiente Infor si 
 basa su un'architettura consolidata denominata \textit{Infor Tools}.
 
 Il linguaggio di programmazione impiegato è il \textbf{Baan C} (nelle sue versioni 3GL e 4GL), un linguaggio procedurale ed 
-event-driven strettamente legato al dizionario dati (\textit{Data Dictionary}) del database sottostante (che può essere di diversi tipi,
+\textit{event-driven} strettamente legato al dizionario dati (\textit{Data Dictionary}) del database sottostante (che può essere di diversi tipi,
 a noi non noti per motivi riservati). 
 Questa peculiarità ha richiesto un importante periodo iniziale di \textit{training} e studio della documentazione ufficiale 
 (come \textit{progguide} e videolezioni registrate create per altri colleghi e clienti), necessario per
@@ -85,11 +85,11 @@ compongono il \textit{Migration Tool}.
 Tra questi elementi si possono citare:
 \begin{itemize}
     \item \textbf{Architettura}: Infor segue un'architettura a più livelli, da quelli fisici, database, a quelli di comunicazione con l'esterno
-    tramite middleware ION API \cite{inforION} (in fase di transizione da XML con SOAP a REST \cite{fieldingREST}), includendo web services e nuovi strumenti.
+    tramite \textit{middleware} ION API \cite{inforION} (in fase di transizione da XML con SOAP a REST \cite{fieldingREST}), includendo \textit{web service} e nuovi strumenti.
     \item \textbf{Strumenti di sviluppo}: Strumenti di sviluppo come IDE proprietari (basati su IDE più famosi come \textit{Eclipse})
     LN Studio, BECS e interfaccia web LNUI.
-    \item \textbf{Librerie e moduli}: L'ecosistema Infor è composto da numerose librerie e moduli preesistenti, che vanno dalle utility di 
-    stringa alle librerie di accesso ai dati, fino a moduli specifici per la gestione dei processi di business.
+    \item \textbf{Librerie e moduli}: L'ecosistema Infor è composto da numerose librerie e moduli preesistenti, che vanno dalle \textit{utility} di 
+    stringa alle librerie di accesso ai dati, fino a moduli specifici per la gestione dei processi di \textit{business}.
 \end{itemize}
 
 \section{Struttura della Tesi}

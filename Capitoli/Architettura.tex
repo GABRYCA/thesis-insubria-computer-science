@@ -45,7 +45,7 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
 
 \begin{itemize}
     \item \textbf{Setup e Parametrizzazione (\texttt{txamg000}):} Raccoglie i parametri globali del \textit{tool}, incluse le
-    impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i \textit{package}/\textit{moduli} su cui generare il codice.
+    impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i \textit{package}/moduli su cui generare il codice.
     L'interfaccia di configurazione (Figura~\ref{fig:params}) permette di definire i parametri globali.
 
     \begin{figure}[H]
@@ -141,13 +141,15 @@ Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{genera
      \begin{tikzpicture}[node distance=1cm, auto, thick,
         box/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=teal!20},
         outbox/.style={draw, rectangle, minimum width=3.5cm, minimum height=1.5cm, fill=gray!30}]
+        
         \node[box] (importer) {Importer (txamg1xx)};
         \node[box, below=0.5cm of importer] (generator) {Generator (txamg2xx)};
-        \node[box, right=1.5cm of importer, yshift=-1cm] (executor) {Executor (txamg3xx)};
+        
+        \node[box, right=0.5cm of importer, yshift=-1cm] (executor) {Executor (txamg3xx)};
 
-        \node[draw, dashed, inner sep=0.5cm, fit=(importer) (generator) (executor), label=above:{\textbf{Migration Tool}}] (tool) {};
+        \node[draw, dashed, inner sep=0.3cm, fit=(importer) (generator) (executor), label=above:{\textbf{Migration Tool}}] (tool) {};
 
-        \node[outbox, right=2cm of tool] (infor) {Infor Tools e DAL};
+        \node[outbox, right=1cm of tool] (infor) {Infor Tools e DAL};
 
         \draw[->, very thick] (tool.east) -- node[above] {API} (infor.west);
         \draw[->] (importer.south) -- (generator.north);
