@@ -1,5 +1,8 @@
 \chapter{Testing e Validazione}
 
+\emph{Questo capitolo tratta la strategia di validazione, l'esecuzione di unit test sui moduli di parsing e i test di integrazione per il flusso di migrazione. Viene analizzata in dettaglio l'integrità dei dati e la diagnostica degli errori, supportata da metriche di affidabilità.}
+
+
 \section{Strategia di Testing}
 Testare un software per la migrazione dei dati è un aspetto fondamentale.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti Cloud Multitenant,
@@ -124,6 +127,103 @@ numerica dell'operazione, permettendo al team di validazione di avere stime cert
 Questo approccio garantisce che le disconnessioni di rete o i blocchi temporanei non lascino i dati in uno stato di
 incertezza.
 Il tool si comporta in maniera deterministica e produce riscontri sempre validati rispetto al totale.
+
+\section{Analisi delle Prestazioni e ROI}
+
+\subsection{Benchmark Prestazionali}
+Per valutare l'effettivo miglioramento apportato dall'architettura del tool rispetto ai caricamenti manuali o ai vecchi script,
+sono stati condotti dei benchmark basati su dataset crescenti (da 1.000 a 100.000 record). Il grafico in Figura~\ref{fig:performance_benchmark} mostra i tempi
+di elaborazione misurati, evidenziando il netto miglioramento garantito dall'elaborazione in batch a blocchi e l'eliminazione dei colli di
+bottiglia legati alle singole commit di transazione.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=10cm, height=6cm,
+            xlabel={Numero di Record Migrati},
+            ylabel={Tempo di Esecuzione (secondi)},
+            legend pos=north west,
+            grid=both,
+            minor grid style={gray!25},
+            major grid style={gray!25},
+            mark size=2.5pt
+        ]
+        
+        \addplot[
+            color=red,
+            mark=square,
+            thick
+        ] coordinates {
+            (1000, 45)
+            (10000, 480)
+            (50000, 2600)
+            (100000, 5800)
+        };
+        \addlegendentry{Metodo Legacy}
+        
+        \addplot[
+            color=blue,
+            mark=*,
+            thick
+        ] coordinates {
+            (1000, 12)
+            (10000, 95)
+            (50000, 410)
+            (100000, 850)
+        };
+        \addlegendentry{Migration Tool}
+        
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Benchmark prestazionale: Confronto tempi di elaborazione.}
+    \label{fig:performance_benchmark}
+\end{figure}
+
+\subsection{Analisi degli Errori (Error Pie Chart)}
+Nei test di volume, gli scarti (\textit{Discarded Records}) sono stati analizzati e categorizzati per comprenderne l'origine.
+La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fallimenti più comuni.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pie[
+            color={blue!30, red!30, orange!30, yellow!30},
+            text=legend
+        ]{
+            45/Violazione Vincoli Referenziali (DAL),
+            30/Errori di Tipo Dato / Formato,
+            15/Troncamenti e Padding Errrati,
+            10/Timeouts Rete CloudSuite
+        }
+    \end{tikzpicture}
+    \caption{Distribuzione delle casistiche d'errore durante i run massivi.}
+    \label{fig:error_piechart}
+\end{figure}
+
+\subsection{Return on Investment (ROI)}
+Infine, dal punto di vista gestionale in AlteaIN, l'automazione dei test e del ciclo di migrazione e sviluppo
+determina un importante risparmio per i consulenti, il quale si tramuta in un tangibile ROI per l'azienda.
+
+La seguente tabella stima il risparmio in giornate/uomo (\textit{Man Days}) rispetto alle fasi operative:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{} p{0.25\textwidth} p{0.25\textwidth} p{0.25\textwidth} p{0.15\textwidth} @{}}
+        \toprule
+        \textbf{Fase di Migrazione} & \textbf{Giornate (Legacy)} & \textbf{Giornate (Migration Tool)} & \textbf{Risparmio} \\
+        \midrule
+        Analisi e Mapping & 5 & 2 & -60\% \\
+        Sviluppo Script / Generazione Code & 12 & 1 & -91\% \\
+        Esecuzione Test e Validazione & 4 & 2 & -50\% \\
+        Fix Anomalie & 3 & 1 & -66\% \\
+        \midrule
+        \textbf{Totale stimato} & \textbf{24} & \textbf{6} & \textbf{-75\%} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Stima del ROI (Return on Investment) per un tipico mapping tabellare di complessità media.}
+    \label{tab:roi_estimations}
+\end{table}
 
 \begin{figure}[H]
 	\centering

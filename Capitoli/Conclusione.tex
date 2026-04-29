@@ -1,6 +1,10 @@
 \chapter{Conclusioni}
 
-\section{Obiettivi Raggiunti e Risultati Ottenuti}
+\emph{In questo capitolo conclusivo vengono riassunti i risultati e gli obiettivi raggiunti dal progetto di tesi. Vengono discusse le sfide incontrate, 
+i vincoli del sistema Infor, assieme alle possibili evoluzioni future tra cui pipeline di Continuous Integration e Machine Learning.}
+
+
+\section{Obiettivi e Risultati Raggiunti}
 Nel percorso di questa tesi, è stato analizzato, implementato e documentato un completo \textit{Migration Tool}
 (pacchetto aziendale \texttt{txamg}) per l'ambiente Infor LN. C'erano requisiti particolarmente sfidanti dietro a questo progetto, nati per la
 maggior parte dalla natura \textit{multitenant} dei nuovi ambienti \textit{CloudSuite}, che sono stati affrontati offrendo un approccio fortemente parametrico
@@ -40,3 +44,9 @@ Inoltre, la visualizzazione delle specifiche tramite esportazione
 a modelli \textit{UML} o grafi digitali, se automatizzata nativamente dal \textit{framework}, fornirebbe reportistica in \textit{real-time} durante
 la fase di studio del cliente prima dell'operazione di caricamento, riducendo di fatto tempi e costi
 e supportando i consulenti AlteaIN, funzionali e Infor verso transizioni \textit{Cloud} più semplici.
+
+Un'altra possibilità riguarda l'integrazione di \textit{Continuous Integration / Continuous Deployment (CI/CD)}. 
+Attualmente, tutto lo sviluppo dipende dal repository interno dell'IDE (LN Studio) e script Infor proprietari. Lo sviluppo ed interfacciamento con 
+Git o versioning code repository (VCR) moderni (come Github/GitLab/Azure DevOps) attraverso l'implementazione di CI/CD nativa su Infor Tools consentirebbe ad un 
+team di DevOps di monitorare lo stato degli unit test e automatizzare i rilasci delle logiche d'esportazione su diverse macchine virtuali e \textit{tenant} 
+aziendali senza richiedere l'uso costante di documentazione e controlli ad hoc del manager del progetto.

@@ -11,22 +11,30 @@ Tuttavia, oggi si sta assistendo ad una transizione verso nuove soluzioni \texti
 
 % \subsection{Architetture Multitenant}
 \subsection{Architetture Multitenant e Segregazione dei Dati}
-Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni \cite{multitenantCloud}. 
-A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software 
+Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni \cite{multitenantCloud}.
+A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software
 fisicamente isolata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici organizzazioni clienti (i cosiddetti \textit{tenant}, in un ambiente \textit{cloud}).
 
-Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi, 
-ottimizzazione delle risorse e abbassamento dei costi di manutenzione server), ma pone grandi sfide architetturali. La principale problematica risiede 
-nell'isolamento logico delle informazioni: essendo i dati fisicamente residenti nello stesso database, è vitale garantire una rigorosa divisione (segregazione) per evitare violazioni di sicurezza e 
+Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi,
+ottimizzazione delle risorse e abbassamento dei costi di manutenzione server), ma pone grandi sfide architetturali. La principale problematica risiede
+nell'isolamento logico delle informazioni: essendo i dati fisicamente residenti nello stesso database, è vitale garantire una rigorosa divisione (segregazione) per evitare violazioni di sicurezza e
 fughe di dati (data leak) tra aziende ospitate sulla stessa piattaforma.
 
-Nei sistemi come Infor \textit{CloudSuite Enterprise}, la segregazione dei dati viene applicata a più livelli. A livello di infrastruttura \textit{Cloud}, 
-l'isolamento del \textit{tenant} è garantito da chiavi di crittografia specifiche e partizionamenti logici. A livello di applicativo, la storicizzazione e l'isolamento 
-avvengono tramite l'uso sistematico di identificativi aziendali (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti implicitamente dal \textit{framework} in ogni query al database. 
+Nei sistemi come Infor \textit{CloudSuite Enterprise}, la segregazione dei dati viene applicata a più livelli. A livello di infrastruttura \textit{Cloud},
+l'isolamento del \textit{tenant} è garantito da chiavi di crittografia specifiche e partizionamenti logici. A livello di applicativo, la storicizzazione e l'isolamento
+avvengono tramite l'uso sistematico di identificativi aziendali (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti implicitamente dal \textit{framework} in ogni query al database.
 
-Da questa architettura deriva la necessità che ogni processo di migrazione operi secondo vincoli di integrità estremamente rigidi \cite{dataMigrationStrategies}. Qualsiasi inserimento massivo di dati deve necessariamente 
-passare attraverso strati intermedi di validazione (come i \textit{Data Access Layer}) che assicurino che il dato venga assegnato non solo alla tabella corretta, ma anche e soprattutto all'identificativo del \textit{tenant} 
+Da questa architettura deriva la necessità che ogni processo di migrazione operi secondo vincoli di integrità estremamente rigidi \cite{dataMigrationStrategies}. Qualsiasi inserimento massivo di dati deve necessariamente
+passare attraverso strati intermedi di validazione (come i \textit{Data Access Layer}) che assicurino che il dato venga assegnato non solo alla tabella corretta, ma anche e soprattutto all'identificativo del \textit{tenant}
 di destinazione, senza possibilità di errore o sovrascrittura accidentale errata.
+
+\subsection{Comparazione con Piattaforme ETL Commerciali}
+Sebbene sul mercato esistano soluzioni ETL consolidate di terze parti come Talend o Informatica PowerCenter, la loro integrazione con il layer ERP di CloudSuite comporta spesso notevoli barriere architetturali (latenza durante l'interazione con servizi esterni, 
+mancato accesso nativo ai Data Dictionary \textit{under-the-hood} e costosi accordi di licenza a parte), limitando il livello di \textit{customizzazione} ed efficienza esecutiva transazionale che solo uno sviluppo interno o tramite API nativa potrebbe offrire.
+
+Mentre tool completi come \textit{Talend Open Studio} consentono manipolazioni grafiche ed orchestrano i \textit{workflow} integrati (da \textit{Big Data pipelines} ai semplici database RDBMS o NoSQL), l'affidamento esclusivo alle interfacce basate su 
+API o servizi SOAP standardizzati pre-esistenti impone che tutte le conversioni siano effettuate fuori dall'ecosistema di riferimento e che le uniche interfacce ad accollarsi la stesura siano le API \textit{BODs (Business Object Documents)}. 
+Un approccio di \textit{Metaprogramming} implementato all'interno del \textit{framework} gestionale (\textit{Migration Tool Infor}) evita invece gli intermediari e converte la logica con controlli di referenza Infor LN, sfruttando al massimo Baan C.
 
 \section{Infor LN e CloudSuite Enterprise}
 Infor LN, nato con il nome di Baan \textit{ERP}, è uno dei principali \textit{ERP} nel settore manifatturiero industriale \cite{inforLN2025} a livello internazionale.
@@ -108,7 +116,7 @@ e metodologie diverse per le tre fasi, aumentando vertiginosamente la probabilit
 
 \subsection{Sfide e Problematiche Comuni}
 La migrazione da un sistema \textit{legacy} a un nuovo \textit{ERP} \textit{cloud} richiede un'attenta fase di analisi per evitare perdite o
-disallineamenti di informazioni storiche e \textit{master data}.
+disallineamenti di informazioni storiche e \textit{master data} \cite{gali2025master}.
 
 Attualmente, molte migrazioni sono gestite manualmente, con l'integrazioni di \textit{script} scritti
 \textit{ad hoc}, con un alto livello di complessità e rischio d'errore.

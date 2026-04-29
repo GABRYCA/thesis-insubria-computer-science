@@ -1,6 +1,11 @@
 \chapter{Architettura}
 
-\section{Panoramica dell'Architettura di Sistema}
+\emph{Il presente capitolo illustra l'architettura generale del Migration Tool. Viene descritto il modello dei dati, 
+la separazione logico-funzionale tra componenti, la generazione a runtime del codice ed esplorate le scelte tecnologiche 
+implementate in ambiente Infor e Baan C.}
+
+
+\section{Panoramica Architettura di Sistema}
 L'architettura del \textit{Migration Tool} è stata definita per essere modulare e scalabile.
 Alla base del sistema vi è una netta separazione tra il modulo di \textit{input} (\textit{Importer}), il motore per l'elaborazione dei metadati,
 e il Generatore di Codice.
@@ -107,6 +112,51 @@ relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispe
 
 Questo \textit{design} del caricamento rende possibile supportare sia architetture \textit{multitenant} \textit{cloud}, sia installazioni \textit{legacy} \textit{on-premise}.
 
+\subsection{Sequenza Operativa del Sistema}
+Il seguente \textit{sequence diagram} illustra l'interazione tra i componenti logici: l'utente, 
+l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Database.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=1.7cm, auto, thick]
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=blue!10] (User) {Utente};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=green!10, right=of User] (UI) {UI (Sessioni)};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=orange!10, right=of UI] (Core) {Core (DLL)};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=gray!20, right=of Core] (DB) {DBMS/DB};
+
+        \draw[->] (User.east) -- node[above] {} (UI.west);
+        \draw[->] (UI.east) -- node[above, xshift=-0.5cm] {} (Core.west);
+        \draw[->] (UI.east) -- node[below, yshift=-0.2cm, xshift=-0.5cm] {} (Core.west);
+        \draw[->] (UI.south) ++(0.5,0) |- ++(4.5,-1.5) node[above, pos=0.75] {} -| (DB.south);
+        \draw[->] (Core.east) -- node[above] {} (DB.west);
+    \end{tikzpicture}
+    \caption{Interazione semplificata delle operazioni del sistema.}
+    \label{fig:sequence_diagram}
+\end{figure}
+
+\subsection{Diagramma dei Componenti}
+L'architettura può anche essere descritta attraverso il modello a componenti fornito dalla notazione UML, dove il 
+Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor API e Tools.
+\begin{figure}[H]
+    \centering
+     \begin{tikzpicture}[node distance=1cm, auto, thick,
+        box/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=teal!20},
+        outbox/.style={draw, rectangle, minimum width=3.5cm, minimum height=1.5cm, fill=gray!30}]
+        \node[box] (importer) {Importer (txamg1xx)};
+        \node[box, below=0.5cm of importer] (generator) {Generator (txamg2xx)};
+        \node[box, right=1.5cm of importer, yshift=-1cm] (executor) {Executor (txamg3xx)};
+
+        \node[draw, dashed, inner sep=0.5cm, fit=(importer) (generator) (executor), label=above:{\textbf{Migration Tool}}] (tool) {};
+
+        \node[outbox, right=2cm of tool] (infor) {Infor Tools e DAL};
+
+        \draw[->, very thick] (tool.east) -- node[above] {API} (infor.west);
+        \draw[->] (importer.south) -- (generator.north);
+        \draw[->] (generator.east) -- (executor.west);
+    \end{tikzpicture}
+    \caption{Component Diagram dell'architettura.}
+    \label{fig:component_diagram}
+\end{figure}
+
 \subsection{Generazione del Codice}
 Il generatore di codice è basato su librerie compilate (\textit{DLL} come \texttt{txamgdll0012} e \texttt{txamgdll0013}),
 il modulo interpreta il dizionario di \textit{mapping} (definito in \texttt{txamg203} (\textit{MappedFields})) e
@@ -114,6 +164,20 @@ traduce i legami e le regole di trasformazione in \textit{script} nativi Baan C.
 
 Questo meccanismo previene la scrittura manuale di codice, garantendo il rispetto del \textit{framework} \textit{CloudSuite}:
 il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
+
+\subsection{Code Generation vs. Interpretation}
+Nell'architettura software di questa tesi, in azienda si è discusso se utilizzare un paradigma di 
+esecuzione \textit{interpretata} o optare per una pura \textit{generazione del codice} (\textit{Code Generation}).
+L'\textit{interpretazione} dinamica del tracciato di estrazione, pur portando ad una maggiore flessibilità, comportava l'assegnazione 
+parametrica ad ogni riga mediante espressioni più complesse e condizionate da ogni record del \textit{Datafile}. Un \textit{interpreter} 
+costruito su Baan C avrebbe avuto un grande peso sulle performance (\textit{overhead}) a causa dell'esecuzione sequenziale delle \textit{query} 
+SQL e del parsing delle regole stringa-su-stringa per ogni record.
+
+Al contrario, il \textit{tool} predilige un motore \textit{generatore di codice} compilato (tramite il \texttt{bic\_compiler}). I metadati 
+dell'origine e di destinazione vengono tradotti (\textit{translated}) \textit{una tantum} in script Baan C \textit{on-the-fly}. Questi script 
+vengono quindi registrati dal server Infor e diventano immutabili (a meno di un ricalcolo paramettrizzato) durante l'esecuzione. 
+Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, mantenendo l'inserimento sul database 
+limitato solo ai limiti d'I/O dell'hardware o latenza di rete, sfruttando a pieno Infor.
 
 \subsection{Modulo di Integrazione Ad-hoc e Callbacks}
 Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di \textit{business} richiedono sviluppi

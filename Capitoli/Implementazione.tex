@@ -1,5 +1,9 @@
 \chapter{Implementazione}
 
+\emph{Questo capitolo offre una panoramica sull'implementazione del software, partendo dall'Importer Infor Exchange fino al motore generatore di codice, librerie (DLL) e alle interfacce utente. 
+Sono illustrati snippet in Baan C per descrivere la logica interna del Tool.}
+
+
 \section{Sviluppo dell'Importer Infor Exchange}
 
 \subsection{Gestione dei Formati e Parsing}
@@ -11,6 +15,10 @@ La libreria dedicata alla gestione dei \textit{metadata} (\texttt{txamgdll0011})
 l'enumerato \texttt{txamg.fast}.
 
 Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o \textit{padding} dei campi vuoti.
+Durante questa fase il generatore effettua operazioni di \textit{concatenazione stringhe} (utilizzando operazioni come \texttt{concat} e \texttt{string.scan}). 
+L'implementazione di \textit{string concatenation} in linguaggi \textit{legacy}/Baan C richiede particolare cura poiché le stringhe spesso hanno dimensionamenti 
+fissi; un vantaggio positivo della manipolazione nativa e deterministica con domini forti è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione del footprint in RAM, 
+i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
@@ -133,12 +141,12 @@ function void GeneraMap(domain tcmcs.str8 tabella)
 \label{lst:mapping_gen}
 \end{listing}
 
-Nel seguente esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
+Nell'esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
 file alla struttura della tabella target:
 \begin{itemize}
     \item \textbf{Riga 4-6:} Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
     \item \textbf{Riga 9-10:} Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
-    \item \textbf{Riga 12-13:} Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire correttamente lunghezze e allineamenti secondo il dominio Infor LN.
+    \item \textbf{Riga 12-13:} Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire lunghezze e allineamenti secondo il dominio Infor LN.
 \end{itemize}
 
 \subsection{Funzioni di Trasformazione Ad-hoc}
@@ -185,6 +193,13 @@ converti.data.legacy(domain tcmcs.str10 legacy_date)
 
 L'ausilio del componente \texttt{txamgdll0011} è necessario in quanto si occupa del management dei metadati e dei log
 contenenti eventuali errori (Error Logging).
+
+\subsection{Gestione delle Latenze Transazionali}
+Un ulteriore aspetto essenziale del \textit{Tool} riguarda l'elaborazione dei commit a blocchi durante la trasformazione dati. 
+In ecosistemi Cloud da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
+per ogni operazione di INSERT o UPDATE verso i Layer Infor in datacenter distanti (aws). Raggruppando migliaia di record (\textit{array insertion}) 
+l'impatto della latenza TCP si abbatte marginalmente (fino al 90\%). Di contro l'impiego delle transazioni a gruppi necessita attenzioni per il \textit{rollback} 
+parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i check del DAL). Questa gestione interna incrementa l'adattabilità mantenendo altissime velocità sui carichi.
 
 \section{Interfacce Utente (Sessioni)}
 L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o
