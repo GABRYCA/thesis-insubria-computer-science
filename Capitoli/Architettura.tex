@@ -108,9 +108,12 @@ La Tabella~\ref{tab:txamg000} nell'appendice mostra i parametri di configurazion
 L'Importer funge da punto d'ingresso per i dati ed è progettato per interpretare il formato proprietario di Infor \textit{Exchange},
 analizzando file di esportazione testuali o strutturati.
 Estraendo i metadati dai record, l'Importer popola i dizionari \textit{Datafiles} (\texttt{txamg110}) e i
-relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispettivamente nelle tabelle \ref{tab:txamg110} e \ref{tab:txamg111}.
+relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispettivamente nelle tabelle~\ref{tab:txamg110} e~\ref{tab:txamg111}.
 
 Questo \textit{design} del caricamento rende possibile supportare sia architetture \textit{multitenant} \textit{cloud}, sia installazioni \textit{legacy} \textit{on-premise}.
+Si sottolinea che questa architettura favorisce nativamente la lettura aggregata dei dati d'importazione da un singolo file
+sorgente (non decine o centinaia di file frammentati), limitando drasticamente i sovraccarichi di connessione, latenza
+e \textit{parsing} per ciascun frammento come accadeva nei vecchi \textit{script} in \textit{Exchange}.
 
 \subsection{Sequenza Operativa del Sistema}
 Il seguente \textit{sequence diagram} illustra l'interazione tra i componenti logici: l'utente, 

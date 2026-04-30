@@ -1,6 +1,7 @@
 \chapter{Implementazione}
 
-\emph{Questo capitolo offre una panoramica sull'implementazione del software, partendo dall'Importer Infor Exchange fino al motore generatore di codice, librerie (DLL) e alle interfacce utente. 
+\emph{Questo capitolo offre una panoramica sull'implementazione del software, partendo dall'Importer Infor Exchange fino
+al motore generatore di codice, librerie (DLL) e alle interfacce utente.
 Sono illustrati snippet in Baan C per descrivere la logica interna del Tool.}
 
 
@@ -19,6 +20,10 @@ Durante questa fase il generatore effettua operazioni di \textit{concatenazione 
 L'implementazione di \textit{string concatenation} in linguaggi \textit{legacy}/Baan C richiede particolare cura poiché le stringhe spesso hanno dimensionamenti 
 fissi; un vantaggio positivo della manipolazione nativa e deterministica con domini forti è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione del footprint in RAM, 
 i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
+
+L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un solo singolo file sorgente (o su limitati file macro per l'intero transnazionale).
+Questo permette notevoli miglioramenti sull'\textit{overhead} per ciascuna interazione, superando il limite della logica dell'\textit{Exchange} Infor a
+causa delle proprie inefficienti operazioni di apertura, scansione e chiusura sequenziale di numerosi file piccoli.
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}

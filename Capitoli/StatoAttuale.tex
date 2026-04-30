@@ -87,6 +87,10 @@ esso si integra anche con sistemi esterni, permettendone lo scambio di informazi
 
 Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tramite Baan C, che quindi risulta essenziale quando le regole di
 mappatura superano la complessità gestibile nativamente dall'\textit{Exchange}.
+Inoltre, un limite architetturale rilevante dell'\textit{Exchange} Infor risiede nella sua inefficienza durante l'elaborazione
+di grandi quantità di dati: esso tende infatti a elaborare man mano tanti piccoli singoli file.
+Questo costringe il sistema a ripetere continuamente iterazioni e operazioni di I/O (apertura e chiusura) del tutto evitabili,
+nonché controlli superflui, le quali impattano pesantemente le prestazioni complessive.
 
 \section{Migrazione Dati nei Sistemi ERP}
 \subsection{Il Paradigma ETL (Extract, Transform, Load)}

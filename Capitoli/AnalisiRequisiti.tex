@@ -23,6 +23,11 @@ Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo
 
 Tali file presentano specifici \textit{layout} (come formati testuali \textit{ASCII} o delimitati) che dovranno essere interpretati per
 popolare il dizionario \texttt{txamg110} (\textit{Datafiles}) e \texttt{txamg111} (\textit{DataFile Fields}).
+A differenza dell'approccio frammentato dell'\textit{Exchange} di Infor, adotteremo una soluzione ottimizzata: il \textit{tool} processerà
+l'intero flusso di metadati a partire da un singolo file sorgente, limitando e rimuovendo del tutto l'elaborazione a blocchi limitati
+su tanti piccoli file singoli che rallenterebbero l'esecuzione inziale dell'\textit{import}.
+In altre parole, il file sorgente sarà un singolo file generato dall'importer, contenente tutte le tabelle e dati dalla fonte
+legacy da cui si sta migrando, e il tool farà un controllo completo iniziale, e passerà poi all'elaborazione in \textit{batch} dei \textit{runs}.
 
 % \subsection{Generazione Dinamica del Codice}
 Alla base del \textit{Migration Tool} ci sarà lo strumento generatore di codice.
