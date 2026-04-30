@@ -204,7 +204,11 @@ Un ulteriore aspetto essenziale del \textit{Tool} riguarda l'elaborazione dei \t
 In ecosistemi \textit{Cloud} da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
 per ogni operazione di INSERT o UPDATE verso i \textit{layer} Infor in \textit{datacenter} distanti (AWS). Raggruppando migliaia di record (\textit{array insertion}) 
 l'impatto della latenza TCP si abbatte marginalmente (fino al 90\%). Di contro l'impiego delle transazioni a gruppi necessita attenzioni per il \textit{rollback} 
-parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i check del DAL). Questa gestione interna incrementa l'adattabilità mantenendo altissime velocità sui carichi.
+parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i check del DAL). Per mitigare questa criticità,
+il sistema implementa una strategia di fallback dinamico: in caso di fallimento di una transazione a blocchi,
+viene catturata l'eccezione e rieseguito l'inserimento per i record di quel blocco singolarmente (row-by-row).
+Questo approccio permette di isolare ed escludere unicamente il record anomalo, eseguendo il commit per tutti i restanti dati validi senza interrompere l'intero flusso.
+Questa gestione interna incrementa la flessibilità senza perdita di prestazioni.
 
 \section{Interfacce Utente (Sessioni)}
 L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o

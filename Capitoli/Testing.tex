@@ -55,7 +55,7 @@ Se la generazione avviene correttamente, lo \textit{script} compilato viene agga
 \end{figure}
 
 Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei tempi di \textit{run}.
-Durante le simulazioni, con \textit{recordset} di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $50.000$ righe),
+Durante le simulazioni, con \textit{recordset} di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $100.000$ righe su diversi file e tabelle),
 sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento \textit{cloud} e dai vincoli di referenzialità.
 In parallelo, per assicurare le prestazioni e le procedure di \textit{rollback}, qualora ci siano rallentamenti o blocchi a livello di rete,
 il motore transazionale LN è stato istruito affinché i \textit{commit} avvengano a blocchi così come stabilito del numero di record.

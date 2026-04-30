@@ -33,7 +33,7 @@ Questo approccio garantisce la distinzione tra il \textit{layout} dei dati prees
             \node [fill=gray!10, fit=(uc1) (uc5), draw, dashed, label={above:Migration Tool System}] {};
         \end{scope}
     \end{tikzpicture}
-    \caption{Diagramma dei Casi d'Uso del Migration Tool.}
+    \caption{Diagramma di flusso delle operazioni del Migration Tool.}
     \label{fig:use_case}
 \end{figure}
 
@@ -116,7 +116,7 @@ sorgente (non decine o centinaia di file frammentati), limitando drasticamente i
 e \textit{parsing} per ciascun frammento come accadeva nei vecchi \textit{script} in \textit{Exchange}.
 
 \subsection{Sequenza Operativa del Sistema}
-Il seguente \textit{sequence diagram} illustra l'interazione tra i componenti logici: l'utente, 
+Il seguente \textit{Sequence Diagram} ad alto livello illustra il flusso logico tra i componenti logici: l'utente,
 l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Database.
 \begin{figure}[H]
     \centering
@@ -137,7 +137,7 @@ l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Databas
 \end{figure}
 
 \subsection{Diagramma dei Componenti}
-L'architettura può anche essere descritta attraverso il modello a componenti fornito dalla notazione UML, dove il 
+L'architettura può essere descritta logicamente attraverso il seguente diagramma a blocchi dei moduli, dove il
 Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor API e Tools.
 \begin{figure}[H]
     \centering
@@ -158,7 +158,7 @@ Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{genera
         \draw[->] (importer.south) -- (generator.north);
         \draw[->] (generator.east) -- (executor.west);
     \end{tikzpicture}
-    \caption{Component Diagram dell'architettura.}
+    \caption{Component Diagram dei moduli dell'architettura.}
     \label{fig:component_diagram}
 \end{figure}
 
@@ -169,6 +169,9 @@ traduce i legami e le regole di trasformazione in \textit{script} nativi Baan C.
 
 Questo meccanismo previene la scrittura manuale di codice, garantendo il rispetto del \textit{framework} \textit{CloudSuite}:
 il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
+Al fine di rispettare le rigide \textit{policy} di sicurezza e isolamento dei tenant in ambienti CloudSuite, la compilazione e
+il deployment delle librerie avvengono esclusivamente all'interno di ambienti di Sviluppo/Staging autorizzati.
+Successivamente, le DLL validate vengono promosse in Produzione attraverso i canali standard di rilascio dell'ERP, garantendo l'integrità del sistema.
 
 \subsection{Code Generation vs. Interpretation}
 Nell'architettura software di questa tesi, in azienda si è discusso se utilizzare un paradigma di 
