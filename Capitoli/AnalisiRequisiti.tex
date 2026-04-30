@@ -5,7 +5,7 @@
 Negli ambienti \textit{legacy}, come già menzionato nel capitolo precedente, il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
 manuali e \textit{script} \textit{ad hoc}.
 
-L'operatore (noi) era costretto a sviluppare \textit{script} personalizzati per ogni singola tabella e sessione, 
+I consulenti erano costretti a sviluppare \textit{script} personalizzati per ogni singola tabella e sessione,
 con lunghi tempi di realizzazione e grandi rischi inerenti alla trascrizione manuale delle logiche di \textit{mapping}.
 
 % \subsection{Necessità di Ottimizzazione}
@@ -219,10 +219,10 @@ package \textit{tx} (\textit{custom}).
 Il modello dati è suddiviso in diverse entità:
 
 \begin{itemize}
-    \item \textbf{Parametrizzazione:}: tramite tabelle di configurazione come \texttt{txamg000} (AlteaIN Migration Tool Parameters).
-    \item \textbf{Gestione dei Datafile:} tabelle come \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields) permettono di definire le strutture dei file originali da importare.
-    \item \textbf{Elaborazione dei Batch:} la configurazione e l'esecuzione tramite batch è regolata da tabelle come \texttt{txamg200} (Batch), \texttt{txamg201} (Batch Sequences) e \texttt{txamg202} (Target Tables), insieme ad altre tabelle dedicate al mapping dei campi (\texttt{txamg203}).
-    \item \textbf{Tracciamento delle Esecuzioni:} lo stato e l'esito delle operazioni, oltre all'eventuale presenza di errori, vengono memorizzati all'interno delle tabelle \texttt{txamg300}, \texttt{txamg301}, \texttt{txamg302} e \texttt{txamg303} (Runs Errors).
+    \item \textbf{Parametrizzazione}: tramite tabelle di configurazione come \texttt{txamg000} (AlteaIN Migration Tool Parameters).
+    \item \textbf{Gestione dei Datafile}: tabelle come \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields) permettono di definire le strutture dei file originali da importare.
+    \item \textbf{Elaborazione dei Batch}: la configurazione e l'esecuzione tramite batch è regolata da tabelle come \texttt{txamg200} (Batch), \texttt{txamg201} (Batch Sequences) e \texttt{txamg202} (Target Tables), insieme ad altre tabelle dedicate al mapping dei campi (\texttt{txamg203}).
+    \item \textbf{Tracciamento delle Esecuzioni}: lo stato e l'esito delle operazioni, oltre all'eventuale presenza di errori, vengono memorizzati all'interno delle tabelle \texttt{txamg300}, \texttt{txamg301}, \texttt{txamg302} e \texttt{txamg303} (Runs Errors).
 \end{itemize}
 
 I Domini includono sia tipi strettamente descrittivi (es. \texttt{txamg.cdom}, \texttt{txamg.fdnm}) sia tipi enumerativi
@@ -231,7 +231,7 @@ per la validazione e il workflow (es. \texttt{txamg.migt} o \texttt{txamg.mapl})
 Esempi di Domini essenziali sono quelli relativi ai formati ASCII (\texttt{txamg.fast}), alle regole di mapping (\texttt{txamg.mapl})
 o al tracciamento dei file (\texttt{txamg.dfil}).
 
-Schema ER del modello dati del Migration Tool (Figura~\ref{fig:er_schema}):
+Schema ER del modello dati del Migration Tool: (Figura~\ref{fig:er_schema})
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{Immagini/Schema_1}

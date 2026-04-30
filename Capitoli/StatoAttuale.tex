@@ -30,7 +30,7 @@ di destinazione, senza possibilità di errore o sovrascrittura accidentale errat
 
 \subsection{Comparazione con Piattaforme ETL Commerciali}
 Sebbene sul mercato esistano soluzioni ETL consolidate di terze parti come Talend o Informatica PowerCenter, la loro integrazione con il \textit{layer} ERP di CloudSuite comporta spesso notevoli barriere architetturali (latenza durante l'interazione con servizi esterni, 
-mancato accesso nativo ai Data Dictionary \textit{under-the-hood} e costosi accordi di licenza a parte), limitando il livello di \textit{customizzazione} ed efficienza esecutiva transazionale che solo uno sviluppo interno o tramite API nativa potrebbe offrire.
+mancato accesso nativo ai \textit{Data Dictionary} \textit{under-the-hood} e costosi accordi di licenza), limitando il livello di personalizzazione ed efficienza esecutiva transazionale che solo uno sviluppo interno o tramite API nativa potrebbe offrire.
 
 Mentre \textit{tool} completi come \textit{Talend Open Studio} consentono manipolazioni grafiche ed orchestrano i \textit{workflow} integrati (da \textit{Big Data pipelines} ai semplici database RDBMS o NoSQL), l'affidamento esclusivo alle interfacce basate su 
 API o servizi SOAP standardizzati pre-esistenti impone che tutte le conversioni siano effettuate fuori dall'ecosistema di riferimento e che le uniche interfacce ad accollarsi la stesura siano le API \textit{BODs (Business Object Documents)}. 
@@ -55,11 +55,11 @@ tramite \textit{menu} contestuali o ricerca diretta (Figura~\ref{fig:ln_ui}).
 Infor LN è basato su un'architettura che separa il \textit{framework} tecnologico (gli Infor Tools) dalla logica di \textit{business}.
 Ogni applicazione è composta da diversi oggetti:
 \begin{itemize}
-    \item \textbf{Tabelle (\textit{Tables}):} I dati fisici, definiti tramite \textit{Data Dictionary}, con domini standard o \textit{custom}.
-    \item \textbf{Sessioni (\textit{Sessions}):} Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
-    \item \textbf{DAL (\textit{Data Access Layer}):} L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni \cite{inforDalGuide}.
-    \item \textbf{Domini (\textit{Domains}):} Definiscono i tipi di dati, con regole di validazione e formati, che possono essere standard o personalizzati (\textit{custom}).
-    \item \textbf{Etichette (\textit{Labels}):} Utilizzate per la localizzazione e la visualizzazione dei campi nelle Sessioni, con supporto multilingue (es.
+    \item \textbf{Tabelle (\textit{Tables})}: I dati fisici, definiti tramite \textit{Data Dictionary}, con domini standard o \textit{custom}.
+    \item \textbf{Sessioni (\textit{Sessions})}: Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
+    \item \textbf{DAL (\textit{Data Access Layer})}: L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni \cite{inforDalGuide}.
+    \item \textbf{Domini (\textit{Domains})}: Definiscono i tipi di dati, con regole di validazione e formati, che possono essere standard o personalizzati (\textit{custom}).
+    \item \textbf{Etichette (\textit{Labels})}: Utilizzate per la localizzazione e la visualizzazione dei campi nelle Sessioni, con supporto multilingue (es.
     02 corrisponde alla lingua inglese, e 06 alla lingua italiano).
 \end{itemize}
 
@@ -68,14 +68,14 @@ Per lo sviluppo e personalizzazione degli \textit{script} e librerie, Infor LN u
 
 Esso si divide a sua volta in:
 \begin{itemize}
-    \item \textbf{4GL (\textit{Fourth-Generation Language}):} La versione più recente e moderna.
+    \item \textbf{4GL (\textit{Fourth-Generation Language})}: La versione più recente e moderna.
     Infor LN Tools genera automaticamente operazioni standard di Sessione e database (CRUD). In 4GL non è necessario
     scrivere codice per gestire il salvataggio o il caricamento di un record, ma ci si concentra sulla gestione
     degli \textit{eventi} legati ai componenti della Sessione o del database (tramite \textit{DAL} \cite{inforDal2Guide}).
-    \item \textbf{3GL (\textit{Third-Generation Language}):} Precedente a 4GL, e totalmente integrato con esso, viene utilizzato
+    \item \textbf{3GL (\textit{Third-Generation Language})}: Precedente a 4GL, e totalmente integrato con esso, viene utilizzato
     per la gestione di logiche di \textit{business} complesse.
     Permette un approccio più procedurale e a basso livello per implementare funzioni matematiche, algoritmi personalizzati,
-    \textit{DLL} (\textit{Dynamic Link Libraries}) proprietarie, funzioni e routine di manipolazione stringhe o file, nonchè di estensioni (\textit{extensions})
+    \textit{DLL} (\textit{Dynamic Link Libraries}) proprietarie, funzioni e routine di manipolazione stringhe o file, nonché di estensioni (\textit{extensions})
     che rappresentano in alcuni casi, l'unico modo di interagire e personalizzare tabelle e procedure standard.
 \end{itemize}
 
@@ -100,15 +100,15 @@ più sistemi sorgenti (\textit{source}), spesso eterogenei e obsoleti, per prepa
 
 Nello specifico, le tre fasi si articolano nel seguente modo:
 \begin{itemize}
-    \item \textbf{Extract (Estrazione):} Rappresenta il processo di lettura e acquisizione delle informazioni dal sistema \textit{legacy}. In questa fase i dati spesso 
+    \item \textbf{Extract (Estrazione)}: Rappresenta il processo di lettura e acquisizione delle informazioni dal sistema \textit{legacy}. In questa fase i dati spesso
     si presentano in formati non strutturati o debolmente strutturati (come file CSV, esportazioni ASCII a larghezza fissa o vecchi archivi 
     relazionali non normalizzati). La priorità in questa fase è estrarre il dato senza alterarne la semantica originale, gestendo le problematiche di codifica 
     dei caratteri (ad esempio \textit{UTF-8} contro vecchie codifiche \textit{ISO}) e di formattazione.
-    \item \textbf{Transform (Trasformazione):} È la fase più complessa e importante dell'intero paradigma. I dati grezzi appena estratti vengono analizzati, 
+    \item \textbf{Transform (Trasformazione)}: È la fase più complessa e importante dell'intero paradigma. I dati grezzi appena estratti vengono analizzati,
     ripuliti e manipolati per adattarsi alle regole di \textit{business} del nuovo \textit{ERP}. Ciò include operazioni di \textit{data cleansing} 
     (rimozione dei duplicati o record corrotti), \textit{data mapping} (associazione logica tra i campi del vecchio sistema e del nuovo), e \textit{casting} dei tipi 
     (ad esempio, la conversione di una stringa testuale di dati in un \textit{timestamp} UTC). 
-    \item \textbf{Load (Caricamento):} L'ultima fase consiste nella scrittura fisica dei dati processati nel database \textit{target}. In ambienti complessi, 
+    \item \textbf{Load (Caricamento)}: L'ultima fase consiste nella scrittura fisica dei dati processati nel database \textit{target}. In ambienti complessi,
     questa scrittura non avviene quasi mai tramite interrogazioni SQL dirette, bensì passando attraverso \textit{API} o livelli di astrazione (come il DAL) che si 
     occupano di avviare eventi aziendali, ricalcolare saldi e far scattare controlli di integrità referenziale.
 \end{itemize}

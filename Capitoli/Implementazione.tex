@@ -149,9 +149,9 @@ function void GeneraMap(domain tcmcs.str8 tabella)
 Nell'esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
 file alla struttura della tabella target:
 \begin{itemize}
-    \item \textbf{Riga 4-6:} Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
-    \item \textbf{Riga 9-10:} Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
-    \item \textbf{Riga 12-13:} Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire lunghezze e allineamenti secondo il dominio Infor LN.
+    \item \textbf{Riga 4-6}: Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
+    \item \textbf{Riga 9-10}: Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
+    \item \textbf{Riga 12-13}: Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire lunghezze e allineamenti secondo il dominio Infor LN.
 \end{itemize}
 
 \subsection{Funzioni di Trasformazione Ad-hoc}
@@ -211,24 +211,24 @@ L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, de
 \textit{s-sessions} a seconda della loro finalità operativa.
 
 \subsection{Design dell'Interfaccia Utente e Scelte UX/UI in Baan}
-Lo sviluppo e l'elaborazione dell'interfaccia si sono dovuti adattare a specifi vincoli e \textit{design pattern} di
+Lo sviluppo e l'elaborazione dell'interfaccia si sono dovuti adattare a specifici vincoli e \textit{design pattern} di
 Infor LN, in modo da fornire all'utente una \textit{UX} (\textit{User Experience}) coerente e uniforme.
 
 Gli elementi chiave della \textit{UI} implementati comprendono:
 \begin{itemize}
-    \item \textbf{Sessioni Multi-Main (Multi-Occorrenza) vs Details (Dettaglio):} Gran parte delle maschere previste
+    \item \textbf{Sessioni Multi-Main (Multi-Occorrenza) vs Details (Dettaglio)}: Gran parte delle maschere previste
     (come l'elenco dei \textit{Datafiles} o \textit{Batch}) sono state progettate come sessioni multi-occorrenza (lista tabellare).
     L'utente può scorrere e filtrare grandi quantità di \textit{record} e aggiungere o modificare dati \textit{inline},
     o richiamare una sessione di dettaglio secondaria in caso di presenza di decine di campi \textit{settings} o a scelta multipla.
     Questo \textit{pattern} aumenta l'intuibilità e la facilità d'uso dello strumento senza commettere errori,
     garantendo il rispetto degli standard sull'usabilità LN\@.
-    \item \textbf{Formati e Maschere (Formats):} I campi a \textit{video} non sono semplici \textit{text-input}, ma
+    \item \textbf{Formati e Maschere (Formats)}: I campi a \textit{video} non sono semplici \textit{text-input}, ma
     si basano su \textit{formati} specifici imposti a livello di \textit{Data Dictionary}.
     Questa scelta fa in modo che il cursore e il \textit{parsing} dell'input costringano \textit{out-of-the-box}
     l'inserimento solo di dati previsti e corretti (per esempio:
     forzando il Maiuscolo, o aggiungendo i separatori alle cifre decimali), eliminando una buona porzione di
     possibili errori prima ancora dell'esecuzione e successivo salvataggio.
-    \item \textbf{Zoom (Lookups/Selettori Dati):} Altro strumento essenziale nell'interfaccia del \textit{Migration Tool} è l'uso degli \textit{zoom}.
+    \item \textbf{Zoom (Lookups/Selettori Dati)}: Altro strumento essenziale nell'interfaccia del \textit{Migration Tool} è l'uso degli \textit{zoom}.
     Gli \textit{zoom} consentono all'utente, all'interno dei campi di \textit{foreign key} (ad esempio: per scegliere a
     quale \textit{Package} logico appartiene una tabella, ma non solo), di
     lanciare una sub-sessione modale per ricercare e prelevare un valore da tabelle o da enum (opzioni predefinite) preesistenti, invece di
@@ -236,8 +236,8 @@ Gli elementi chiave della \textit{UI} implementati comprendono:
 \end{itemize}
 
 Le sessioni principali per la gestione dei \texttt{batch} e dei \texttt{mapping} sono visualizzabili nelle
-Figure~\ref{fig:batches}, ~\ref{fig:batch_sequences}, ~\ref{fig:batch_target_tables},
-~\ref{fig:table_mappings}.
+Figure~\ref{fig:batches}, \ref{fig:batch_sequences}, \ref{fig:batch_target_tables},
+\ref{fig:table_mappings}.
 
 \begin{figure}[H]
     \centering
@@ -271,9 +271,9 @@ Nelle sessioni dei mapping si definiscono le tabelle target e le logiche di conv
 
 Si evidenziano, per esempio:
 \begin{itemize}
-    \item \textbf{Setup iniziale:} la Sessione \texttt{txamg0100m000} permette la parametrizzazione globale dello strumento.
-    \item \textbf{Definizione Formati:} le Sessioni relative a \texttt{txamg1110} gestiscono il popolamento dei formati dati elaborati.
-    \item \textbf{Mapping Dati:} la definizione di conversione logica e associazioni campo-campo tra origine e
+    \item \textbf{Setup iniziale}: la Sessione \texttt{txamg0100m000} permette la parametrizzazione globale dello strumento.
+    \item \textbf{Definizione Formati}: le Sessioni relative a \texttt{txamg1110} gestiscono il popolamento dei formati dati elaborati.
+    \item \textbf{Mapping Dati}: la definizione di conversione logica e associazioni campo-campo tra origine e
     destinazione avviene nelle interfacce di visualizzazione delle tabelle \textit{target} (\texttt{txamg2102m000}) e \textit{fields mapping} (\texttt{txamg2103m000}).
 \end{itemize}
 

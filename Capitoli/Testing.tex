@@ -18,11 +18,13 @@ degli Infor Exchange sono stati testati su porzioni specifiche di file.
 
 Verificando ogni singola colonna (\texttt{txamg1111}), la validazione include il corretto casting di tipi enumerati,
 decimali a virgola mobile e codifiche caratteri ASCII, simulando una diversità di input.
-Durante questa fase si vede come i cambi di versione della destinazioni non alterino le librerie costruite se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
+Durante questa fase è possibile osservare come le diverse versioni del programma non alterino le librerie costruite
+se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
 
 \subsection{Test del Flusso di Migrazione}
 L'integrazione \textit{end-to-end} è validata eseguendo flussi di test governati dalle logiche di \textit{batch} (\texttt{txamg2100}
-e \texttt{txamg3200}). Durante questi test, il sistema genera gli \textit{script} di elaborazione e li sottopone al compilatore interno \texttt{bic\_compiler}.
+e \texttt{txamg3200}).
+Durante questi test, il sistema genera gli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
 Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} e lanciato.
 
 \begin{figure}[H]
@@ -193,7 +195,7 @@ La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fal
         ]{
             45/Violazione Vincoli Referenziali (DAL),
             30/Errori di Tipo Dato / Formato,
-            15/Troncamenti e Padding Errrati,
+            15/Troncamenti e Padding Errati,
             10/Timeouts Rete CloudSuite
         }
     \end{tikzpicture}

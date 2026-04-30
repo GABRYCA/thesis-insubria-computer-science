@@ -44,7 +44,7 @@ Il modello relazionale si basa su un raggruppamento logico identificato dai pref
 Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{appendix:tabelle}.
 
 \begin{itemize}
-    \item \textbf{Setup e Parametrizzazione (\texttt{txamg000}):} Raccoglie i parametri globali del \textit{tool}, incluse le
+    \item \textbf{Setup e Parametrizzazione (\texttt{txamg000})}: Raccoglie i parametri globali del \textit{tool}, incluse le
     impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i \textit{package}/moduli su cui generare il codice.
     L'interfaccia di configurazione (Figura~\ref{fig:params}) permette di definire i parametri globali.
 
@@ -55,16 +55,16 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
         \label{fig:params}
     \end{figure}
 
-    \item \textbf{Gestione Metadati (\texttt{txamg1xx}):} Le tabelle \texttt{txamg110} (\textit{Datafiles})
+    \item \textbf{Gestione Metadati (\texttt{txamg1xx})}: Le tabelle \texttt{txamg110} (\textit{Datafiles})
     e \texttt{txamg111} (\textit{Datafile Fields}) costituiscono il dizionario della sorgente.
     Mappano i file di \textit{input}, includendo il formato (es.
     separatori \textit{ASCII}, lunghezza fissa) e i domini di ciascun campo (tipo di dato, posizioni iniziali e lunghezze).
-    \item \textbf{Regole di Mapping (\texttt{txamg2xx}):} Rappresentano la parte di logica transazionale.
+    \item \textbf{Regole di Mapping (\texttt{txamg2xx})}: Rappresentano la parte di logica transazionale.
     In \texttt{txamg202} (\textit{Target Tables}) si definiscono le entità, le logiche di aggiornamento
     del database e i vincoli di condivisione (\textit{Shared}). Successivamente con \texttt{txamg203}
     (\textit{Mapped Fields}), vengono stabilite le relazioni uno-a-uno e uno-a-molti, standardizzate per le funzioni
     obbligatorie o opzionali.
-    \item \textbf{Esecuzione e Log (\texttt{txamg3xx}):} Il sistema adotta una politica di esecuzione strutturata in
+    \item \textbf{Esecuzione e Log (\texttt{txamg3xx})}: Il sistema adotta una politica di esecuzione strutturata in
     \textit{run} (elaborazioni).
     Attraverso \texttt{txamg300}, \texttt{txamg301} e \texttt{txamg302} viene memorizzato il conteggio esatto dei
     record letti, processati o ignorati in base a tempi e sequenze.
@@ -179,9 +179,9 @@ costruito su Baan C avrebbe avuto un grande peso sulle performance (\textit{over
 SQL e del parsing delle regole stringa-su-stringa per ogni record.
 
 Al contrario, il \textit{tool} predilige un motore \textit{generatore di codice} compilato (tramite il \texttt{bic\_compiler}). I metadati 
-dell'origine e di destinazione vengono tradotti (\textit{translated}) \textit{una tantum} in script Baan C \textit{on-the-fly}. Questi script 
-vengono quindi registrati dal server Infor e diventano immutabili (a meno di un ricalcolo paramettrizzato) durante l'esecuzione. 
-Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, mantenendo l'inserimento sul database 
+dell'origine e di destinazione vengono tradotti (\textit{translated}) \textit{una tantum} in script Baan C \textit{on-the-fly}.
+Questi script vengono quindi registrati dal server Infor e diventano immutabili (a meno di un ricalcolo parametrizzato) durante l'esecuzione.
+Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, mantenendo l'inserimento sul database
 limitato solo ai limiti d'I/O dell'hardware o latenza di rete, sfruttando a pieno Infor.
 
 \subsection{Modulo di Integrazione Ad-hoc e Callbacks}
