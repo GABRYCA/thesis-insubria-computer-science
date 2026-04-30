@@ -7,24 +7,16 @@
 \usepackage{multicol} % Per il frontespizio
 \usepackage[utf8]{inputenc} % Input encoding
 \usepackage[english,italian]{babel} % Lingua principale italiana, con parti in inglese
+\usepackage{minted} % Per i blocchi di codice
 \usepackage{csquotes} % Dipendenza di babel e biblatex
-\usepackage{blindtext} % Fenerazione di paragrafi lorem ipsum
+\usepackage{blindtext} % Generazione di paragrafi lorem ipsum
 \usepackage{graphicx} % Immagini esterne
 
-% Sperimentali
-\usepackage{microtype}
-
-
-% Impaginazione e margini
-\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
-
-\usepackage[fontsize=12pt]{scrextend} % dimensione font
 \usepackage{setspace}
 \onehalfspacing % interlinea 1.5
 
 \usepackage[parfill]{parskip} % Disabilita l'indentazione dopo essere andati a capo
 \usepackage{titlesec}
-\usepackage{minted} % Per i blocchi di codice
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -47,16 +39,24 @@
 % Captions
 \usepackage[font=scriptsize, skip=5pt, justification=centering]{caption}
 
-\usepackage[backend=biber, style=numeric, backref=true]{biblatex}
+\usepackage[backend=biber, style=numeric, backref=true, defernumbers=true]{biblatex}
 
 \usepackage[immediate]{silence}
 \WarningFilter[temp]{latex}{Command}
 \usepackage{sectsty}
 \DeactivateWarningFilters[temp]
+\WarningFilter{microtype}{Unable to apply patch `footnote'}
 
 \usepackage{hyperref} % Rende l'indice cliccabile
 \usepackage[bottom]{footmisc} % Posiziona le footnotes alla fine della pagina
 \usepackage{subcaption}
+
+% Sperimentali
+\usepackage{microtype}
+
+% Impaginazione e margini
+\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
+\usepackage[fontsize=12pt]{scrextend} % dimensione font
 
 % ------------------------
 % ---- DOCUMENT SETUP ----
@@ -88,12 +88,13 @@
 % ------------------------
 \addbibresource{bibliography.bib} % Bibliografia
 \begin{document} % Inizio documento
-\pagenumbering{gobble} % Disabilita numerazione pagine
+\hypersetup{pageanchor=false}
+\frontmatter
 \input{Frontespizio} % PAGINA FRONTESPIZIO
 % \input{Dedica} % PAGINA DEDICA
 \tableofcontents  % Genera l'indice
-\newpage % Nuova pagina
-\pagenumbering{arabic} % Riabilita la numerazione in modo che cominci dal primo capitolo
+\mainmatter
+\hypersetup{pageanchor=true}
 \setcounter{chapter}{0} % Fa risultare l'introduzione come capitolo 0
 
 % ------------------
