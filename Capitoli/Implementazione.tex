@@ -1,7 +1,7 @@
 \chapter{Implementazione}
 
 \emph{Questo capitolo offre una panoramica sull'implementazione del software, partendo dall'Importer Infor Exchange fino
-al motore generatore di codice, librerie (DLL) e alle interfacce utente.
+al motore generatore di codice, librerie (DLL) alle interfacce utente.
 Sono illustrati snippet in Baan C per descrivere la logica interna del Tool.}
 
 
@@ -17,13 +17,14 @@ l'enumerato \texttt{txamg.fast}.
 
 Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o \textit{padding} dei campi vuoti.
 Durante questa fase il generatore effettua operazioni di \textit{concatenazione stringhe} (utilizzando operazioni come \texttt{concat} e \texttt{string.scan}). 
-L'implementazione di \textit{string concatenation} in linguaggi \textit{legacy}/Baan C richiede particolare cura poiché le stringhe spesso hanno dimensionamenti 
-fissi; un vantaggio positivo della manipolazione nativa e deterministica con domini forti è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione del footprint in RAM, 
-i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
+L'implementazione di \textit{string concatenation} in linguaggi \textit{legacy}/Baan C richiede particolare cura poiché le stringhe spesso non hanno dimensionamenti
+fissi.
+Un vantaggio positivo della manipolazione nativa e deterministica con domini è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione dell'utilizzo \textit{RAM},
+ma d'altro canto i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
 
-L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un solo singolo file sorgente (o su limitati file macro per l'intero transnazionale).
+L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un solo singolo file sorgente (o su limitati file macro per l'intero transazionale).
 Questo permette notevoli miglioramenti sull'\textit{overhead} per ciascuna interazione, superando il limite della logica dell'\textit{Exchange} Infor a
-causa delle proprie inefficienti operazioni di apertura, scansione e chiusura sequenziale di numerosi file piccoli.
+causa delle proprie inefficienti operazioni di apertura, scansione e chiusura sequenziale di numerosi piccoli file.
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
@@ -66,8 +67,8 @@ L'obiettivo secondario dell'importer è auto-compilare il \textit{setup} dello s
 Utilizzando le definizioni originarie dei file (le tabelle \textit{legacy}), il programma crea dinamicamente o aggiorna una
 mappatura interna dei \textit{Data Files} attraverso Sessioni \textit{back-end} come \texttt{txamg1110m000}.
 
-Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) ed i tipi di dominio correlati (\texttt{txamg.atyp}) vengono
-riversati nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
+Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) e i tipi di dominio correlati (\texttt{txamg.atyp}) vengono
+inseriti nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
 di \textit{data-mapping} manuale verso le tabelle \textit{target} \textit{CloudSuite}.
 
 L'utente può gestire i gruppi di file ed i singoli file sorgente tramite le sessioni mostrate in
@@ -99,8 +100,8 @@ I dettagli dei campi per ogni file, inclusi i domini e le lunghezze, è gestito 
 
 \section{Implementazione del Generatore di Codice}
 \subsection{Creazione Dinamica del Codice}
-La generazione dinamica del codice è gestita mediante apposite librerie \textit{DLL} (\textit{Dynamic Link Library}) fornite
-nel sistema Infor, quali \texttt{txamgdll0012} (\textit{Script Generator - Load dll}) e \texttt{txamgdll0013} (\textit{Script Generator - Process dll}).
+La generazione dinamica del codice è gestita mediante apposite librerie \textit{DLL} (\textit{Dynamic Link Library}) create
+all'interno del sistema Infor, quali \texttt{txamgdll0012} (\textit{Script Generator - Load dll}) e \texttt{txamgdll0013} (\textit{Script Generator - Process dll}).
 
 Il codice sorgente Baan C viene generato riga per riga, definendo le firme delle funzioni
 (es. \texttt{function extern long process.import.file...()}) e le variabili necessarie.
@@ -147,7 +148,7 @@ function void GeneraMap(domain tcmcs.str8 tabella)
 \end{listing}
 
 Nell'esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
-file alla struttura della tabella target:
+file alla struttura della tabella \textit{target}:
 \begin{itemize}
     \item \textbf{Riga 4-6}: Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
     \item \textbf{Riga 9-10}: Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
@@ -155,9 +156,9 @@ file alla struttura della tabella target:
 \end{itemize}
 
 \subsection{Funzioni di Trasformazione Ad-hoc}
-Oltre alle regole predefinite, l'interprete permette la dichiarazione e l'inserimento di funzioni \textit{custom}.
+Oltre alle regole predefinite, l'interprete permette la dichiarazione e l'inserimento di funzioni personalizzate create ad-hoc.
 Durante il processo, eventuali routine di validazione o pulizia del dato possono essere inoltrate ad altre
-interfacce di esecuzione (come \texttt{txamg3200} - Execute Batch Runs).
+interfacce di esecuzione (come \texttt{txamg3200} - \textit{Execute Batch Runs}).
 
 Diventa quindi essenziale consentire allo sviluppatore di interagire con il tool attraverso \textit{callback} \textit{ad-hoc}.
 Per esempio, nel caso in cui una data proveniente dal sistema \textit{legacy} necessiti di \textit{parsing} complesso

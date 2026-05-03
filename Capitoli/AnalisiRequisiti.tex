@@ -18,14 +18,14 @@ con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
 I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabilito
 con gli \textit{stakeholder}.
 
-\subsection{Sviluppo dell'Importer Infor Exchange}
+\subsection{Sviluppo dell'Importer per Infor Exchange}
 Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo strumento preesistente nativo di Infor \textit{Exchange}.
 
-Tali file presentano specifici \textit{layout} (come formati testuali \textit{ASCII} o delimitati) che dovranno essere interpretati per
+Tali file presentano specifici \textit{layout} (come formati testuali \textit{ASCII}) che dovranno essere interpretati per
 popolare il dizionario \texttt{txamg110} (\textit{Datafiles}) e \texttt{txamg111} (\textit{DataFile Fields}).
 A differenza dell'approccio frammentato dell'\textit{Exchange} di Infor, adotteremo una soluzione ottimizzata: il \textit{tool} processerà
-l'intero flusso di metadati a partire da un singolo file sorgente, limitando e rimuovendo del tutto l'elaborazione a blocchi limitati
-su tanti piccoli file singoli che rallenterebbero l'esecuzione inziale dell'\textit{import}.
+l'intero flusso di metadati a partire da un singolo file sorgente, limitando e rimuovendo del tutto l'elaborazione a piccoli blocchi
+su innumerevoli file che rallentano l'esecuzione iniziale dell'\textit{import}.
 In altre parole, il file sorgente sarà un singolo file generato dall'importer, contenente tutte le tabelle e dati dalla fonte
 legacy da cui si sta migrando, e il tool farà un controllo completo iniziale, e passerà poi all'elaborazione in \textit{batch} dei \textit{runs}.
 
@@ -36,7 +36,7 @@ conversione, % invocando i compilatori interni Infor e producendo file eseguibil
 senza l'intervento manuale del programmatore.
 
 \subsection{Estensibilità con Funzioni Ad-hoc}
-Nonostante l'automazione, alcune regole di \textit{legacy} di \textit{business} non potranno essere legate a semplici assegnazioni.
+Nonostante l'automazione, alcune regole \textit{legacy} di \textit{business} non potranno essere legate a semplici assegnazioni.
 
 Viene quindi la necessità di una funzionalità di \textit{callback} per permettere, ad opera dello sviluppatore, l'inserimento di
 \textit{script} personalizzati che verranno inseriti nel processo principale durante l'esecuzione \textit{batch} (\texttt{txamg3200}).
@@ -47,25 +47,25 @@ documentazione aziendale, permettendo la produzione ed esportazione di specifich
 \textit{mappature}, eccezioni e \textit{log} generati in fase di esecuzione (necessari per \textit{debugging}).
 
 \section{Requisiti Non Funzionali}
-I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali del software \cite{sommervilleSoftwareEng}.
+I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali del software\cite{sommervilleSoftwareEng}.
 
 \subsection{Manutenibilità ed Estensibilità}
 Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il \textit{framework} Infor Tools,
 così da garantirne la compatibilità con future \textit{release} dell'\textit{ERP} e manutenibilità semplificata per il comparto IT aziendale.
-Tale scelta rappresenta inoltre uno stringente vincolo architetturale: l'ecosistema Infor LN non permetteva agevolmente altre alternative
+Tale scelta rappresenta inoltre uno stringente vincolo architetturale: l'ecosistema Infor LN non permette agevolmente altre alternative
 per questo genere di operazioni \texttt{massive}.
-Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche ad un aggiornamento
-ai \textit{Web Services} REST sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
+Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche a un aggiornamento
+ai \textit{Web Services REST} sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
 essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
 fondamentalmente inadatti alle \textit{performance} richieste e alla complessità di manipolazione di grandi moli di dati
 (mancanza di primitive complete per elaborazioni \textit{batch} complesse).
 Generalmente inoltre, molti \textit{endpoint} sono protetti internamente e bloccati da Infor stessa e resi quindi inutilizzabili per
-sviluppatori esterni (noi).
-Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione valida, \textit{performante} e completamente integrabile.
+sviluppatori esterni e consulenti.
+Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione adatta, \textit{performante} e completamente integrabile.
 
 \subsection{Sicurezza e Data Integrity in Multitenancy}
 Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti
-\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono delle priorità importanti.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
+\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono un requisito fondamentale.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
 
 %\subsection{Prestazioni e Affidabilità}
 Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
@@ -154,7 +154,7 @@ Vengono quindi mostrate di seguito le tabelle descrittive per ciascun caso d'uso
     \midrule
     \textbf{Post-condizioni} & Le logiche di \textit{mapping} sono finalizzate nel Data Entry. \\
     \midrule
-    \textbf{Eccezioni} & Campi target non esistenti, errata associazione di tipo dato. \\
+    \textbf{Eccezioni} & Campi target non esistenti, errata associazione del tipo di dato. \\
 \end{longtable}
 
 \begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
@@ -181,7 +181,7 @@ Vengono quindi mostrate di seguito le tabelle descrittive per ciascun caso d'uso
     \midrule
     \textbf{Post-condizioni} & Codice generato, validato dal compilatore interno e pronto per il \textit{deploy}. \\
     \midrule
-    \textbf{Eccezioni} & Regole complesse custom errate (sintassi non valida), lock sui file da compilare. \\
+    \textbf{Eccezioni} & Regole personalizzate complesse errate (sintassi non valida), lock sui file da compilare. \\
 \end{longtable}
 
 \begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
@@ -272,4 +272,4 @@ Tabella delle tabelle principali del Migration Tool:
 \end{longtable}
 
 
-Questi elementi compongono le fondamenta dell'integrazione per la generazione del codice di migrazione e dell'importer Infor Exchange.
+Questi elementi compongono le fondamenta dell'integrazione per la generazione del codice di migrazione e dell'\textit{Importer}.

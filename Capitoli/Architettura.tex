@@ -138,7 +138,7 @@ l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Databas
 
 \subsection{Diagramma dei Componenti}
 L'architettura può essere descritta logicamente attraverso il seguente diagramma a blocchi dei moduli, dove il
-Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor API e Tools.
+Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor Tools e DAL\@.
 \begin{figure}[H]
     \centering
      \begin{tikzpicture}[node distance=1cm, auto, thick,
@@ -185,7 +185,7 @@ Al contrario, il \textit{tool} predilige un motore \textit{generatore di codice}
 dell'origine e di destinazione vengono tradotti (\textit{translated}) \textit{una tantum} in script Baan C \textit{on-the-fly}.
 Questi script vengono quindi registrati dal server Infor e diventano immutabili (a meno di un ricalcolo parametrizzato) durante l'esecuzione.
 Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, mantenendo l'inserimento sul database
-limitato solo ai limiti d'I/O dell'hardware o latenza di rete, sfruttando a pieno Infor.
+limitato solo ai limiti d'I/O dell'hardware o latenza di rete, sfruttando a pieno Infor LN.
 
 \subsection{Modulo di Integrazione Ad-hoc e Callbacks}
 Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di \textit{business} richiedono sviluppi
