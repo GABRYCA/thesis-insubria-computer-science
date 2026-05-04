@@ -1,22 +1,44 @@
 ﻿\chapter{Analisi dei Requisiti}
 
 \section{Scenario di Riferimento}
-\subsection{Strumento di Migrazione Esistente}
-Negli ambienti \textit{legacy}, come già menzionato nel capitolo precedente, il processo di migrazione dei dati \cite{dataMigrationStrategies} si basa su procedure
-manuali e \textit{script} \textit{ad hoc}.
-
-I consulenti erano costretti a sviluppare \textit{script} personalizzati per ogni singola tabella e sessione,
-con lunghi tempi di realizzazione e grandi rischi inerenti alla trascrizione manuale delle logiche di \textit{mapping}.
-
-% \subsection{Necessità di Ottimizzazione}
-Inoltre, cambiamenti da parte di Infor e nuovi \textit{standard} più restrittivi hanno reso le operazioni manuali molto più
-complesse \cite{erpMigration}.
-Emerge quindi la necessità aziendale di innovare, ottimizzare e automatizzare il processo
-con un nuovo strumento, ossia l'integrazione di un \textit{Migration Tool}.
+\subsection{Necessità di Ottimizzazione}
+Come evidenziato nei capitoli precedenti, i cambiamenti architetturali da parte di Infor e i 
+nuovi \textit{standard} più restrittivi legati agli ambienti \textit{multitenant} hanno reso le 
+operazioni manuali e l'uso dell'Exchange Infor molto più complesse \cite{erpMigration}. 
+Emerge quindi la necessità aziendale di innovare e automatizzare il processo con l'introduzione di un \textit{Migration Tool} avanzato.
 
 \section{Requisiti Funzionali}
-I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabilito
-con gli \textit{stakeholder}.
+I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabilito con gli \textit{stakeholder}. 
+Per la classificazione di questi requisiti è stata adottata la metodologia \textbf{MoSCoW} (\textit{Must have, Should have, Could have, Won't have}), che permette di definire in maniera 
+chiara le priorità di sviluppo (Tabella~\ref{tab:moscow_requisiti}).
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{} p{0.20\linewidth} p{0.75\linewidth} @{}}
+        \toprule
+        \textbf{Priorità} & \textbf{Descrizione Requisito} \\
+        \midrule
+        \textbf{Must Have} & 
+        - Sviluppo dell'\textit{Importer} per i file legacy. \newline
+        - Generatore dinamico di codice Baan C 4GL e 3GL. \newline
+        - Validazione formale del dictionary (DAL). \newline
+        - Gestione massiva (Batch) delle elaborazioni. \\
+        \midrule
+        \textbf{Should Have} & 
+        - Estensibilità con funzioni ad-hoc (\textit{Callback}). \newline
+        - Esportazione documentale integrata con strumenti aziendali preesistenti. \\
+        \midrule
+        \textbf{Could Have} & 
+        - Suggerimento intelligente (o logica basata su Machine Learning testuale) per la proposizione automatica dei \textit{mapping} Target-Source. \\
+        \midrule
+        \textbf{Won't Have} & 
+        - Elaborazione distribuita su più thread (non supportata). \newline
+        - Interfaccia grafica completamente distaccata dalla LNUI. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Classificazione dei requisiti funzionali secondo la matrice MoSCoW.}
+    \label{tab:moscow_requisiti}
+\end{table}
 
 \subsection{Sviluppo dell'Importer per Infor Exchange}
 Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo strumento preesistente nativo di Infor \textit{Exchange}.
@@ -53,15 +75,7 @@ I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali d
 Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il \textit{framework} Infor Tools,
 così da garantirne la compatibilità con future \textit{release} dell'\textit{ERP} e manutenibilità semplificata per il comparto IT aziendale.
 Tale scelta rappresenta inoltre uno stringente vincolo architetturale: l'ecosistema Infor LN non permette agevolmente altre alternative
-per questo genere di operazioni \texttt{massive}.
-Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche a un aggiornamento
-ai \textit{Web Services REST} sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
-essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
-fondamentalmente inadatti alle \textit{performance} richieste e alla complessità di manipolazione di grandi moli di dati
-(mancanza di primitive complete per elaborazioni \textit{batch} complesse).
-Generalmente inoltre, molti \textit{endpoint} sono protetti internamente e bloccati da Infor stessa e resi quindi inutilizzabili per
-sviluppatori esterni e consulenti.
-Lo sviluppo nativo \textit{backend} tramite Baan C è risultata quindi l'unica soluzione adatta, \textit{performante} e completamente integrabile.
+per questo genere di operazioni \texttt{massive}. Come anticipato nel precedente capitolo, lo sviluppo nativo \textit{backend} tramite Baan C è risulta quindi l'unica soluzione adatta, \textit{performante} e completamente integrabile.
 
 \subsection{Sicurezza e Data Integrity in Multitenancy}
 Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti
@@ -71,8 +85,46 @@ Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni priv
 Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
 una elaborazione a blocchi al fine di minimizzare i tempi morti generati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
 
+\subsection{Usabilità (UX/UI)}
+Oltre alle performance e alla sicurezza, un requisito non funzionale determinante riguarda l'usabilità del \textit{Tool}. 
+Dato che verrà utilizzato da consulenti applicativi (spesso non programmatori professionisti), l'interfaccia utente dovrà rispettare fedelmente le stringenti linee guida di \textit{Infor LN User Experience}. 
+In particolare, per prevenire errori umani durante le fasi di \textit{Data Entry} e mappatura, il sistema dovrà limitare al minimo i campi a testo libero, sostituendoli ove possibile con 
+componenti di \textit{lookup} o \textit{zoom} obbligatori, che forzano l'utente a selezionare referenze valide (ad esempio, la selezione della tabella \textit{Target} da un elenco precaricato e non tramite inserimento manuale della stringa). 
+Questo paradigma, noto come \textit{Poka-Yoke}, permette di ridurre drasticamente la probabilità di configurazioni errate che impatterebbero a cascata sulla generazione del codice.
+
 \section{Casi d'Uso (Use Cases)}
-Come illustrato nel diagramma di flusso (Figura~\ref{fig:use_case}), per ogni scenario sono state definite le azioni intraprese del sistema.
+Per formalizzare le interazioni tra l'utente (il consulente / sviluppatore) o i sistemi esterni e il \textit{Migration Tool}, è stato realizzato il diagramma dei casi d'uso (Use Case Diagram UML).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+      usecase/.style={ellipse, draw, fill=blue!10, minimum width=2.5cm, minimum height=1cm, text centered, font=\small},
+      actor/.style={rectangle, text centered, font=\small\bfseries}, % Just basic text for actor
+      line/.style={draw, thick}
+    ]
+    \node[actor] (user) at (0, 0) {Consulente/Sviluppatore};
+    
+    \node[usecase] (setup) at (5, 3) {Setup Parametri};
+    \node[usecase] (import) at (6, 1.5) {Import Metadata};
+    \node[usecase] (mapping) at (6, 0) {Definizione Mapping};
+    \node[usecase] (codegen) at (6, -1.5) {Generazione Codice};
+    \node[usecase] (batch) at (5, -3) {Esecuzione Batch};
+    
+    \draw[line] (user) -- (setup.west);
+    \draw[line] (user) -- (import.west);
+    \draw[line] (user) -- (mapping.west);
+    \draw[line] (user) -- (codegen.west);
+    \draw[line] (user) -- (batch.west);
+
+    \draw[-latex, dashed] (codegen) -- node[right, font=\scriptsize] {<<include>>} (mapping);
+    \draw[-latex, dashed] (batch) -- node[right, font=\scriptsize] {<<include>>} (codegen);
+
+    \end{tikzpicture}
+    \caption{Diagramma UML dei Casi d'Uso del Migration Tool.}
+    \label{fig:use_case}
+\end{figure}
+
+Come illustrato nel diagramma di flusso e UML (Figura~\ref{fig:use_case}), per ogni scenario sono state definite le azioni intraprese del sistema.
 Vengono quindi mostrate di seguito le tabelle descrittive per ciascun caso d'uso del \textit{Migration Tool}.
 
 

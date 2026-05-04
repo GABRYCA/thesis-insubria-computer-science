@@ -2,7 +2,6 @@
 
 \emph{Questo capitolo tratta la strategia di validazione, l'esecuzione di unit test sui moduli di parsing e i test di integrazione per il flusso di migrazione. Viene analizzata in dettaglio l'integrità dei dati e la diagnostica degli errori, supportata da metriche di affidabilità.}
 
-
 \section{Strategia di Testing}
 Testare un software per la migrazione dei dati è un aspetto fondamentale.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti \textit{Cloud Multitenant},
@@ -27,6 +26,13 @@ e \texttt{txamg3200}).
 Durante questi test, il sistema genera gli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
 Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} e lanciato.
 
+\subsection{Test della Sicurezza}
+Un software di livello \textit{Enterprise} che si interfaccia con il \textit{database} deve essere a prova di anomalie e di sovraccarichi (voluti o semplicemente variazioni impreviste nell'\textit{input} legato all'estrazione da \textit{sistemi legacy}).
+Oltre a verificare il \textit{mapping} corretto, è stata posta particolare attenzione nelle fasi di validazione e test.
+
+Durante questa fase, sono stati inseriti di proposito al sistema, dei \textit{file} malformati: formati misti in \textit{UTF-8/ISO-8859-1} al posto dello spazio \textit{ASCII} standard, file vuoti o estremamente pesanti per testare la resistenza durante una saturazione del sistema (\textit{Out of Memory}), e misurarne l'utilizzo di memoria \textit{RAM}.
+Dal punto di vista delle righe errate, è stato inserito del testo con dimensioni non in linea con i tipi descritti sul file (\textit{es. nome di 50 caratteri su un tipo di lunghezza massima 10}).
+
 \begin{figure}[H]
 	\centering
 	\tikzset{
@@ -44,10 +50,10 @@ Se la generazione avviene correttamente, lo \textit{script} compilato viene agga
 			\node (disc) [proc_small, below=of dec2, yshift=-0.3cm] {Scarto Record (reer)};
 			\draw [arrow] (raw) -- (read);
 			\draw [arrow] (read) -- (dec2);
-			\draw [arrow] (dec2) -- node[midway, below, font=\scriptsize] {Superata} (proc);
-			\draw [arrow] (dec2) -- node[midway, left, font=\scriptsize] {Non Superata} (disc);
+			\draw [arrow] (dec2) -- node[midway, below, font=\scriptsize] {OK} (proc);
+			\draw [arrow] (dec2) -- node[midway, left, font=\scriptsize] {Errore} (disc);
 			\draw [arrow, dashed] (read.north west) .. controls +(0.4,0.8) and +(-0.4,0.8) .. (read.north east)
-			node[midway, above, font=\scriptsize] {Total Volume};
+			node[midway, above, font=\scriptsize] {Volume Totale};
 		\end{tikzpicture}
 	}
 	\caption{Rappresentazione logica del matching numerico di integrità}
@@ -182,7 +188,7 @@ bottiglia legati alle singole commit di transazione.
     \label{fig:performance_benchmark}
 \end{figure}
 
-\subsection{Analisi degli Errori (Error Pie Chart)}
+\subsection{Analisi degli Errori}
 Nei test di volume, gli scarti (\textit{Discarded Records}) sono stati analizzati e categorizzati per comprenderne l'origine.
 La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fallimenti più comuni.
 
@@ -193,21 +199,21 @@ La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fal
             color={blue!30, red!30, orange!30, yellow!30},
             text=legend
         ]{
-            45/Violazione Vincoli Referenziali (DAL),
-            30/Errori di Tipo Dato / Formato,
-            15/Troncamenti e Padding Errati,
-            10/Timeouts Rete CloudSuite
+            48/Violazione Vincoli Referenziali (DAL),
+            29/Errori di Tipo del Dato / Formato,
+            18/Troncamenti e Padding Errati,
+            5/Timeouts Rete CloudSuite
         }
     \end{tikzpicture}
-    \caption{Distribuzione delle casistiche d'errore durante i run massivi.}
+    \caption{Distribuzione delle casistiche d'errore durante i run.}
     \label{fig:error_piechart}
 \end{figure}
 
 \subsection{Return on Investment (ROI)}
 Infine, dal punto di vista gestionale in AlteaIN, l'automazione dei test e del ciclo di migrazione e sviluppo
-determina un importante risparmio per i consulenti, il quale si tramuta in un tangibile ROI per l'azienda.
+determina un importante risparmio per i consulenti, il quale si tramuta in un certo \textit{ROI} per l'azienda.
 
-La seguente tabella stima il risparmio in giornate/uomo (\textit{Man Days}) rispetto alle fasi operative:
+La seguente tabella stima il risparmio in giornate, dei dipendenti, rispetto alle fasi operative:
 
 \begin{table}[H]
     \centering
@@ -223,9 +229,43 @@ La seguente tabella stima il risparmio in giornate/uomo (\textit{Man Days}) risp
         \textbf{Totale stimato} & \textbf{24} & \textbf{6} & \textbf{-75\%} \\
         \bottomrule
     \end{tabular}
-    \caption{Stima del ROI (Return on Investment) per un tipico mapping tabellare di complessità media.}
+    \caption{Stima della ROI (Return on Investment) per un tipico mapping tabellare di complessità media.}
     \label{tab:roi_estimations}
 \end{table}
+
+Per evidenziare questo risparmio a livello visivo, è stato realizzato un modello (Figura \ref{fig:roi_bar_chart}) che 
+confronta le tempistiche delle singole fasi. 
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+        ybar,
+        bar width=15pt,
+        enlargelimits=0.15,
+        legend style={at={(0.5,-0.20)}, anchor=north, legend columns=-1},
+        ylabel={Giornate Lavorative},
+        symbolic x coords={Analisi, Sviluppo, Test, Fix},
+        xtick=data,
+        nodes near coords,
+        nodes near coords align={vertical},
+        width=12cm,
+        height=7cm
+        ]
+        
+    \addplot[fill=red!60] coordinates {(Analisi, 5) (Sviluppo, 12) (Test, 4) (Fix, 3)};
+    \addplot[fill=blue!60] coordinates {(Analisi, 2) (Sviluppo, 1) (Test, 2) (Fix, 1)};
+    
+    \legend{Script Legacy/Porting, Migration Tool}
+    \end{axis}
+\end{tikzpicture}
+\caption{Confronto grafico delle risorse impiegate tra vecchio e nuovo modello.}
+\label{fig:roi_bar_chart}
+\end{figure}
+
+Il drastico taglio dei tempi dedicati allo sviluppo degli script deriva totalmente dalla natura del \textit{Metaprogramming} studiata nell'Applicazione che riduce 12 giorni di interazione Infor a circa 1 giorno. 
+Ciò permette un margine di profitto notevolmente vantaggioso: se ipotizzassimo a $100$ giorni (circa $800$ ore di lavoro) il quantitativo aziendale investito per la completa stesura del piano e del \textit{tool}, dal risparmio in ogni progetto ($18$ giornate) AlteaIN ripagherà interamente tale sforzo in tempi molto brevi, 
+trasformando in utile netto le successive migrazioni/\textit{porting} per tutti gli sviluppi e aggiornamenti che seguiranno, dimostrandone la superiorità dei processi \textit{Agile}.
 
 \begin{figure}[H]
 	\centering

@@ -56,6 +56,32 @@ Infor LN, nato con il nome di \textit{Baan ERP}, è uno dei principali \textit{E
 Viene integrato all'interno della Infor \textit{CloudSuite Enterprise}, il quale offre funzionalità per la gestione della \textit{supply chain}
 e produzione~\cite{inforCloudsuite}.
 
+L'architettura logica e fisica di Infor LN si basa su un classico ma solido modello a tre livelli (Figura~\ref{fig:infor_architecture}), 
+volto a disaccoppiare interamente l'interazione utente, la logica di \textit{business} e l'accesso al database. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=2cm, auto,
+      box/.style={rectangle, draw=black, fill=blue!10, text width=6cm, text centered, rounded corners, minimum height=1.5cm},
+      line/.style={draw, -latex', thick}
+    ]
+    % Nodes
+    \node [box, fill=green!10] (ui) {\textbf{Livello Presentazione}\\Web UI (LNUI) / BION API / Ming.le};
+    \node [box, below of=ui, node distance=3.5cm, fill=orange!10] (app) {\textbf{Livello Applicativo}\\Sessioni, Baan C scripts e DLLs};
+    \node [box, below of=app, node distance=3.5cm, fill=red!10] (db) {\textbf{Livello Dati (Data/DAL)}\\RDBMS Database \& Data Dictionary};
+    
+    % Edges
+    \draw [line] ([xshift=-1.5cm]ui.south) -- node[left, text width=2.5cm, align=right] {Richieste\\Input} ([xshift=-1.5cm]app.north);
+    \draw [line] ([xshift=1.5cm]app.north) -- node[right, text width=2.5cm] {Web Update\\Risposte} ([xshift=1.5cm]ui.south);
+
+    \draw [line] ([xshift=-1.5cm]app.south) -- node[left, text width=2.5cm, align=right] {Query\\CRUD} ([xshift=-1.5cm]db.north);
+    \draw [line] ([xshift=1.5cm]db.north) -- node[right, text width=3cm] {Record Set\\Validazioni DAL} ([xshift=1.5cm]app.south);
+
+    \end{tikzpicture}
+    \caption{Rappresentazione schematica dell'architettura a 3 livelli (Three-tier) di Infor LN.}
+    \label{fig:infor_architecture}
+\end{figure}
+
 L'interfaccia utente Web (nota come \texttt{LNUI}) permette agli utenti finali di navigare tra le diverse sessioni
 tramite \textit{menu} contestuali o ricerca diretta (Figura~\ref{fig:ln_ui}).
 
@@ -120,9 +146,15 @@ Nello specifico, le tre fasi si articolano nel seguente modo:
     relazionali non normalizzati). La priorità in questa fase è estrarre il dato senza alterarne la semantica originale, gestendo le problematiche di codifica 
     dei caratteri (ad esempio \textit{UTF-8} contro vecchie codifiche \textit{ISO}) e di formattazione.
     \item \textbf{Transform (Trasformazione)}: È la fase più complessa e importante dell'intero paradigma. I dati grezzi appena estratti vengono analizzati,
-    ripuliti e manipolati per adattarsi alle regole di \textit{business} del nuovo \textit{ERP}. Ciò include operazioni di \textit{data cleansing} 
-    (rimozione dei duplicati o record corrotti), \textit{data mapping} (associazione logica tra i campi del vecchio sistema e del nuovo), e \textit{casting} dei tipi 
-    (ad esempio, la conversione di una stringa testuale di dati in un \textit{timestamp} UTC). 
+    ripuliti e manipolati per adattarsi alle regole di \textit{business} del nuovo \textit{ERP}. 
+    In questa fase trovano fondamento i concetti teorici di \textbf{Data Cleansing} (pulizia dei dati) e \textbf{Data Quality} (qualità del dato). 
+    I sistemi \textit{legacy}, spesso in uso da decenni, accumulano tipicamente dati "sporchi" a causa di diverse ragioni: 
+    la mancanza di vincoli di integrità referenziale (\textit{Foreign Key}) nei vecchi database relazionali, l'assenza di controlli lato interfaccia 
+    utente che consentivano l'inserimento di testo libero al posto di valori con specifici tipi di dominio, l'utilizzo di codifiche obsolete (o stratificate nel tempo a seguito di acquisizioni aziendali) 
+    e l'inserimento di dati duplicati.
+    Il processo di trasformazione deve gestire e risolvere queste anomalie strutturali, applicando regole di normalizzazione (ad esempio, imponendo il \textit{casing} corretto tramite funzioni come \texttt{toupper} o \texttt{tolower}), 
+    validando campi obbligatori, decodificando vecchi valori verso i nuovi domini Infor LN, e arricchendo i record con logiche predefinite per garantire che nel nuovo sistema confluiscano 
+    esclusivamente informazioni consistenti.
     \item \textbf{Load (Caricamento)}: L'ultima fase consiste nella scrittura fisica dei dati processati nel database \textit{target}. In ambienti complessi,
     questa scrittura non avviene quasi mai tramite interrogazioni SQL dirette, bensì passando attraverso \textit{API} o livelli di astrazione (come il DAL) che si 
     occupano di avviare eventi aziendali, ricalcolare saldi e far scattare controlli di integrità referenziale.
@@ -158,3 +190,15 @@ definite dall'utente tramite interfacce grafiche (per quanto possibile), il \tex
 le procedure di conversione, con un'efficienza migliore dell'\textit{Exchange Infor}.
 Solo eliminando la scrittura manuale degli script di mapping è possibile garantire la ripetibilità del processo,
 una diagnostica precisa degli errori e la totale tracciabilità di ogni singolo \textit{record} rifiutato.
+
+\section{Limiti delle Tecnologie Alternative}
+Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche a un aggiornamento
+ai \textit{Web Services REST} sperimentali) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
+essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
+fondamentalmente inadatti alle \textit{performance} richieste e alla complessità di manipolazione di grandi moli di dati
+(mancanza di primitive complete per elaborazioni \textit{batch} complesse).
+
+Inoltre, molti \textit{endpoint} espongono solo un sottoinsieme minimale di funzionalità o risultano internamente protetti 
+da Infor stessa e resi quindi inutilizzabili per sviluppatori esterni e consulenti ai fini della migrazione dati.
+Lo sviluppo nativo \textit{backend} tramite Baan C è risultato quindi l'unica soluzione adatta, \textit{performante} e completamente integrabile con le rigide architetture dell'ERP. 
+Si è quindi scelto di sviluppare in ambiente nativo anziché tramite integrazione, magari apparentemente più moderna, con gli strumenti esterni analizzati precedentemente.

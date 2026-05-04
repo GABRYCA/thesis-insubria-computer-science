@@ -11,32 +11,6 @@ Alla base del sistema vi è una netta separazione tra il modulo di \textit{input
 e il Generatore di Codice.
 Questo approccio garantisce la distinzione tra il \textit{layout} dei dati preesistenti e la struttura del database Infor \textit{CloudSuite}.
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[node distance=2cm]
-        \node (user) [draw, circle, minimum size=1cm] {User};
-        \node (actor_label) [below of=user, node distance=0.8cm] {Utente/Sviluppatore};
-
-        \node (uc1) [draw, ellipse, right of=user, node distance=4cm] {Setup Parametri};
-        \node (uc2) [draw, ellipse, below of=uc1, node distance=1.5cm] {Import Metadata};
-        \node (uc3) [draw, ellipse, below of=uc2, node distance=1.5cm] {Definizione Mapping};
-        \node (uc4) [draw, ellipse, below of=uc3, node distance=1.5cm] {Generazione Codice};
-        \node (uc5) [draw, ellipse, below of=uc4, node distance=1.5cm] {Esecuzione Batch};
-
-        \draw [arrow] (user) -- (uc1);
-        \draw [arrow] (user) -- (uc2);
-        \draw [arrow] (user) -- (uc3);
-        \draw [arrow] (user) -- (uc4);
-        \draw [arrow] (user) -- (uc5);
-
-        \begin{scope}[on background layer]
-            \node [fill=gray!10, fit=(uc1) (uc5), draw, dashed, label={above:Migration Tool System}] {};
-        \end{scope}
-    \end{tikzpicture}
-    \caption{Diagramma di flusso delle operazioni del Migration Tool.}
-    \label{fig:use_case}
-\end{figure}
-
 \subsection{Modello Dati e Dizionario}
 L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
 Il modello relazionale si basa su un raggruppamento logico identificato dai prefissi delle tabelle
@@ -111,9 +85,7 @@ Estraendo i metadati dai record, l'Importer popola i dizionari \textit{Datafiles
 relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispettivamente nelle tabelle~\ref{tab:txamg110} e~\ref{tab:txamg111}.
 
 Questo \textit{design} del caricamento rende possibile supportare sia architetture \textit{multitenant} \textit{cloud}, sia installazioni \textit{legacy} \textit{on-premise}.
-Si sottolinea che questa architettura favorisce nativamente la lettura aggregata dei dati d'importazione da un singolo file
-sorgente (non decine o centinaia di file frammentati), limitando drasticamente i sovraccarichi di connessione, latenza
-e \textit{parsing} per ciascun frammento come accadeva nei vecchi \textit{script} in \textit{Exchange}.
+L'architettura proposta garantisce una lettura massiva e aggregata da un singolo sorgente aziendale.
 
 \subsection{Sequenza Operativa del Sistema}
 Il seguente \textit{Sequence Diagram} ad alto livello illustra il flusso logico tra i componenti logici: l'utente,
@@ -134,6 +106,37 @@ l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Databas
     \end{tikzpicture}
     \caption{Interazione semplificata delle operazioni del sistema.}
     \label{fig:sequence_diagram}
+\end{figure}
+
+Per inquadrare microscopicamente l'attività di \textit{Load} vera e propria, è utile osservare il ciclo di vita (State Machine Diagram) di un singolo Record, 
+a partire dalla sua forma grezza su file fino all'inserimento (o scarto).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=stealth, auto, node distance=2.5cm, thick]
+
+    \node[circle, fill=black, inner sep=2pt] (start) {};
+    \node[rectangle, draw, rounded corners, fill=blue!10, right of=start, node distance=2cm] (letto) {Letto (Raw String)};
+    \node[rectangle, draw, rounded corners, fill=orange!10, right of=letto, node distance=3cm] (validato) {Validato (Domains)};
+    \node[rectangle, draw, rounded corners, fill=purple!10, below of=validato, node distance=2.5cm] (trasformato) {Trasformato};
+    \node[diamond, draw, fill=yellow!20, right of=trasformato, node distance=3.5cm, aspect=2, inner sep=1pt] (dal) {DAL Check};
+    
+    \node[circle, draw, double, right of=dal, node distance=3cm, fill=green!20] (fine) {Inserito DB};
+    \node[circle, draw, double, below of=dal, node distance=2.5cm, fill=red!20] (errore) {Errore/Skip};
+
+    \draw[->] (start) -- (letto);
+    \draw[->] (letto) -- node[above]{\scriptsize Parse Array} (validato);
+    \draw[->] (validato) -- node[right]{\scriptsize Mapped DLL} (trasformato);
+    \draw[->] (trasformato) -- node[above]{\scriptsize dal.save.object} (dal);
+
+    \draw[->] (dal) -- node[above]{\scriptsize Success} (fine);
+    \draw[->] (dal) -- node[right]{\scriptsize Error (e.g. FK)} (errore);
+    
+    \draw[->, dashed] (validato) to[bend right] node[left]{\scriptsize Type Mismatch} (errore);
+
+    \end{tikzpicture}
+    \caption{Diagramma degli Stati (UML) semplificato di un record sottoposto alla conversione.}
+    \label{fig:record_state_diagram}
 \end{figure}
 
 \subsection{Diagramma dei Componenti}
@@ -175,17 +178,28 @@ Successivamente, le DLL validate vengono promosse in Produzione attraverso i can
 
 \subsection{Code Generation vs. Interpretation}
 Nell'architettura software di questa tesi, in azienda si è discusso se utilizzare un paradigma di 
-esecuzione \textit{interpretata} o optare per una pura \textit{generazione del codice} (\textit{Code Generation}).
-L'\textit{interpretazione} dinamica del tracciato di estrazione, pur portando ad una maggiore flessibilità, comportava l'assegnazione 
-parametrica ad ogni riga mediante espressioni più complesse e condizionate da ogni record del \textit{Datafile}. Un \textit{interpreter} 
-costruito su Baan C avrebbe avuto un grande peso sulle performance (\textit{overhead}) a causa dell'esecuzione sequenziale delle \textit{query} 
-SQL e del parsing delle regole stringa-su-stringa per ogni record.
+esecuzione \textit{interpretata} o optare per una pura \textit{generazione del codice} (\textit{Code Generation}). 
+Quest'ultima tecnica rientra nell'ampio paradigma del \textbf{Metaprogramming} (Metaprogrammazione). 
 
-Al contrario, il \textit{tool} predilige un motore \textit{generatore di codice} compilato (tramite il \texttt{bic\_compiler}). I metadati 
-dell'origine e di destinazione vengono tradotti (\textit{translated}) \textit{una tantum} in script Baan C \textit{on-the-fly}.
-Questi script vengono quindi registrati dal server Infor e diventano immutabili (a meno di un ricalcolo parametrizzato) durante l'esecuzione.
-Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, mantenendo l'inserimento sul database
-limitato solo ai limiti d'I/O dell'hardware o latenza di rete, sfruttando a pieno Infor LN.
+In informatica, la metaprogrammazione è la capacità di un programma di trattare altri programmi come propri dati: significa poter leggere, 
+generare, analizzare o trasformare codice sorgente. 
+A livello ingegneristico, esistono diversi approcci per ottenere dinamicamente comportamenti non pre-scritti:
+\begin{itemize}
+    \item \textbf{Reflection} (es. Java o C\#): Analisi a (\textit{runtime}) della struttura di classi e attributi. 
+    Sebbene flessibile, richiede pesanti astrazioni da parte della \textit{Virtual Machine} non adatte a un ERP \textit{legacy-oriented}.
+    \item \textbf{Interpretazione a runtime}: Un \textit{interpreter} costruito nativamente in Baan C che legge riga per riga il tracciato stringa e 
+    applica logiche condizionali riga-per-riga. 
+    Questo approccio ha un enorme peso sulle performance (\textit{overhead}) rallentando le elaborazioni 
+    sui milioni di record a causa dell'esecuzione sequenziale delle query.
+    \item \textbf{Generazione di codice (\textit{Lexical/AST Generation})}: Trasformazione delle logiche (nel nostro caso i Mapping e Datafile) in 
+    \textit{script} nativi (\textit{.bc}) e compilazione prima dell'esecuzione vera e propria. Questo è l'approccio che è stato scelto per questo progetto.
+\end{itemize}
+
+Al contrario del vecchio strumento che offriva interpretazioni particolarmente lente, il \textit{tool} da noi creato utilizza il 
+motore \textit{generatore di codice} compilato. 
+I metadati dell'origine e di destinazione vengono tradotti in script Baan C. Questi script vengono quindi registrati dal server Infor e 
+diventano immutabili (a meno di un ricalcolo). Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, 
+permettendo alla successiva fase di inserimento (\textit{Batch}) di essere eseguita alla velocità nativa consentita dal compilatore \textit{Infor}.
 
 \subsection{Modulo di Integrazione Ad-hoc e Callbacks}
 Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di \textit{business} richiedono sviluppi

@@ -23,8 +23,7 @@ Un vantaggio positivo della manipolazione nativa e deterministica con domini è 
 ma d'altro canto i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
 
 L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un solo singolo file sorgente (o su limitati file macro per l'intero transazionale).
-Questo permette notevoli miglioramenti sull'\textit{overhead} per ciascuna interazione, superando il limite della logica dell'\textit{Exchange} Infor a
-causa delle proprie inefficienti operazioni di apertura, scansione e chiusura sequenziale di numerosi piccoli file.
+Questo design permette notevoli miglioramenti sull'\textit{overhead} per ciascuna interazione.
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
@@ -197,25 +196,98 @@ converti.data.legacy(domain tcmcs.str10 legacy_date)
 \label{lst:callback_ad_hoc}
 \end{listing}
 
-L'ausilio del componente \texttt{txamgdll0011} è necessario in quanto si occupa del management dei metadati e dei log
+Il componente \texttt{txamgdll0011} si occupa del management dei metadati e dei log. 
+Inoltre, queste \textit{DLL} scambiano informazioni a \textit{runtime} mediante passaggio di parametri rigorosamente definiti o variabili globali \textit{extern} accessibili alla sessione in esecuzione. 
+Il collegamento tra DLL proprietarie e codice generato si basa su puntatori allocati temporaneamente, essenziali in Baan C per l'invio di costrutti complessi senza pesare sul \textit{Data Access Layer} sottostante.
+
+\subsection{Gestione delle Latenze e Fallback Dinamico}
+Un aspetto di grande rilevanza nell'implementazione riguarda la \textbf{gestione delle eccezioni} collegate alle latenze di rete e all'integrità referenziale, specialmente trattandosi di un inserimento massivo in ambiente Cloud (CloudSuite). 
+Per superare le inefficienze della singola \textit{commit}, è stato adottato un approccio \textit{Array-Insert} (inserimento a blocchi di centinaia di record alla volta).
+Tuttavia, qualora il DAL (Data Access Layer) riscontri un errore formale (\textit{Foreign Key} mancante, \textit{Domain Check} fallito) in uno solo dei record contenuti nell'array, Infor rigetterebbe l'intera transazione annullando l'intero blocco in \textit{rollback}.
+
+Per gestire questa criticità, è stata integrata una \texttt{tecnica di fallback}: al fallimento del blocco, il sistema entra in un ciclo di \textit{retry} che esegue automaticamente la scansione e l'inserimento dello specifico blocco di dati riga per riga. 
+Tale meccanismo garantisce che il dato \textit{sanitizzato} venga salvato e che solamente la riga errata venga scartata, fornendo log precisi e massimizzando al contempo le prestazioni dell'inserimento.
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function long ProcessaBlocco(domain tcemm.noma num.righe)
+{
+    long obj.ret, i
+    
+    |* Tentativo di inserimento Array-Insert
+    db.retry.point()
+    obj.ret = dal.save.object("tccom001", num.righe)
+    if obj.ret = 0 then
+        commit.transaction()
+        return(OK)
+    endif
+    
+    |* Fallback Dinamico: Fallimento inserimento a blocchi. Elaborazione riga per riga
+    abort.transaction()
+    for i = 1 to num.righe
+        db.retry.point()
+        obj.ret = dal.save.object("tccom001", 1) |* Inserisco la riga
+        if obj.ret = 0 then
+            commit.transaction()
+        else
+            |* Catturo l'errore generato dal DAL e lo aggiungo ai log
+            LoggaErrore(i, dal.set.error.message()) 
+            abort.transaction()
+        endif
+    endfor
+    return(OK)
+}
+\end{minted}
+\caption{Pseudo-codice Baan C che mostra la logica iterativa di transazione e fallback riga-per-riga.}
+\label{lst:dynamic_fallback}
+\end{listing}
+
+\subsection{Logging degli Errori}
+Il processo di validazione e scarto dei record è strettamente legato a una robusta infrastruttura di \textit{logging}. 
+Invece di disperdere gli avvertimenti nei log server Infor non facilmente consultabili, le stringhe di scarto di ciascuna tabella 
+vengono salvate, attivando il \texttt{dal.set.error.message} e scritte nella tabella \texttt{txamg303} (\textit{Runs Errors}). 
+
+Un esempio di logica di recupero e salvataggio dell'errore (chiamata dalla funzione \texttt{LoggaErrore} vista in precedenza) è la seguente:
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function long LoggaErrore(long riga.id, string str.messaggio)
+{
+    |* Chiave tabella txamg303 
+    txamg303.cbat = current.batch
+    txamg303.dfil = current.datafile
+    txamg303.reno = riga.id
+    
+    |* Inserimento messaggio formattato
+    txamg303.mesg = str.messaggio
+    db.insert(ttxamg303, db.retry)
+    commit.transaction()
+    return(OK)
+}
+\end{minted}
+\caption{Snippet dimostrativo di inserimento del log di errore scaturito dal livello DAL interno.}
+\label{lst:error_logging}
+\end{listing}
+
+Tale implementazione è vitale per l'utilizzatore finale che avrà visibilità del log testuale esatto dalla Cloud UI.
 contenenti eventuali errori (Error Logging).
 
 \subsection{Gestione delle Latenze Transazionali}
 Un ulteriore aspetto essenziale del \textit{Tool} riguarda l'elaborazione dei \textit{commit} a blocchi durante la trasformazione dati. 
 In ecosistemi \textit{Cloud} da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
-per ogni operazione di INSERT o UPDATE verso i \textit{layer} Infor in \textit{datacenter} distanti (AWS). Raggruppando migliaia di record (\textit{array insertion}) 
-l'impatto della latenza TCP si abbatte marginalmente (fino al 90\%). Di contro l'impiego delle transazioni a gruppi necessita attenzioni per il \textit{rollback} 
-parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i check del DAL). Per mitigare questa criticità,
-il sistema implementa una strategia di fallback dinamico: in caso di fallimento di una transazione a blocchi,
-viene catturata l'eccezione e rieseguito l'inserimento per i record di quel blocco singolarmente (row-by-row).
-Questo approccio permette di isolare ed escludere unicamente il record anomalo, eseguendo il commit per tutti i restanti dati validi senza interrompere l'intero flusso.
+per ogni operazione di \textit{INSERT} o \textit{UPDATE} verso i \textit{layer} Infor in \textit{datacenter} remoti. Raggruppando migliaia di record (\textit{array insertion}) 
+l'impatto della latenza diminuisce (fino al 90\%). Di contro l'impiego delle transazioni a gruppi necessita attenzioni per il \textit{rollback} 
+parziale di blocchi nel caso che anche solo un inserimento si corrompa (o violi i controlli della \textit{DAL}), per mitigare questa criticità,
+il sistema implementa una strategia di \textit{fallback}: in caso di fallimento di una transazione a blocchi,
+viene catturata l'eccezione e rieseguito l'inserimento per i \textit{record} di quel blocco singolarmente (\textit{row-by-row}).
+Questo approccio permette di isolare il \textit{record} anomalo, eseguendo la \textit{commit} per tutti i restanti dati validi senza interromperne il flusso intero.
 Questa gestione interna incrementa la flessibilità senza perdita di prestazioni.
 
 \section{Interfacce Utente (Sessioni)}
 L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o
 \textit{s-sessions} a seconda della loro finalità operativa.
 
-\subsection{Design dell'Interfaccia Utente e Scelte UX/UI in Baan}
+\subsection{Design dell'Interfaccia Utente e Scelte UX/UI}
 Lo sviluppo e l'elaborazione dell'interfaccia si sono dovuti adattare a specifici vincoli e \textit{design pattern} di
 Infor LN, in modo da fornire all'utente una \textit{UX} (\textit{User Experience}) coerente e uniforme.
 
