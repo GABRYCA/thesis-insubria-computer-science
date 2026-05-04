@@ -65,12 +65,10 @@ volto a disaccoppiare interamente l'interazione utente, la logica di \textit{bus
       box/.style={rectangle, draw=black, fill=blue!10, text width=6cm, text centered, rounded corners, minimum height=1.5cm},
       line/.style={draw, -latex', thick}
     ]
-    % Nodes
     \node [box, fill=green!10] (ui) {\textbf{Livello Presentazione}\\Web UI (LNUI) / BION API / Ming.le};
     \node [box, below of=ui, node distance=3.5cm, fill=orange!10] (app) {\textbf{Livello Applicativo}\\Sessioni, Baan C scripts e DLLs};
     \node [box, below of=app, node distance=3.5cm, fill=red!10] (db) {\textbf{Livello Dati (Data/DAL)}\\RDBMS Database \& Data Dictionary};
     
-    % Edges
     \draw [line] ([xshift=-1.5cm]ui.south) -- node[left, text width=2.5cm, align=right] {Richieste\\Input} ([xshift=-1.5cm]app.north);
     \draw [line] ([xshift=1.5cm]app.north) -- node[right, text width=2.5cm] {Web Update\\Risposte} ([xshift=1.5cm]ui.south);
 

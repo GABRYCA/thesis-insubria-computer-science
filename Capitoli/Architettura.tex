@@ -48,7 +48,6 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[node distance=1.5cm, every node/.style={rectangle, draw, fill=blue!10, text centered, minimum width=2.5cm}]
-        % Tabelle
         \node (t000) {txamg000};
         \node (t100) [right of=t000, node distance=4cm] {txamg100};
         \node (t110) [below of=t100] {txamg110};
@@ -62,7 +61,6 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
         \node (t300) [right of=t203, node distance=4cm] {txamg300};
         \node (t303) [below of=t300] {txamg303};
 
-        % Relazioni
         \draw [thick] (t100) -- (t110) node[midway, right, draw=none, fill=none] {1:N};
         \draw [thick] (t110) -- (t111) node[midway, right, draw=none, fill=none] {1:N};
         \draw [thick] (t200) -- (t201) node[midway, right, draw=none, fill=none] {1:N};
@@ -111,28 +109,34 @@ l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Databas
 Per inquadrare microscopicamente l'attività di \textit{Load} vera e propria, è utile osservare il ciclo di vita (State Machine Diagram) di un singolo Record, 
 a partire dalla sua forma grezza su file fino all'inserimento (o scarto).
 
-\begin{figure}[H]
+
+\begin{figure}[htbp]
     \centering
-    \begin{tikzpicture}[>=stealth, auto, node distance=2.5cm, thick]
+    \begin{tikzpicture}[>=stealth, auto, thick, node distance=1.5cm]
 
     \node[circle, fill=black, inner sep=2pt] (start) {};
-    \node[rectangle, draw, rounded corners, fill=blue!10, right of=start, node distance=2cm] (letto) {Letto (Raw String)};
-    \node[rectangle, draw, rounded corners, fill=orange!10, right of=letto, node distance=3cm] (validato) {Validato (Domains)};
-    \node[rectangle, draw, rounded corners, fill=purple!10, below of=validato, node distance=2.5cm] (trasformato) {Trasformato};
-    \node[diamond, draw, fill=yellow!20, right of=trasformato, node distance=3.5cm, aspect=2, inner sep=1pt] (dal) {DAL Check};
     
-    \node[circle, draw, double, right of=dal, node distance=3cm, fill=green!20] (fine) {Inserito DB};
-    \node[circle, draw, double, below of=dal, node distance=2.5cm, fill=red!20] (errore) {Errore/Skip};
+    \node[rectangle, draw, rounded corners, fill=blue!10, right=0.8cm of start, align=center] (letto) {Letto\\(Raw String)};
+    \node[rectangle, draw, rounded corners, fill=orange!10, right=1.5cm of letto, align=center] (validato) {Validato\\(Domains)};
+    
+    \node[rectangle, draw, rounded corners, fill=purple!10, below=1.5cm of validato] (trasformato) {Trasformato};
+    
+    \node[diamond, draw, fill=yellow!20, right=2cm of trasformato, aspect=2, inner sep=1pt] (dal) {DAL Check};
+    
+    \node[circle, draw, double, right=1.5cm of dal, fill=green!20, align=center] (fine) {Inserito\\DB};
+    \node[circle, draw, double, below=1.5cm of dal, fill=red!20] (errore) {Errore/Skip};
 
     \draw[->] (start) -- (letto);
-    \draw[->] (letto) -- node[above]{\scriptsize Parse Array} (validato);
-    \draw[->] (validato) -- node[right]{\scriptsize Mapped DLL} (trasformato);
-    \draw[->] (trasformato) -- node[above]{\scriptsize dal.save.object} (dal);
-
-    \draw[->] (dal) -- node[above]{\scriptsize Success} (fine);
-    \draw[->] (dal) -- node[right]{\scriptsize Error (e.g. FK)} (errore);
+    \draw[->] (letto) -- node[above, font=\scriptsize] {Parse Array} (validato);
+    \draw[->] (validato) -- node[right, font=\scriptsize] {Mapped DLL} (trasformato);
     
-    \draw[->, dashed] (validato) to[bend right] node[left]{\scriptsize Type Mismatch} (errore);
+    \draw[->] (trasformato) -- node[above, font=\scriptsize, yshift=2pt] {dal.save.object} (dal);
+
+    \draw[->] (dal) -- node[above, font=\scriptsize] {Success} (fine);
+    \draw[->] (dal) -- node[right, font=\scriptsize] {Error (e.g. FK)} (errore);
+    
+    \draw[->, dashed] (validato.west) .. controls +(-2.5,0) and +(-2.5,0) .. 
+        node[left, align=center, font=\scriptsize, xshift=-3pt] {Type\\Mismatch} (errore.west);
 
     \end{tikzpicture}
     \caption{Diagramma degli Stati (UML) semplificato di un record sottoposto alla conversione.}
