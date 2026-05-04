@@ -3,7 +3,7 @@
 \emph{Questo capitolo tratta la strategia di validazione, l'esecuzione di unit test sui moduli di parsing e i test di integrazione per il flusso di migrazione. Viene analizzata in dettaglio l'integrità dei dati e la diagnostica degli errori, supportata da metriche di affidabilità.}
 
 \section{Strategia di Testing}
-Testare un software per la migrazione dei dati è un aspetto fondamentale.
+Testare un software per la migrazione dei dati è stato un aspetto fondamentale del progetto.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti \textit{Cloud Multitenant},
 ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema di destinazione.
 
@@ -16,22 +16,23 @@ I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestion
 degli Infor Exchange sono stati testati su porzioni specifiche di file.
 
 Verificando ogni singola colonna (\texttt{txamg1111}), la validazione include il corretto casting di tipi enumerati,
-decimali a virgola mobile e codifiche caratteri ASCII, simulando una diversità di input.
+decimali a virgola mobile e codifiche in caratteri ASCII, simulando una diversità di input.
 Durante questa fase è possibile osservare come le diverse versioni del programma non alterino le librerie costruite
 se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
 
 \subsection{Test del Flusso di Migrazione}
 L'integrazione \textit{end-to-end} è validata eseguendo flussi di test governati dalle logiche di \textit{batch} (\texttt{txamg2100}
 e \texttt{txamg3200}).
-Durante questi test, il sistema genera gli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
-Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} e lanciato.
+Durante questi test, il sistema genera degli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
+Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} ed eseguito.
 
 \subsection{Test della Sicurezza}
-Un software di livello \textit{Enterprise} che si interfaccia con il \textit{database} deve essere a prova di anomalie e di sovraccarichi (voluti o semplicemente variazioni impreviste nell'\textit{input} legato all'estrazione da \textit{sistemi legacy}).
+Un software di livello \textit{Enterprise} che si interfaccia con il \textit{database} deve essere a prova di anomalie e di sovraccarichi (voluti o semplicemente variazioni impreviste dell'\textit{input} legato all'estrazione da \textit{sistemi legacy}).
 Oltre a verificare il \textit{mapping} corretto, è stata posta particolare attenzione nelle fasi di validazione e test.
 
-Durante questa fase, sono stati inseriti di proposito al sistema, dei \textit{file} malformati: formati misti in \textit{UTF-8/ISO-8859-1} al posto dello spazio \textit{ASCII} standard, file vuoti o estremamente pesanti per testare la resistenza durante una saturazione del sistema (\textit{Out of Memory}), e misurarne l'utilizzo di memoria \textit{RAM}.
-Dal punto di vista delle righe errate, è stato inserito del testo con dimensioni non in linea con i tipi descritti sul file (\textit{es. nome di 50 caratteri su un tipo di lunghezza massima 10}).
+Durante questa fase, sono stati inseriti appositamente nel sistema dei \textit{file} malformati: formati misti in \textit{UTF-8/ISO-8859-1} al posto dello spazio \textit{ASCII} standard, file vuoti e al altri estremamente pesanti per testare la resistenza 
+durante una saturazione del sistema (\textit{Out of Memory}), e misurarne l'utilizzo di memoria \textit{RAM}.
+Per testare il \textit{logging} delle righe errate, è stato inserito del testo con dimensioni non in linea con i tipi descritti sul file (\textit{es. nome di 50 caratteri su un tipo di lunghezza massima 10}).
 
 \begin{figure}[H]
 	\centering
@@ -64,8 +65,7 @@ Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei temp
 Durante le simulazioni, con \textit{recordset} di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $100.000$ righe su diversi file e tabelle),
 sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento \textit{cloud} e dai vincoli di referenzialità.
 In parallelo, per assicurare le prestazioni e le procedure di \textit{rollback}, qualora ci siano rallentamenti o blocchi a livello di rete,
-il motore transazionale LN è stato istruito affinché i \textit{commit} avvengano a blocchi così come stabilito del numero di record.
-Questo è stato confermato dai casi d'uso in cui il server restituisce messaggi di \textit{Timeout}.
+il motore transazionale LN è stato istruito affinché le \textit{commit} avvengano a blocchi così come stabilito del numero di record.
 
 \begin{figure}[H]
 	\centering
@@ -86,7 +86,7 @@ verificando che la linea errata fosse elaborata senza però interromperne il car
 \end{figure}
 
 Gli errori segnalati sono dettagliati all'interno della tabella \texttt{txamg303}, le cui colonne principali permettono
-di investigare quale linea e record sia fallito:
+di investigare quale linea e record abbia prodotto l'errore:
 \begin{itemize}
     \item \texttt{runs}: Identificativo del Run
     \item \texttt{rere}: Riga di lettura (\textit{Read Record})
