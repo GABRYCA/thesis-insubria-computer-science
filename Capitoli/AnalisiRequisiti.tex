@@ -4,11 +4,11 @@
 \subsection{Necessità di Ottimizzazione}
 Come evidenziato nei capitoli precedenti, i cambiamenti architetturali da parte di Infor e i 
 nuovi \textit{standard} più restrittivi legati agli ambienti \textit{multitenant} hanno reso le 
-operazioni manuali e l'uso dell'Exchange Infor molto più complesse \cite{erpMigration}. 
-Emerge quindi la necessità aziendale di innovare e automatizzare il processo con l'introduzione di un \textit{Migration Tool} avanzato.
+operazioni manuali e l'uso dell'\textit{Exchange Infor} molto più complesse \cite{erpMigration}. 
+Emerge quindi la necessità aziendale di innovare e automatizzare il processo con l'introduzione di un nuovo \textit{Migration Tool}.
 
 \section{Requisiti Funzionali}
-I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare il nuovo strumento, così come stabilito con gli \textit{stakeholder}. 
+I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare lo strumento, così come stabilito con gli \textit{stakeholder}. 
 Per la classificazione di questi requisiti è stata adottata la metodologia \textbf{MoSCoW} (\textit{Must have, Should have, Could have, Won't have}), che permette di definire in maniera 
 chiara le priorità di sviluppo (Tabella~\ref{tab:moscow_requisiti}).
 
@@ -26,14 +26,14 @@ chiara le priorità di sviluppo (Tabella~\ref{tab:moscow_requisiti}).
         \midrule
         \textbf{Should Have} & 
         - Estensibilità con funzioni ad-hoc (\textit{Callback}). \newline
-        - Esportazione documentale integrata con strumenti aziendali preesistenti. \\
+        - Esportazione documentale integrata con strumenti aziendali preesistenti (\textit{Reports}). \\
         \midrule
         \textbf{Could Have} & 
-        - Suggerimento intelligente (o logica basata su Machine Learning testuale) per la proposizione automatica dei \textit{mapping} Target-Source. \\
+        - Suggerimento intelligente (o logica basata su \textit{Machine Learning} testuale) per il consiglio automatico dei \textit{mapping Target-Source}. \\
         \midrule
         \textbf{Won't Have} & 
         - Elaborazione distribuita su più thread (non supportata). \newline
-        - Interfaccia grafica completamente distaccata dalla LNUI. \\
+        - Interfaccia grafica dedicata e separata dalla LNUI o BECS. \\
         \bottomrule
     \end{tabular}
     \caption{Classificazione dei requisiti funzionali secondo la matrice MoSCoW.}
@@ -47,12 +47,12 @@ Tali file presentano specifici \textit{layout} (come formati testuali \textit{AS
 popolare il dizionario \texttt{txamg110} (\textit{Datafiles}) e \texttt{txamg111} (\textit{DataFile Fields}).
 A differenza dell'approccio frammentato dell'\textit{Exchange} di Infor, adotteremo una soluzione ottimizzata: il \textit{tool} processerà
 l'intero flusso di metadati a partire da un singolo file sorgente, limitando e rimuovendo del tutto l'elaborazione a piccoli blocchi
-su innumerevoli file che rallentano l'esecuzione iniziale dell'\textit{import}.
+su singoli file che rallentano l'esecuzione iniziale dell'\textit{import}.
 In altre parole, il file sorgente sarà un singolo file generato dall'importer, contenente tutte le tabelle e dati dalla fonte
-legacy da cui si sta migrando, e il tool farà un controllo completo iniziale, e passerà poi all'elaborazione in \textit{batch} dei \textit{runs}.
+legacy da cui si sta migrando, e il \textit{tool} farà un controllo completo iniziale, e passerà poi all'elaborazione in \textit{batch} dei \textit{runs}.
 
 % \subsection{Generazione Dinamica del Codice}
-Alla base del \textit{Migration Tool} ci sarà lo strumento generatore di codice.
+Internamente al \textit{Migration Tool} sarà sviluppato e integrato uno strumento generatore di codice.
 Partendo dalle tabelle di \textit{mapping} (es. \texttt{txamg203}), lo strumento dovrà generare \textit{script} di elaborazione e
 conversione, % invocando i compilatori interni Infor e producendo file eseguibili
 senza l'intervento manuale del programmatore.
@@ -64,8 +64,8 @@ Viene quindi la necessità di una funzionalità di \textit{callback} per permett
 \textit{script} personalizzati che verranno inseriti nel processo principale durante l'esecuzione \textit{batch} (\texttt{txamg3200}).
 
 \subsection{Integrazione con lo Strumento Documentale}
-Per garantire l'allineamento con gli \textit{standard} del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
-documentazione aziendale, permettendo la produzione ed esportazione di specifiche tecniche di migrazione,
+Per garantire il raggiungimento degli \textit{standard} del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
+documentazione aziendale, permettendo la produzione ed esportazione delle specifiche tecniche di migrazione,
 \textit{mappature}, eccezioni e \textit{log} generati in fase di esecuzione (necessari per \textit{debugging}).
 
 \section{Requisiti Non Funzionali}
@@ -83,17 +83,16 @@ Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni priv
 
 %\subsection{Prestazioni e Affidabilità}
 Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
-una elaborazione a blocchi al fine di minimizzare i tempi morti generati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
+un'elaborazione a blocchi al fine di minimizzare i rallentamenti causati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
 
 \subsection{Usabilità (UX/UI)}
-Oltre alle performance e alla sicurezza, un requisito non funzionale determinante riguarda l'usabilità del \textit{Tool}. 
-Dato che verrà utilizzato da consulenti applicativi (spesso non programmatori professionisti), l'interfaccia utente dovrà rispettare fedelmente le stringenti linee guida di \textit{Infor LN User Experience}. 
+Dato che il \textit{tool} sarà utilizzato da consulenti applicativi (quindi non necessariamente programmatori), l'interfaccia utente dovrà rispettare fedelmente le stringenti linee guida di \textit{Infor LN User Experience}. 
 In particolare, per prevenire errori umani durante le fasi di \textit{Data Entry} e mappatura, il sistema dovrà limitare al minimo i campi a testo libero, sostituendoli ove possibile con 
 componenti di \textit{lookup} o \textit{zoom} obbligatori, che forzano l'utente a selezionare referenze valide (ad esempio, la selezione della tabella \textit{Target} da un elenco precaricato e non tramite inserimento manuale della stringa). 
-Questo paradigma, noto come \textit{Poka-Yoke}, permette di ridurre drasticamente la probabilità di configurazioni errate che impatterebbero a cascata sulla generazione del codice.
+Questo paradigma, permette di ridurre drasticamente la probabilità di configurazioni errate che impatterebbero a cascata sulla generazione del codice.
 
 \section{Casi d'Uso (Use Cases)}
-Per formalizzare le interazioni tra l'utente (il consulente / sviluppatore) o i sistemi esterni e il \textit{Migration Tool}, è stato realizzato il diagramma dei casi d'uso (Use Case Diagram UML).
+Per rappresentare le interazioni tra l'utente (il consulente / sviluppatore) o i sistemi esterni e il \textit{Migration Tool}, è stato realizzato il diagramma dei casi d'uso (Use Case Diagram UML).
 
 \begin{figure}[H]
     \centering

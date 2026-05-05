@@ -1,7 +1,7 @@
 ﻿\chapter{Stato Attuale}
 
 \section{Sistemi ERP}
-I sistemi \textit{ERP} (\textit{Enterprise Resource Planning}) rappresentano un elemento essenziale del sistema gestionale aziendale \cite{erpMigration},
+I sistemi \textit{ERP} (\textit{Enterprise Resource Planning}) rappresentano un elemento fondamentale del sistema gestionale aziendale \cite{erpMigration},
 consentendo l'integrazione dei processi di \textit{business} principali di un'azienda come: vendite, acquisti, gestione inventario, contabilità e personale.
 
 \subsection{Evoluzione dei Sistemi Legacy al Cloud}
@@ -12,8 +12,8 @@ Tuttavia, oggi si sta assistendo ad una transizione verso nuove soluzioni come i
 % \subsection{Architetture Multitenant}
 \subsection{Architetture Multitenant e Segregazione dei Dati}
 Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni \cite{multitenantCloud}.
-A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software
-fisicamente isolata e dedicata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici organizzazioni clienti (i cosiddetti \textit{tenant}, in ambiente \textit{cloud}).
+A differenza dei tradizionali sistemi \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software 
+dedicata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici clienti (i cosiddetti \textit{tenant}, in ambiente \textit{cloud}).
 
 Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi,
 ottimizzazione delle risorse e abbassamento dei costi di manutenzione dei server), ma pone grandi sfide architetturali. La principale problematica risiede
@@ -32,11 +32,11 @@ Qualsiasi inserimento massivo di dati deve necessariamente passare attraverso st
 che assicurino che il dato venga assegnato non solo alla tabella e con il formato corretto, ma anche e soprattutto all'identificativo del \textit{tenant}
 di destinazione, senza possibilità di errore o sovrascrittura accidentale.
 
-\subsection{Confronto con Piattaforme ETL Commerciali}
+\subsection{Confronto con Altre Piattaforme ETL}
 
 Sebbene sul mercato esistano soluzioni ETL di terze parti ampiamente consolidate (come Talend o Informatica PowerCenter),
-la loro integrazione con l'ERP Infor CloudSuite presenta grandi barriere architetturali.
-L'utilizzo di questi \textit{tool}, pur offrendo interfacce grafiche avanzate per l'orchestrazione dei \textit{workflow},
+la loro integrazione con l'\textit{ERP Infor CloudSuite} presenta grandi barriere architetturali.
+L'utilizzo di questi \textit{tool}, pur offrendo interfacce grafiche avanzate per la gestione dei \textit{workflow},
 comporta infatti i seguenti svantaggi:
 \begin{itemize}
     \item \textbf{Latenza di rete:} dovuta alla continua interazione tra l'ERP e i servizi di integrazione esterni.
@@ -66,7 +66,7 @@ volto a disaccoppiare interamente l'interazione utente, la logica di \textit{bus
       line/.style={draw, -latex', thick}
     ]
     \node [box, fill=green!10] (ui) {\textbf{Livello Presentazione}\\Web UI (LNUI) / BION API / Ming.le};
-    \node [box, below of=ui, node distance=3.5cm, fill=orange!10] (app) {\textbf{Livello Applicativo}\\Sessioni, Baan C scripts e DLLs};
+    \node [box, below of=ui, node distance=3.5cm, fill=orange!10] (app) {\textbf{Livello Applicativo}\\Sessioni, Baan C scripts, DAL e DLLs};
     \node [box, below of=app, node distance=3.5cm, fill=red!10] (db) {\textbf{Livello Dati (Data/DAL)}\\RDBMS Database \& Data Dictionary};
     
     \draw [line] ([xshift=-1.5cm]ui.south) -- node[left, text width=2.5cm, align=right] {Richieste\\Input} ([xshift=-1.5cm]app.north);
