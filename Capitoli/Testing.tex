@@ -136,7 +136,7 @@ Il tool si comporta in maniera deterministica e produce riscontri sempre validat
 
 \section{Analisi delle Prestazioni e ROI}
 
-\subsection{Benchmark Prestazionali}
+\subsection{Benchmark delle Prestazionali}
 Per valutare l'effettivo miglioramento apportato dall'architettura del tool rispetto ai caricamenti manuali o ai vecchi script,
 sono stati condotti dei benchmark basati su dataset crescenti (da 1.000 a 100.000 record). Il grafico in Figura~\ref{fig:performance_benchmark} mostra i tempi
 di elaborazione misurati, evidenziando il netto miglioramento garantito dall'elaborazione in batch a blocchi e l'eliminazione dei colli di
@@ -187,7 +187,7 @@ bottiglia legati alle singole commit di transazione.
 \end{figure}
 
 \subsection{Analisi degli Errori}
-Nei test di volume, gli scarti (\textit{Discarded Records}) sono stati analizzati e categorizzati per comprenderne l'origine.
+Durante i test prestazionali, i \textit{record} scartati (\textit{Discarded Records}) sono stati analizzati e categorizzati per capirne l'origine.
 La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fallimenti più comuni.
 
 \begin{figure}[H]

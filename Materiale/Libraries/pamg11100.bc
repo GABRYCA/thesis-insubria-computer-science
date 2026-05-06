@@ -10,12 +10,21 @@
 |****************************** declaration section ***************************
 declaration:
 #include "itxadv0000"
-	domain	tcbool	dummy.ret
+
 	table	ttxamg110 |* DataFiles
 
+
+	domain	tcbool	dummy.ret
 
 |****************************** program section ********************************
 before.program:
 	dummy.ret = switch.to.company(ADVCMP)
 
 |****************************** group section **********************************
+functions:
+function extern generate.load.script()
+{
+	|* Genero il programma di migrazione
+	txamg.dll0012.generate.load.script(txamg110.grou,txamg110.dfil)
+	refresh()
+}

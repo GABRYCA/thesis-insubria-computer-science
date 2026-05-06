@@ -12,14 +12,14 @@ La libreria dedicata alla gestione dei \textit{metadata} (\texttt{txamgdll0011})
 l'enumerato \texttt{txamg.fast}.
 
 Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o \textit{padding} dei campi vuoti.
-Durante questa fase il generatore effettua operazioni di \textit{concatenazione stringhe} (utilizzando operazioni come \texttt{concat} e \texttt{string.scan}). 
-L'implementazione di \textit{string concatenation} in linguaggi \textit{legacy}/Baan C richiede particolare cura poiché le stringhe spesso non hanno dimensionamenti
+Durante questa fase il generatore effettua operazioni di \textit{concatenazione stringhe} (utilizzando funzioni come \texttt{concat} e \texttt{string.scan}). 
+L'implementazione di un sistema con concatenazione di stringhe in linguaggi \textit{legacy}/Baan C richiede particolare attenzione poiché le stringhe spesso non hanno dimensionamenti
 fissi.
-Un vantaggio positivo della manipolazione nativa e deterministica con domini è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione dell'utilizzo \textit{RAM},
-ma d'altro canto i lati negativi implicano continui \texttt{offset-trimming} e calcoli manuali (come la lunghezza in base all'\textit{ASCII subset}).
+Tuttavia, un vantaggio della manipolazione nativa e deterministica con domini è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione dell'utilizzo della \textit{RAM},
+ma d'altro canto, sono necessari continui \texttt{offset-trimming} e calcoli (come la lunghezza in base all'\textit{ASCII subset}).
 
-L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un solo singolo file sorgente (o su limitati file macro per l'intero transazionale).
-Questo design permette notevoli miglioramenti sull'\textit{overhead} per ciascuna interazione.
+L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un singolo file sorgente (o su limitati file macro per l'intero transazionale).
+Questo design permette un \textit{overhead} minore per ciascuna interazione.
 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
@@ -55,18 +55,18 @@ function void GeneraImportUnpack(domain txamg.dfil datafile)
 In questo estratto viene mostrato come il generatore iteri sui campi definiti per
 il \textit{datafile} (\texttt{txamg111}) per costruire una chiamata a \texttt{string.scan}.
 Questa funzione Baan C viene poi usata nello \textit{script} generato per \enquote{spacchettare} la riga letta dal file \textit{ASCII} nelle
-variabili corrispondenti ai campi.
+variabili corrispondenti ai singoli campi.
 
-\subsection{Ricostruzione delle Definizioni dei File da Migrare}
-L'obiettivo secondario dell'importer è auto-compilare il \textit{setup} dello stesso \textit{Migration Tool}.
-Utilizzando le definizioni originarie dei file (le tabelle \textit{legacy}), il programma crea dinamicamente o aggiorna una
-mappatura interna dei \textit{Data Files} attraverso Sessioni \textit{back-end} come \texttt{txamg1110m000}.
+\subsection{Ricostruzione delle Definizioni dei File}
+L'obiettivo secondario dell'\textit{importer} è auto-compilare il \textit{setup} dello stesso \textit{Migration Tool}.
+Utilizzando le definizioni originarie dei file (le tabelle \textit{legacy}), il programma crea dinamicamente e aggiorna una
+mappatura interna dei \textit{Data Files} attraverso Sessioni come \texttt{txamg1110m000}.
 
-Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) e i tipi di dominio correlati (\texttt{txamg.atyp}) vengono
+Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) e i tipi di dominio coinvolti (\texttt{txamg.atyp}) vengono
 inseriti nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
-di \textit{data-mapping} manuale verso le tabelle \textit{target} \textit{CloudSuite}.
+di \textit{data-mapping} manuale verso le tabelle di destinazione della \textit{CloudSuite}.
 
-L'utente può gestire i gruppi di file ed i singoli file sorgente tramite le sessioni mostrate in
+L'utente può gestire singoli file sorgente e gruppi di essi tramite le sessioni mostrate in
 Figura~\ref{fig:datafile_groups} e~\ref{fig:datafiles}.
 
 \begin{figure}[H]
@@ -101,14 +101,14 @@ all'interno del sistema Infor, quali \texttt{txamgdll0012} (\textit{Script Gener
 Il codice sorgente Baan C viene generato riga per riga, definendo le firme delle funzioni
 (es. \texttt{function extern long process.import.file...()}) e le variabili necessarie.
 Per farlo in modo conforme all'infrastruttura di Infor LN, il generatore interroga direttamente il \textit{Data Dictionary} del
-sistema tramite le tabelle di sistema \texttt{ttadv} (in particolare \texttt{tttadv420} per le definizioni delle
+sistema tramite le tabelle \texttt{ttadv} (in particolare \texttt{tttadv420} per le definizioni delle
 tabelle, \texttt{tttadv422} per i campi e \texttt{tttadv400} per i domini).
-Questa interrogazione è delegata al componente \texttt{txamgdll0010} (\textit{DD Integration Library}), che funge
-da strato di astrazione estraendo in automatico tipi di dato, lunghezze massime e \textit{array} per assicurare che lo \textit{script}
+Questa interrogazione viene successivamente delegata al componente \texttt{txamgdll0010} (\textit{DD Integration Library}), che funge
+da strato di astrazione estraendo in automatico i tipi di dato, lunghezze massime e \textit{array} per assicurare che lo \textit{script}
 rispetti le definizioni fisiche corrette.
 
 Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
-per generare script eseguibili, riducendo drasticamente il tempo manuale richiesto per configurare le regole di conversione
+per generare script eseguibili, riducendo il tempo manuale richiesto per configurare le regole di conversione
 standard e garantendo che il codice finale aderisca alla logica di business (\textit{business logic}).
 
 \begin{listing}[H]
@@ -138,12 +138,12 @@ function void GeneraMap(domain tcmcs.str8 tabella)
     Riga("}")
 }
 \end{minted}
-\caption{Logica di generazione della funzione di mapping (da \texttt{txamgdll0013}).}
+\caption{Logica generazione della funzione di mapping (da \texttt{txamgdll0013}).}
 \label{lst:mapping_gen}
 \end{listing}
 
 Nell'esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
-file alla struttura della tabella \textit{target}:
+file d'origine alla struttura della tabella di destinazione:
 \begin{itemize}
     \item \textbf{Riga 4-6}: Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
     \item \textbf{Riga 9-10}: Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
@@ -183,12 +183,12 @@ converti.data.legacy(domain tcmcs.str10 legacy_date)
         target_date = date.to.num(yy, mm, dd)
         return(target_date)
     else
-        dal.set.error.message("@Data non valida nel legacy: %s", legacy_date)
+        dal.set.error.message("@Data non valida legacy: %s", legacy_date)
         return(0)
     endif
 }
 \end{minted}
-\caption{Esempio di una funzione di trasformazione \textit{ad-hoc} sviluppata per manipolare date non standard.}
+\caption{Esempio di funzione di trasformazione \textit{ad-hoc} sviluppata per manipolare date non standard.}
 \label{lst:callback_ad_hoc}
 \end{listing}
 
@@ -197,9 +197,9 @@ Inoltre, queste \textit{DLL} scambiano informazioni a \textit{runtime} mediante 
 Il collegamento tra DLL proprietarie e codice generato si basa su puntatori allocati temporaneamente, essenziali in Baan C per l'invio di costrutti complessi senza pesare sul \textit{Data Access Layer} sottostante.
 
 \subsection{Gestione delle Latenze e Fallback Dinamico}
-Un aspetto di grande rilevanza nell'implementazione riguarda la \textbf{gestione delle eccezioni} collegate alle latenze di rete e all'integrità referenziale, specialmente trattandosi di un inserimento massivo in ambiente Cloud (CloudSuite). 
+Un aspetto importante dell'implementazione riguarda la \textbf{gestione delle eccezioni} collegate alle latenze di rete e all'integrità referenziale, specialmente trattandosi di un inserimento massivo in ambiente Cloud (\textit{CloudSuite}). 
 Per superare le inefficienze della singola \textit{commit}, è stato adottato un approccio \textit{Array-Insert} (inserimento a blocchi di centinaia di record alla volta).
-Tuttavia, qualora il DAL (Data Access Layer) riscontri un errore formale (\textit{Foreign Key} mancante, \textit{Domain Check} fallito) in uno solo dei record contenuti nell'array, Infor rigetterebbe l'intera transazione annullando l'intero blocco in \textit{rollback}.
+Tuttavia, qualora la DAL (\textit{Data Access Layer}) riscontri un errore formale (\textit{Foreign Key} mancante, \textit{Domain Check} fallito) in uno solo dei record contenuti nell'array, Infor rigetterebbe l'intera transazione annullando l'intero blocco in \textit{rollback}.
 
 Per gestire questa criticità, è stata integrata una \texttt{tecnica di fallback}: al fallimento del blocco, il sistema entra in un ciclo di \textit{retry} che esegue automaticamente la scansione e l'inserimento dello specifico blocco di dati riga per riga. 
 Tale meccanismo garantisce che il dato \textit{sanitizzato} venga salvato e che solamente la riga errata venga scartata, fornendo log precisi e massimizzando al contempo le prestazioni dell'inserimento.
