@@ -241,8 +241,8 @@ function long ProcessaBlocco(domain tcemm.noma num.righe)
 \end{listing}
 
 \subsection{Logging degli Errori}
-Il processo di validazione e selezione dei record è strettamente legato a una complessa infrastruttura di \textit{logging}.
-Invece di disperdere i \textit{warning} e gli \textit{errors} nei log dei server di Infor, che non facilmente consultabili,
+Il processo di validazione e selezione dei record è legato a una complessa infrastruttura di \textit{logging}.
+Invece di disperdere i \textit{warning} e gli \textit{errors} nei log dei server di Infor, che non sono facilmente consultabili,
 le stringhe non accettate di ciascuna tabella vengono salvate, attivando il \texttt{dal.set.error.message} e scritte nella tabella \texttt{txamg303} (\textit{Runs Errors}).
 
 Un esempio di logica di recupero e salvataggio dell'errore (chiamata dalla funzione \texttt{LoggaErrore}) è la seguente:
@@ -267,7 +267,7 @@ function long LoggaErrore(long riga.id, string str.messaggio)
 \label{lst:error_logging}
 \end{listing}
 
-Tale implementazione è utile per l'utilizzatore finale in quanto avrà visibilità del log testuale completo dalla LNUI, tramite
+Tale implementazione serve all'utilizzatore finale in quanto avrà visibilità del log testuale completo dalla LNUI, tramite
 le sessioni di logs come quella degli errori (Error Logging)\@.
 
 \subsection{Gestione delle Latenze Transazionali}
