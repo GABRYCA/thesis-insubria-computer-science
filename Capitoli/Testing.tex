@@ -1,6 +1,6 @@
-\chapter{Testing e Validazione}
+\chapter{Testing e Validazione}\label{ch:testing-e-validazione}
 
-\section{Strategia di Testing}
+\section{Strategia di Testing}\label{sec:strategia-di-testing}
 Testare un software per la migrazione dei dati è stato un aspetto fondamentale del progetto.
 Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti \textit{Cloud Multitenant},
 ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema di destinazione.
@@ -9,7 +9,7 @@ Inoltre, per il generatore dinamico di codice in Baan C, le procedure di prova
 hanno incluso non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli \textit{script}
 generati a \textit{runtime} dalle \textit{DLL} \texttt{txamgdll0012} e \texttt{txamgdll0013}.
 
-\subsection{Unit Testing sui Moduli di Parsing}
+\subsection{Unit Testing sui Moduli di Parsing}\label{subsec:unit-testing-sui-moduli-di-parsing}
 I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
 degli Infor Exchange sono stati testati su porzioni specifiche di file.
 
@@ -18,13 +18,13 @@ decimali a virgola mobile e codifiche in caratteri ASCII, simulando una diversit
 Durante questa fase è possibile osservare come le diverse versioni del programma non alterino le librerie costruite
 se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
 
-\subsection{Test del Flusso di Migrazione}
+\subsection{Test del Flusso di Migrazione}\label{subsec:test-del-flusso-di-migrazione}
 L'integrazione \textit{end-to-end} è validata eseguendo flussi di test governati dalle logiche di \textit{batch} (\texttt{txamg2100}
 e \texttt{txamg3200}).
 Durante questi test, il sistema genera degli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
 Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} ed eseguito.
 
-\subsection{Test della Sicurezza}
+\subsection{Test della Sicurezza}\label{subsec:test-della-sicurezza}
 Un software di livello \textit{Enterprise} che si interfaccia con il \textit{database} deve essere a prova di anomalie e di sovraccarichi (voluti o semplicemente variazioni impreviste dell'\textit{input} legato all'estrazione da \textit{sistemi legacy}).
 Oltre a verificare il \textit{mapping} corretto, è stata posta particolare attenzione nelle fasi di validazione e test.
 
@@ -98,34 +98,20 @@ i \textit{sanity check} del dato prima della re-immissione: individuando la tipo
 può decidere se modificarne il \textit{mapping}, apportare modifiche sul file d'origine o creare estensioni
 specifiche ai moduli generati dal \textit{tool}.
 
-\section{Verifica dell'Integrità dei Dati}
-\subsection{Matching tra Dati Sorgente (Legacy) e Destinazione (Cloud)}
+\section{Verifica dell'Integrità dei Dati}\label{sec:verifica-dell'integrita-dei-dati}
+
+\subsection{Confronto tra Origine e Destinazione}\label{subsec:confronto-tra-origine-e-destinazione}
 Ogni file migrato viene tracciato sulle tabelle atte al monitoraggio (\texttt{txamg301}, \texttt{txamg302}). Il \textit{matching}
 prevede che vengano comparati il numero dei record letti, processati ed eventualmente respinti rispetto all'origine.
 Questo consente di ottenere la garanzia del risultato atteso, in quanto una discrepanza nel numero di dati letti e scritti,
 segnalerebbe un errore evidente.
 
 Nello specifico la tabella \texttt{txamg301} incapsula le metriche di base del processo:
-\begin{longtable}{@{} l p{4cm} p{7cm} @{}}
-    \toprule
-    \textbf{Campo} & \textbf{Nome} & \textbf{Descrizione} \\
-    \midrule
-    \endfirsthead
-    \toprule
-    \textbf{Campo} & \textbf{Nome} & \textbf{Descrizione} \\
-    \midrule
-    \endhead
-    \midrule
-    \multicolumn{3}{r}{{Continua nella pagina successiva}} \\
-    \bottomrule
-    \endfoot
-    \bottomrule
-    \caption{Struttura dei conteggi per l'affidabilità (txamg301)}
-    \endlastfoot
-    \texttt{rere} & Records Read & Il volume totale delle istruzioni e record processati dal tool \\
-    \texttt{repr} & Record Processed & Quanti dei record immessi hanno dato esito positivo dopo tutti i trigger \\
-    \texttt{reer} & Records Discarded & Numero di istanze rifiutate o bloccate dal check del DB \\
-\end{longtable}
+\begin{itemize}
+    \item \texttt{rere} (Records Read): volume totale dei record letti dal tool.
+    \item \texttt{repr} (Record Processed): record che hanno superato tutti i controlli e sono stati inseriti.
+    \item \texttt{reer} (Records Discarded): record scartati per errori di validazione o integrità.
+\end{itemize}
 
 I report prodotti (tramite moduli ad hoc come \texttt{txamgdll0011} per il log d'errore) forniscono la garanzia
 numerica dell'operazione, permettendo al team di validazione di avere stime certe prima dell'import su CloudSuite finale.
@@ -134,9 +120,9 @@ Questo approccio garantisce che le disconnessioni di rete o i blocchi temporanei
 incertezza.
 Il tool si comporta in maniera deterministica e produce riscontri sempre validati rispetto al totale.
 
-\section{Analisi delle Prestazioni e ROI}
+\section{Analisi delle Prestazioni e ROI}\label{sec:analisi-delle-prestazioni-e-roi}
 
-\subsection{Benchmark delle Prestazionali}
+\subsection{Benchmark delle Prestazioni}\label{subsec:benchmark-delle-prestazioni}
 Per valutare l'effettivo miglioramento apportato dall'architettura del tool rispetto ai caricamenti manuali o ai vecchi script,
 sono stati condotti dei benchmark basati su dataset crescenti (da 1.000 a 100.000 record). Il grafico in Figura~\ref{fig:performance_benchmark} mostra i tempi
 di elaborazione misurati, evidenziando il netto miglioramento garantito dall'elaborazione in batch a blocchi e l'eliminazione dei colli di
@@ -186,7 +172,7 @@ bottiglia legati alle singole commit di transazione.
     \label{fig:performance_benchmark}
 \end{figure}
 
-\subsection{Analisi degli Errori}
+\subsection{Analisi degli Errori}\label{subsec:analisi-degli-errori}
 Durante i test prestazionali, i \textit{record} scartati (\textit{Discarded Records}) sono stati analizzati e categorizzati per capirne l'origine.
 La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fallimenti più comuni.
 
@@ -207,7 +193,7 @@ La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fal
     \label{fig:error_piechart}
 \end{figure}
 
-\subsection{Return on Investment (ROI)}
+\subsection{Return on Investment (ROI)}\label{subsec:return-on-investment-(roi)}
 Infine, dal punto di vista gestionale in AlteaIN, l'automazione dei test e del ciclo di migrazione e sviluppo
 determina un importante risparmio per i consulenti, il quale si tramuta in un certo \textit{ROI} per l'azienda.
 

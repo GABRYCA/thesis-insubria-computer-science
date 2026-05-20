@@ -1,7 +1,7 @@
-\chapter{Introduzione}
+\chapter{Introduzione}\label{ch:introduzione}
 
 
-\section{Contesto Aziendale}
+\section{Contesto Aziendale}\label{sec:contesto-aziendale}
 Questo lavoro di tesi nasce dalla necessità dell'azienda AlteaIN di sviluppare e migliorare uno strumento di migrazione dati per Infor LN~\cite{inforLN2025},
 un sistema \textit{ERP} (\textit{Enterprise Resource Planning}) industriale utilizzato a livello internazionale, di cui l'azienda
 è ufficialmente partner in Italia.
@@ -73,21 +73,21 @@ un colloquio attivo tra lo sviluppatore (il sottoscritto e altri membri del team
 I consulenti, insieme ai funzionali, in quanto futuri utenti finali del \textit{tool}, hanno giocato un ruolo chiave nel
 definire gli \textit{Use Case} e nel testare le \textit{release} intermedie del generatore di codice.
 
-\section{Contesto Tecnologico e Curva di Apprendimento}\label{sec:contesto-tecnologico-e-curva-di-apprendimento}
+
+\subsection{Apprendimento dell'Ecosistema Infor}\label{subsec:contesto-tecnologico-e-curva-di-apprendimento}
 Uno degli aspetti formativi più sfidanti del tirocinio, preliminare alla fase di sviluppo vera e propria, è stato l'inserimento
 in un ecosistema software proprietario ed estremamente verticalizzato.
 A differenza di altri linguaggi \textit{open-source} o dei
 \textit{framework} convenzionali solitamente studiati durante il percorso accademico (come Java o \textit{framework web}),
 l'ambiente Infor si basa su un'architettura proprietaria consolidata denominata \textit{Infor Tools}.
 
-Il linguaggio di programmazione utilizzato è il \textbf{Baan C} (nelle sue versioni 3GL e 4GL), un linguaggio procedurale ed
-\textit{event-driven} strettamente legato al dizionario dati (\textit{Data Dictionary}) del database sottostante (che può essere di diversi tipi,
-a noi non noti per riservatezza).
-Questa ha richiesto un importante periodo iniziale di \textit{training} e di studio della documentazione ufficiale
+Le caratteristiche tecniche di Baan C, delle DLL proprietarie e del framework Infor Tools sono descritte in dettaglio nel Capitolo~\ref{ch:stato-attuale} (Sezione~\ref{subsec:linguaggio-baan-c:-3gl-e-4gl}).
+Qui basti sapere che si tratta di un ambiente chiuso e molto diverso dai linguaggi open-source tipicamente affrontati nel corso di studi.
+Di conseguenza, questo ha richiesto un importante periodo iniziale di \textit{training} e di studio della documentazione ufficiale
 (come \textit{progguide} e videolezioni registrate create per i nostri colleghi), necessario per
 padroneggiare concetti avanzati come le \textit{Dynamic Link Libraries} (DLL) proprietarie, i \textit{Data Access Layer} 
 (DAL) e l'utilizzo degli strumenti dedicati come \textit{BECS} e Infor LN Studio.
-Solamente dopo aver imparato tutti questi concetti e argomenti è stato possibile ideare e implementare i moduli architetturali che
+Solamente dopo aver imparato tutti questi strumenti, concetti e argomenti è stato possibile ideare, studiare e implementare i moduli architetturali che
 compongono il \textit{Migration Tool}.
 
 Tra questi elementi si possono menzionare:

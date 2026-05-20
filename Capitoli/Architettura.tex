@@ -1,13 +1,13 @@
-\chapter{Architettura}
+\chapter{Architettura del Sistema}\label{ch:architettura-del-sistema}
 
 
-\section{Panoramica Architettura di Sistema}
+\section{Panoramica Architettura di Sistema}\label{sec:panoramica-architettura-di-sistema}
 L'architettura del \textit{Migration Tool} è stata definita per essere modulare e scalabile.
 Alla base del sistema vi è una netta separazione tra il modulo di \textit{input} (\textit{Importer}), il motore per l'elaborazione dei metadati,
 e il Generatore di Codice.
 Questo approccio garantisce la distinzione tra il \textit{layout} dei dati preesistenti e la struttura del database Infor \textit{CloudSuite}.
 
-\subsection{Modello Dati e Dizionario}
+\subsection{Modello Dati e Dizionario}\label{subsec:modello-dati-e-dizionario}
 L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
 Il modello relazionale si basa su un raggruppamento logico identificato dai prefissi delle tabelle
 (sviluppate nel \textit{package} \textit{custom} \texttt{tx} / modulo \texttt{amg}).
@@ -71,8 +71,9 @@ Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{a
 
 La Tabella~\ref{tab:txamg000} nell'appendice mostra i parametri di configurazione per gestire i percorsi di I/O e le librerie dinamiche.
 
-\section{Progettazione del Software}
-\subsection{Design dell'Importer e del Parser dei Dati}
+\section{Progettazione del Software}\label{sec:progettazione-del-software}
+
+\subsection{Design dell'Importer e del Parser dei Dati}\label{subsec:design-dell'importer-e-del-parser-dei-dati}
 L'Importer funge da punto d'ingresso per i dati ed è progettato per interpretare il formato proprietario di Infor \textit{Exchange},
 analizzando file di esportazione testuali o strutturati.
 Estraendo i metadati dai record, l'Importer popola i dizionari \textit{Datafiles} (\texttt{txamg110}) e i
@@ -81,7 +82,7 @@ relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispe
 Questo \textit{design} del caricamento rende possibile supportare sia architetture \textit{multitenant} \textit{cloud}, sia installazioni \textit{legacy} \textit{on-premise}.
 L'architettura proposta garantisce una lettura massiva e aggregata da un singolo sorgente aziendale.
 
-\subsection{Sequenza Operativa del Sistema}
+\subsection{Sequenza Operativa del Sistema}\label{subsec:sequenza-operativa-del-sistema}
 Il seguente \textit{Sequence Diagram} ad alto livello illustra il flusso logico tra i componenti logici: l'utente,
 l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Database.
 \begin{figure}[H]
@@ -139,7 +140,7 @@ a partire dalla sua forma grezza su file fino all'inserimento (o scarto).
     \label{fig:record_state_diagram}
 \end{figure}
 
-\subsection{Diagramma dei Componenti}
+\subsection{Diagramma dei Componenti}\label{subsec:diagramma-dei-componenti}
 L'architettura può essere descritta logicamente attraverso il seguente diagramma a blocchi dei moduli, dove il
 Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor Tools e DAL\@.
 \begin{figure}[H]
@@ -165,7 +166,7 @@ Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{genera
     \label{fig:component_diagram}
 \end{figure}
 
-\subsection{Generazione del Codice}
+\subsection{Generazione del Codice}\label{subsec:generazione-del-codice}
 Il generatore di codice è basato su librerie compilate (\textit{DLL} come \texttt{txamgdll0012} e \texttt{txamgdll0013}),
 il modulo interpreta il dizionario di \textit{mapping} (definito in \texttt{txamg203} (\textit{MappedFields})) e
 traduce i legami e le regole di trasformazione in \textit{script} nativi Baan C.
@@ -176,9 +177,9 @@ Al fine di rispettare le rigide \textit{policy} di sicurezza e isolamento dei te
 il deployment delle librerie avvengono esclusivamente all'interno di ambienti di Sviluppo/Staging autorizzati.
 Successivamente, le DLL validate vengono promosse in Produzione attraverso i canali standard di rilascio dell'ERP, garantendo l'integrità del sistema.
 
-\subsection{Code Generation vs. Interpretation}
+\subsection{Confronto tra Generazione e Interpretazione del Codice}\label{subsec:confronto-tra-generazione-e-interpretazione-del-codice}
 Nell'architettura software di questa tesi, in azienda si è discusso se utilizzare un paradigma di 
-esecuzione \textit{interpretata} o optare per una pura \textit{generazione del codice} (\textit{Code Generation}). 
+esecuzione \textit{interpretata} od optare per una pura \textit{generazione del codice} (\textit{Code Generation}).
 Quest'ultima tecnica rientra nell'ampio paradigma del \textbf{Metaprogramming} (Metaprogrammazione). 
 
 In informatica, la metaprogrammazione è la capacità di un programma di trattare altri programmi come propri dati: significa poter leggere, 
@@ -192,7 +193,8 @@ A livello ingegneristico, esistono diversi approcci per ottenere dinamicamente c
     Questo approccio ha un enorme peso sulle performance (\textit{overhead}) rallentando le elaborazioni 
     sui milioni di record a causa dell'esecuzione sequenziale delle query.
     \item \textbf{Generazione di codice (\textit{Lexical/AST Generation})}: Trasformazione delle logiche (nel nostro caso i Mapping e Datafile) in 
-    \textit{script} nativi (\textit{.bc}) e compilazione prima dell'esecuzione vera e propria. Questo è l'approccio che è stato scelto per questo progetto.
+    \textit{script} nativi (\textit{.bc}) e compilazione prima dell'esecuzione vera e propria.
+    Questo è l'approccio che è stato scelto per il progetto.
 \end{itemize}
 
 Al contrario del vecchio strumento che offriva interpretazioni particolarmente lente, il \textit{tool} da noi creato utilizza il 
@@ -201,7 +203,7 @@ I metadati dell'origine e di destinazione vengono tradotti in script Baan C. Que
 diventano immutabili (a meno di un ricalcolo). Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, 
 permettendo alla successiva fase di inserimento (\textit{Batch}) di essere eseguita alla velocità nativa consentita dal compilatore \textit{Infor}.
 
-\subsection{Modulo di Integrazione Ad-hoc e Callbacks}
+\subsection{Modulo di Integrazione Ad-hoc e Callbacks}\label{subsec:modulo-di-integrazione-ad-hoc-e-callbacks}
 Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di \textit{business} richiedono sviluppi
 specifici a causa della loro complessità.
 Vengono quindi esposte a livello architetturale delle interfacce di \textit{callback}.

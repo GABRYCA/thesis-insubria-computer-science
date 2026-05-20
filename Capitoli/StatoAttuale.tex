@@ -1,17 +1,17 @@
-﻿\chapter{Stato Attuale}\label{ch:stato-attuale}
+﻿\chapter{Stato dell'Arte: ERP, Cloud e Migrazione Dati}\label{ch:stato-attuale}
 
 
 \section{Sistemi ERP}\label{sec:sistemi-erp}
 I sistemi \textit{ERP} (\textit{Enterprise Resource Planning}) rappresentano un elemento fondamentale del sistema gestionale aziendale~\cite{erpMigration},
 consentendo l'integrazione dei processi di \textit{business} più importanti di un'azienda come: vendite, acquisti, gestione inventario, contabilità e personale.
 
-\subsection{Evoluzione dei Sistemi Legacy al Cloud}\label{subsec:evoluzione-dei-sistemi-legacy-al-cloud}
+\subsection{Dai Sistemi Legacy al Cloud}\label{subsec:evoluzione-dei-sistemi-legacy-al-cloud}
 Nel corso degli anni, i sistemi \textit{ERP} si sono evoluti partendo da architetture \textit{on-premise} \textit{legacy}, spesso caratterizzate da un elevato
 grado di personalizzazione (\textit{customization}, in Infor LN definiti nei \textit{package} \texttt{tx}) e grandi costi di manutenzione.
 Tuttavia, oggi si sta assistendo a una transizione verso nuove soluzioni come il \textit{Cloud}.
 
 % \subsection{Architetture Multitenant}
-\subsection{Architetture Multitenant e Segregazione dei Dati}\label{subsec:architetture-multitenant-e-segregazione-dei-dati}
+\subsection{Multitenant e Isolamento dei Dati}\label{subsec:architetture-multitenant-e-segregazione-dei-dati}
 Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni~\cite{multitenantCloud}.
 A differenza dei sistemi tradizionali \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software
 dedicata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici clienti (i cosiddetti \textit{tenant}, in ambiente \textit{cloud}).
@@ -120,7 +120,7 @@ Esso si divide a sua volta in:
     che rappresentano in alcuni casi l'unico modo di interagire e personalizzare tabelle e procedure standard.
 \end{itemize}
 
-\subsection{Infor Exchange e Strumenti di Import/Export}\label{subsec:infor-exchange-e-strumenti-di-import/export}
+\subsection{Infor Exchange e Strumenti Tradizionali di Import/Export}\label{subsec:infor-exchange-e-strumenti-di-import/export}
 Per lo scambio di informazioni, Infor fornisce un modulo denominato \textit{Exchange}~\cite{inforExchangeGuide}.
 Si tratta di una piattaforma per l'importazione e l'esportazione di file (es.
 CSV, XML, testo a larghezza fissa e ASCII) mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN,
@@ -168,7 +168,7 @@ paradigma \textit{ETL}.
 Bisogna quindi superare le classiche frammentazioni dove sviluppatori diversi usano codici, linguaggi,
 e metodologie diverse per le tre fasi, aumentando la probabilità di errori semantici durante il trasferimento delle informazioni.
 
-\subsection{Sfide e Problematiche Comuni}\label{subsec:sfide-e-problematiche-comuni}
+\subsection{Le Principali Sfide della Migrazione Dati}\label{subsec:sfide-e-problematiche-comuni}
 La migrazione da un sistema \textit{legacy} a un nuovo \textit{ERP} \textit{cloud} richiede un'attenta fase di analisi per evitare perdite o
 disallineamenti di informazioni storiche e \textit{master data}~\cite{gali2025master}.
 
@@ -177,7 +177,7 @@ con un alto livello di complessità e rischio d'errore.
 Un altro buon motivo per la creazione del nostro (\textit{Migration Tool}).
 
 %\subsection{Migrazione verso ambienti Cloud e SaaS}
-\subsection{Necessità di Strumenti di Automazione e Generazione Dinamica}\label{subsec:necessita-di-strumenti-di-automazione-e-generazione-dinamica}
+\subsection{Verso l'Automazione e la Generazione Dinamica}\label{subsec:necessita-di-strumenti-di-automazione-e-generazione-dinamica}
 Per la migrazione verso il \textit{Cloud}, non è più sostenibile un approccio basato esclusivamente su procedure di inserimento manuali 
 o sullo sviluppo isolato di \textit{script} monouso scritti \textit{ad-hoc} per ogni singola tabella aziendale.
 Tutto il tempo dedicato a queste operazioni sarebbe meglio utilizzato per l'analisi dei dati, la definizione delle regole di mappatura e la gestione di casi specifici,
@@ -205,4 +205,5 @@ Inoltre, molti \textit{endpoint} espongono solo un sottoinsieme minimale di funz
 da Infor stessa e resi quindi inutilizzabili per sviluppatori esterni e consulenti ai fini della migrazione dati.
 Lo sviluppo nativo \textit{backend} tramite Baan C è quindi stata l'unica soluzione adatta, \textit{performante} e completamente integrabile con le rigide architetture dell'ERP\@.
 
-Si è quindi scelto di sviluppare in ambiente nativo anziché tramite integrazione, magari apparentemente più moderna, con gli strumenti esterni analizzati precedentemente.
+Per i motivi esposti nella Sezione~\ref{subsec:confronto-con-altre-piattaforme-etl} (latenza, accesso limitato ai dati, costi),
+la scelta progettuale è ricaduta su uno sviluppo nativo in Baan C, pienamente integrato nell'ecosistema Infor.
