@@ -2,3 +2,31 @@
 %! Date = 03/07/2026
 
 \chapter{Analisi dei Requisiti}\label{ch:analisi-dei-requisiti}
+
+Una delle prime attività fondamentali dell'ingegneria del software per la buon riuscita di un prodotto, è l'analisi dei requisiti.
+Questa fase ha lo scopo di individuare e definire le funzionalità offerte che saranno sviluppate.
+% Alla fine di essa sarà steso un documento di \textit{specifica dei requisiti}, che descriverà tutte queste funzionalità in modo completo e chiaro.
+
+% Il documento di specifica dei requisiti fungerà da documento di riferimento per tutte le fasi successive dello sviluppo del software.
+La nostra applicazione mobile dovrà quindi offrire:
+
+\begin{itemize}
+    \item Fase di apertura, con caricamento dell'interfaccia principale per l'inserimento dei parametri
+    \item Tema dinamico, tramite pulsante per il passaggio da tema chiaro a scuro e viceversa, anche in base alle impostazioni del dispositivo
+    \item Multilingua, inglese e italiano, anch'esse in base alle impostazioni del dispositivo
+    \item Risultati con spiegazione delle analisi, con eventuale follow-up consigliato
+    \item File di configurazione con cui definire parametricamente i risultati che gli input dovranno dare
+    \item Funzionalità di salvataggio dei risultati di diagnosi dei pazienti, con possibilità di visualizzarli in uno storico con ogni loro diagnosi
+    \item Funzionalità di cancellazione dei paziente, inclusi il loro storico, o delle loro singole diagnosi
+    \item Funzionalità per passare da una diagnosi TNM a sSCC Testa-Collo e viceversa
+    \item Funzionalità di caricamento delle diagnosi precedenti, senza dover reinserire i parametri manualmente
+    \item Sincronizzazione con un servizio cloud, per salvare i dati dei pazienti e le loro diagnosi
+\end{itemize}
+
+L'app mobile deve inoltre soddisfare dei requisiti non funzionali, come:
+
+\begin{itemize}
+    \item UI/UX semplice, intuitiva e moderna, senza complicare più del necessario l'utilizzo dell'utente finale
+    \item Sicurezza, sia locale che cloud
+    \item Funzionalità offline, in assenza di internet l'app deve comunque permettere di eseguire diagnosi
+\end{itemize}
