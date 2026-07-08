@@ -8,6 +8,30 @@ effettivamente implementati, sia a livello di struttura software che di interfac
 
 \section{Descrizione generale}\label{sec:descrizione-generale}
 
+\section{Scelte architetturali}\label{sec:scelte-architetturali}
+
+\subsection{Migrazione verso Kotlin Multiplatform}
+
+Il progetto è stato inizialmente sviluppato in Kotlin nativo Android, utilizzando strumenti Java come:
+
+\begin{itemize}
+    \item EvalEx, per la lettura dei file delle espressioni per ottenere le diagnosi
+    \item Firebase, per la sincronizzazione dei dati dei pazienti e delle diagnosi
+    \item SpashScreen, per l'animazione iniziale di caricamento
+    \item Lingua e tema di default in base al dispositivo
+\end{itemize}
+
+Questi elementi sono stati sostituiti con altre librerie simili o sostituiti, nello specifico:
+
+\begin{itemize}
+    \item EvalEx è stato rimosso, e si è invece scritto un interprete da zero nativo Kotlin
+    \item Firebase è stato sostituito con la version Gitlive della community, con l'aggiunta di diverse dipendenze per i servizi Google
+    \item Lo SplashScreen animato è stato rimosso in favore di uno statico
+    \item La lingua e il tema di default sono stati scritti nelle rispettive iosMain e androidMain, in quanto diverse per piattaforma
+\end{itemize}
+
+\subsection{Architettura dell'applicazione}
+
 \section{Specifica dei requisiti}\label{sec:specifica-requisiti}
 
 \subsection{Interfaccia utente}\label{subsec:interfaccia-utente}
@@ -15,3 +39,5 @@ effettivamente implementati, sia a livello di struttura software che di interfac
 \subsection{Realizzazione del layout}\label{subsec:realizzazione-layout}
 
 \section{Database}\label{sec:database}
+
+\subsection{Modello dati}
