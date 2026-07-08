@@ -12,7 +12,7 @@ effettivamente implementati, sia a livello di struttura software che di interfac
 
 \subsection{Migrazione verso Kotlin Multiplatform}
 
-Il progetto è stato inizialmente sviluppato in Kotlin nativo Android, utilizzando strumenti Java come:
+Il progetto è stato inizialmente sviluppato in Kotlin nativo Android, utilizzando strumenti Java e non solo, come:
 
 \begin{itemize}
     \item EvalEx, per la lettura dei file delle espressioni per ottenere le diagnosi
@@ -31,6 +31,30 @@ Questi elementi sono stati sostituiti con altre librerie simili o sostituiti, ne
 \end{itemize}
 
 \subsection{Architettura dell'applicazione}
+L'architettura del software si adatta agli standard di Kotlin Multiplatform (KMP). Durante la migrazione da Kotlin a Kotlin Multiplatform, l'obiettivo primario
+è stato quello di massimizzare il codice condiviso tra Android e iOS, con il minor numero di dipendenze native ove possibile, con una logica di business e di presentazione (UI) unificati.
+
+L'applicazione segue una variante del pattern architetturale \textbf{Model-View-ViewModel (MVVM)}, costruita attorno a una singola \textit{ViewModel} centralizzata (\texttt{MelanomaViewModel}).
+Questa funge da singolo punto di accesso per l'intero ciclo di vita dell'applicazione, separando l'interfaccia utente dalla logica di dominio.
+
+Le caratteristiche architetturali principali includono:
+
+\begin{itemize}
+    \item Utilizzo di Compose Multiplaform, compatibile sia con Android che iOS in Kotlin Multiplatform, tramite
+    il modulo condiviso \texttt{commonMain}. Le viste (View) sono \textit{stateless}, e si limitano quindi a osservare i dati
+    e a inoltrare al ViewModel le interazioni dell'utente.
+    \item Utilizzo di \texttt{StateFlow} e di \texttt{MutableStateFlow} per la gestione della reattività degli stati. Variabili come dati anagrafici, parametri clinici e risultati della stadiazione (\texttt{StagingResult}) vengono aggiornati reattivamente.
+    Viene quindi ricomposta automaticamente l'interfaccia grafica quando i flussi di dati cambiano, emettendo un nuovo stato.
+    \item Navigazione tra le schermate gestita tramite stato (State-Driven), senza librerie di routing esterne (inizialmente nella versione nativa veniva utilizzato il Navigation Component di Android), viene quindi gestita in modo manuale e dichiarativo la navigazione tra le schermate.
+    Una \texttt{Sealed class Screen} definisce le possibili destinazioni navigabili dell'app (\texttt{Calculator}, \texttt{PatientList} e \texttt{PatientHistory}).
+    Il ViewModel mantiene lo stato della schermata attiva, e fornisce la funzione \texttt{navigateTo(screen: Screen)}. Cambiando lo stato della variabile, viene quindi cambiata la schermata, eseguendo eventuale logica annessa (come il caricamento dei pazienti tramite fetch).
+    \item Utilizzo di \texttt{Kotlin Coroutines} per la gestione della concorrenza e dell'accesso ai dati. Tutte le operazioni asincrone, come il calcolo della diagnosi basato su regole dei file JSON (e tramite \texttt{StagingEngine}), inclusa la comunicazione cloud di Firebase, sono gestite 
+    in modo sicuro e non bloccante, anche tramite il \texttt{viewModelScope}. L'interazione con il database cloud Firebase, inizialmente con Firebase nativo di Google, è stata migrata alla versione KMP della community GitLive, che permette di utilizzare funzioni CRUD 
+    (lettura, salvataggio e cancellazione) sui dati senza dover applicare codici diversi in base al sistema operativo.
+\end{itemize}
+
+In breve, la maggior parte del codice si trova in commonMain e utilizza codice Kotlin compatibile sia con sistemi Android che iOS, con il minimo utilizzo di funzioni proprietare tramite \texttt{expect/actual}, lasciando quindi
+i moduli \texttt{androidMain} e \texttt{iosMain} il più snelli possibili (salvo inizializzazioni e configurazioni iniziali obbligatorie).
 
 \section{Specifica dei requisiti}\label{sec:specifica-requisiti}
 
