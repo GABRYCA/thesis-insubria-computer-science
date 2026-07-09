@@ -10,7 +10,7 @@ effettivamente implementati, sia a livello di struttura software che di interfac
 
 \section{Scelte architetturali}\label{sec:scelte-architetturali}
 
-\subsection{Migrazione verso Kotlin Multiplatform}
+\subsection{Migrazione verso Kotlin Multiplatform}\label{subsec:migrazione-verso-kotlin-multiplatform}
 
 Il progetto è stato inizialmente sviluppato in Kotlin nativo Android, utilizzando strumenti Java e non solo, come:
 
@@ -30,7 +30,7 @@ Questi elementi sono stati sostituiti con altre librerie simili o sostituiti, ne
     \item La lingua e il tema di default sono stati scritti nelle rispettive iosMain e androidMain, in quanto diverse per piattaforma
 \end{itemize}
 
-\subsection{Architettura dell'applicazione}
+\subsection{Architettura dell'applicazione}\label{subsec:architettura-dell'applicazione}
 L'architettura del software si adatta agli standard di Kotlin Multiplatform (KMP). Durante la migrazione da Kotlin a Kotlin Multiplatform, l'obiettivo primario
 è stato quello di massimizzare il codice condiviso tra Android e iOS, con il minor numero di dipendenze native ove possibile, con una logica di business e di presentazione (UI) unificati.
 
@@ -41,15 +41,19 @@ Le caratteristiche architetturali principali includono:
 
 \begin{itemize}
     \item Utilizzo di Compose Multiplaform, compatibile sia con Android che iOS in Kotlin Multiplatform, tramite
-    il modulo condiviso \texttt{commonMain}. Le viste (View) sono \textit{stateless}, e si limitano quindi a osservare i dati
-    e a inoltrare al ViewModel le interazioni dell'utente.
-    \item Utilizzo di \texttt{StateFlow} e di \texttt{MutableStateFlow} per la gestione della reattività degli stati. Variabili come dati anagrafici, parametri clinici e risultati della stadiazione (\texttt{StagingResult}) vengono aggiornati reattivamente.
+    il modulo condiviso \texttt{commonMain}.
+    Le viste (View) sono \textit{stateless}, e si limitano quindi a osservare i dati e a inoltrare al ViewModel le interazioni dell'utente.
+    \item Utilizzo di \texttt{StateFlow} e di \texttt{MutableStateFlow} per la gestione della reattività degli stati.
+    Variabili come dati anagrafici, parametri clinici e risultati della stadiazione (\texttt{StagingResult}) vengono aggiornati reattivamente.
     Viene quindi ricomposta automaticamente l'interfaccia grafica quando i flussi di dati cambiano, emettendo un nuovo stato.
     \item Navigazione tra le schermate gestita tramite stato (State-Driven), senza librerie di routing esterne (inizialmente nella versione nativa veniva utilizzato il Navigation Component di Android), viene quindi gestita in modo manuale e dichiarativo la navigazione tra le schermate.
     Una \texttt{Sealed class Screen} definisce le possibili destinazioni navigabili dell'app (\texttt{Calculator}, \texttt{PatientList} e \texttt{PatientHistory}).
-    Il ViewModel mantiene lo stato della schermata attiva, e fornisce la funzione \texttt{navigateTo(screen: Screen)}. Cambiando lo stato della variabile, viene quindi cambiata la schermata, eseguendo eventuale logica annessa (come il caricamento dei pazienti tramite fetch).
-    \item Utilizzo di \texttt{Kotlin Coroutines} per la gestione della concorrenza e dell'accesso ai dati. Tutte le operazioni asincrone, come il calcolo della diagnosi basato su regole dei file JSON (e tramite \texttt{StagingEngine}), inclusa la comunicazione cloud di Firebase, sono gestite 
-    in modo sicuro e non bloccante, anche tramite il \texttt{viewModelScope}. L'interazione con il database cloud Firebase, inizialmente con Firebase nativo di Google, è stata migrata alla versione KMP della community GitLive, che permette di utilizzare funzioni CRUD 
+    Il ViewModel mantiene lo stato della schermata attiva, e fornisce la funzione \texttt{navigateTo(screen: Screen)}.
+    Cambiando lo stato della variabile, viene quindi cambiata la schermata, eseguendo eventuale logica annessa (come il caricamento dei pazienti tramite fetch).
+    \item Utilizzo di \texttt{Kotlin Coroutines} per la gestione della concorrenza e dell'accesso ai dati.
+    Tutte le operazioni asincrone, come il calcolo della diagnosi basato su regole dei file JSON (e tramite \texttt{StagingEngine}), inclusa la comunicazione cloud di Firebase, sono gestite
+    in modo sicuro e non bloccante, anche tramite il \texttt{viewModelScope}.
+    L'interazione con il database cloud Firebase, inizialmente con Firebase nativo di Google, è stata migrata alla versione KMP della community GitLive, che permette di utilizzare funzioni CRUD
     (lettura, salvataggio e cancellazione) sui dati senza dover applicare codici diversi in base al sistema operativo.
 \end{itemize}
 
@@ -64,4 +68,70 @@ i moduli \texttt{androidMain} e \texttt{iosMain} il più snelli possibili (salvo
 
 \section{Database}\label{sec:database}
 
-\subsection{Modello dati}
+Utilizziamo \textbf{Cloud Firebase Firestore} per la persistenza e sincronizzazione dei dati nel cloud.
+Firestore è un database NoSQL a documenti offerto nell'ecosistema Firestore di Google, tuttavia dato che questo non è
+direttamente supportato su Kotlin Multiplatform, come menzionato in precedenza durante la fase di migrazione, è stato necessario
+adottare la libreria SDK \textit{Gitlive Firebase} della community, che offre funzionalità simili e compatibilità con Firestore e KMP.
+Essa offre dei \textit{wrapper} Kotlin sia per Android che iOS, che possono essere utilizzati direttamente nel modulo \texttt{commonMain}.
+
+Essendo un database NoSQL a documenti, esso ha un funzionamento diverso dai tradizionali database relazionali con tabelle, righe e colonne.
+Firestore mantiene i dati in una struttura gerarchica di \textit{documenti} in formato simile a JSON, raggruppati in \textit{collezioni}, che a loro volta contengono
+altri documenti, con le proprie raccolte.
+
+\subsection{Modello dati}\label{subsec:modello-dati}
+
+Utilizziamo una struttura progettata attorno a un'unica collezione root che abbiamo denominato \texttt{patients}.
+I documenti al suo interno rappresentano i singoli pazienti, identificati in modo univoco tramite UUID (\textit{Universally Unique Identifier}).
+Ogni paziente ha un documento che contiene campi come lo storico (un array di diagnosi) e dati anagrafici di base.
+
+I documenti NoSQL sono generati direttamente da codice convertendo delle \texttt{data class} Kotlin in un formato compatibile con Firestore, utilizzando
+la libreria \texttt{kotlinx.serialization}, che ne permette la serializzazione e deserializzazione.
+Di fatto, grazie all'annotazione \texttt{@Serializable}, il framework si occupa automaticamente della traduzione dei dati in documenti Firestore,
+fortemente tipizzati garantendo la sicurezza dei tipi dei dati e riducendo codice \textit{boilerplate}.
+
+Il modello dei dati principale della classe \texttt{Patients} è la seguente:
+\begin{itemize}
+    \item \texttt{id}, \texttt{name}, \texttt{surname}: Stringhe che compongo i campi per l'anagrafica e l'identificazione di ogni paziente
+    \item \texttt{birthDate}: Un campo opzionale, che rappresenta la data di nascita del paziente, e che viene gestita tramite la libreria \texttt{kotlinx.datetime}
+    \item\texttt{history}: Un array, simile a una lista di oggetti, di \texttt{StagingRecord}
+\end{itemize}
+
+Nonostante sarebbe stato possibile modellare lo storico dei pazienti in una sotto-collezione separata, dato che stiamo lavorando
+in NoSQL si è deciso di mantenerlo come un array \texttt{embedded} all'interno dei documenti dei pazienti.
+Questo permette di ottimizzare prestazioni e costi che potrebbero derivare da multiple query su diverse collezioni.
+Il caricamento dei pazienti e dei relativi storici, avviene automaticamente tramite la funzione \texttt{fetchPatients()} nel ViewModel,
+insieme al proprio storico clinico, in una singola operazione di lettura (read).
+Questa funzione viene solitamente richiamata al momento
+dell'apertura della schermata dei pazienti, durante la navigazione tramite bottom bar, in una \texttt{Kotlin Coroutine}.
+
+\subsection{Struttura record diagnosi}\label{subsec:struttura-record-diagnosi}
+
+Gli elementi dell'array \texttt{history}, che compongono essenzialmente un'istanza della classe \texttt{StagingRecord} serializzata,
+sono composti da:
+
+\begin{enumerate}
+    \item \textbf{Metadati}: Un \texttt{UUID} univoco insieme a un \texttt{timestamp} (di tipo \texttt{Instant}) che identificano e registrano il momento
+    esatto in cui l'analisi è stata effettuata
+    \item \textbf{\texttt{input} MelanomaInput}: Una classe che contiene i parametri clinici inseriti dall'utente, che supporta sia la stadiazione del melanoma TNM che cSCC.
+    I dati includono tipi primitivi come \texttt{breslowMm} e \texttt{linfonodiPositivi}, serializzati come stringhe sul database.
+    \item \textbf{\texttt{result} StagingResult}: Il risultato di output che viene generato dal motore di calcolo (\texttt{StagingEngine}), che
+    memorizza i valori TNM calcolati, il follow-up suggerito e lo stadio complessivo.
+    Infatti, al posto di salvare stringhe statiche per le spiegazioni, salviamo una chiave (come \texttt{explanationKeysM}), che permette di
+    assegnare testi diversi in più lingue, senza salvare nel database stringhe statiche intraducibili o tradotte in più lingue, sarà poi l'interfaccia utente
+    direttamente dal dispositivo a tradurre i valori chiave nel testo equivalente.
+\end{enumerate}
+
+\subsection{Interazione con Firestore}\label{subsec:interazione-con-firestore}
+
+Il collegamento e interazione con il database vengono gestire dal \texttt{MelanomaViewModel} tramite delle \textit{Kotlin Coroutines}
+permettendo di eseguire operazione \texttt{IO} senza bloccare il thread principale dell'interfaccia grafica in modo asincrono.
+
+Gitlive Firestore, inoltre, ha delle espressioni CRUD (Create, Read, Update e Delete) molto semplici.
+Operazioni come il salvataggio e l'aggiornamento dei pazienti sono convertite tramite oggetti Kotlin, per esempio:
+\begin{verbatim}
+db.collection("patients").document(patientId).set(newPatient)
+\end{verbatim}
+Quando viene necessario modificare solamente parzialmente dei dati (come eliminare una singola diagnosi dello storico),
+viene utilizzata l'estensione \texttt{updateFields} ottimizzata da Firestore, che permette di eseguire una modifica esclusivamente su un
+elemento dell'array richiesto (nel nostro caso l'array \texttt{history}) senza rieseguire una sovrascrittura dell'intero documento,
+un approccio che migliora l'efficienza nella gestione dei dati in ambiente cloud.
