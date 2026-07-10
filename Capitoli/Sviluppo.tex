@@ -3,6 +3,47 @@
 
 \chapter{Sviluppo}\label{ch:sviluppo}
 
+\section{Implementazione interfaccia con Compose Multiplatform}\label{sec:implementazione-interfaccia-con-compose-multiplatform}
+
+L'implementazione dell'interfaccia definita e progettata nella fase di design (Capitolo 3) è stata effettuata tramite \textit{Compose Multiplatform}.
+Il framework ha una natura dichiarativa, e si è quindi sfruttato un \texttt{ViewModel} contenente gli stati che i componenti osservano e
+si aggiornano (ricompongono) quando cambiano.
+
+La gestione dinamica, per esempio, tra l'ìnput del Melanoma TNM o cSCC Testa-Collo, viene ottenuta vincolando un componente
+(\texttt{AnimatedContent}) allo stato della variabile \texttt{tipoTumore}, avviando una transizione e animazione tra i due.
+
+
+\begin{minted}{kotlin}
+AnimatedContent(
+    targetState = tipoTumore,
+    transitionSpec = {
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+         scaleIn(initialScale = 0.92f))
+        .togetherWith(fadeOut(animationSpec = tween(90)))
+    },
+    label = "TumorTypeT"
+) { targetType ->
+    if (targetType == TipoTumore.MELANOMA) {
+        // Mostra input Melanoma
+        ModernTextField(
+            value = breslow,
+            onValueChange = { viewModel.breslowInput.value = it },
+            label = stringResource(Res.string.label_breslow)
+        )
+    } else {
+        // Mostra input cSCC
+        ModernTextField(
+            value = dimensioneScc,
+            onValueChange = { viewModel.dimensioneSccInput.value = it },
+            label = stringResource(Res.string.label_max_dimension)
+        )
+    }
+}
+\end{minted}
+
+Si è resa più fluida l'interfaccia anche grazie all'utilizzo di animazioni di transizione come \texttt{fadeIn}, \texttt{scaleIn} e \texttt{fadeOut}.
+Inoltre, nascondendo i componenti inutilizzati si ottimizza la UI istanziando solamente ciò che è realmente visibile a schermo, migliorando anche performance ed esperienza utente.
+
 \section{Creazione base dei dati}\label{sec:creazione-base-dei-dati}
 
 

@@ -64,7 +64,55 @@ i moduli \texttt{androidMain} e \texttt{iosMain} il più snelli possibili (salvo
 
 \subsection{Interfaccia utente}\label{subsec:interfaccia-utente}
 
+L'interfaccia utente (UI) e l'esperienza utente (UX) sono state progettate per essere intuitive e di rapido utilizzo a livello clinico,
+essendo questa applicazione uno strumento di supporto per i medici, deve essere semplice e con un carico cognitivo minimo per l'inserimento dei dati
+e la lettura dei risultati delle diagnosi.
+
+Per definire gli Screen (schermate) e definire un progetto dell'applicazione prima della scrittura del codice, è stato utilizzato \textbf{Figma}.
+Il prototipo è stato costruito secondo i seguenti criteri:
+\begin{itemize}
+    \item Parametri suddivisi logicamente in sezioni ben definite e distinte (Parametri T, N e M), racchiuse in \texttt{Card} con stili personalizzati.
+    \item Pulsanti di input standard, come \textit{switch}, \textit{chip} e \textit{checkbox} selezionabili, al posto di
+    opzioni più complesse come menù a tendina.
+    Alcuni switch o checkbox quando premuti mostrano ulteriori parametri opzionali od obbligatori, per l'inserimento di dati specifici per le diagnosi.
+    \item Supporto sia al tema chiaro che scuro, per non affaticare la vista dell'utente in ambito ospedaliero con diverse condizioni di luce.
+    Viene inoltre provvisto direttamente nella barra di navigazione un pulsante per il passaggio veloce tra i temi.
+\end{itemize}
+
 \subsection{Realizzazione del layout}\label{subsec:realizzazione-layout}
+
+Inizialmente il layout è stato realizzato seguendo un prototipo senza cSCC Testa-Collo, ma solamente con la stadiazione del melanoma TNM.
+Successivamente ha subito un'estensione per supportare il nuovo tipo di diagnosi e introdurre la compatibile con Kotlin Multiplatform.
+Questo è visibile anche nei prototipi Figma (Figura~\ref{fig:figma_v1} e Figura~\ref{fig:figma_v2}):
+
+In (Figura~\ref{fig:figma_v1}), sviluppata in Kotlin Android Nativo, il layout e l'interfaccia
+erano strutturati unicamente per supportare la stadiazione del Melanoma TNM, con parametri statici e senza selettori per altri tipi di diagnosi.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{immagini/prototipo1/screenshots/figma}
+    \caption{Fase 1 (Android Nativo) - Solo Melanoma}
+    \label{fig:figma_v1}
+\end{figure}
+
+In (Figura~\ref{fig:figma_v2}), con la migrazione verso Kotlin Multiplatform, si è aggiunta
+anche l'opzione di diagnosi del Carcinoma a Cellule Squamose (cSCC) Testa-Collo, di conseguenza è stata aggiunta una nuova
+\texttt{card}, con due pulsanti di selezione per scegliere il tipo di diagnosi (\textit{Tipo di tumore}).
+Quando premuti, ricaricano dinamicamente la sezione dei parametri con i rispettivi tipi T, N e M\@.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{immagini/prototipo2/screenshots/figma}
+    \caption{Fase 2 (KMP) - Selezione Dinamica}
+    \label{fig:figma_v2}
+\end{figure}
+
+Il progetto definito in Figma è stato successivamente tradotto in codice con \textbf{Compose Multiplatform} (nella prima versione invece con \textbf{Jetpack Compose}).
+Sono stati creati e utilizzati dei componenti personalizzati come \texttt{ModernChip} (un selettore) e componenti di animazione come \texttt{AnimatedContent} per ottenere delle transizioni
+fluide senza interruzioni.
+Grazie a questi componenti personalizzati si è resa più modulare l'applicazione e quindi anche il suo mantenimento per eventuali aggiornamenti futuri.
+
+
 
 \section{Database}\label{sec:database}
 
@@ -128,9 +176,9 @@ permettendo di eseguire operazione \texttt{IO} senza bloccare il thread principa
 
 Gitlive Firestore, inoltre, ha delle espressioni CRUD (Create, Read, Update e Delete) molto semplici.
 Operazioni come il salvataggio e l'aggiornamento dei pazienti sono convertite tramite oggetti Kotlin, per esempio:
-\begin{verbatim}
+\begin{minted}{kotlin}
 db.collection("patients").document(patientId).set(newPatient)
-\end{verbatim}
+\end{minted}
 Quando viene necessario modificare solamente parzialmente dei dati (come eliminare una singola diagnosi dello storico),
 viene utilizzata l'estensione \texttt{updateFields} ottimizzata da Firestore, che permette di eseguire una modifica esclusivamente su un
 elemento dell'array richiesto (nel nostro caso l'array \texttt{history}) senza rieseguire una sovrascrittura dell'intero documento,
