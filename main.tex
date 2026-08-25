@@ -9,7 +9,6 @@
 \usepackage[english,italian]{babel} % Lingua principale italiana, con parti in inglese
 \usepackage{minted} % Per i blocchi di codice
 \usepackage{csquotes} % Dipendenza di babel e biblatex
-\usepackage{blindtext} % Generazione di paragrafi lorem ipsum
 \usepackage{graphicx} % Immagini esterne
 
 \usepackage{setspace}
@@ -20,21 +19,43 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
 
-% Percorso per le immagini delle sessioni
-\graphicspath{{Immagini/}{Immagini/Sessioni/}}
+% Percorso per le immagini
+\graphicspath{{Immagini/}{Immagini/Sessioni/}{Immagini/Screenshot/}}
 
 % Diagrammi TikZ
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{pgf-pie}
 \pgfplotsset{compat=1.18}
-\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+\usetikzlibrary{shapes.geometric, shapes.multipart, arrows, arrows.meta,
+                positioning, fit, backgrounds, calc, chains, automata,
+                decorations.pathreplacing}
 \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
 \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
 \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
 \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+
+% Stili per i diagrammi architetturali
+\tikzset{
+  layer/.style   = {rectangle, rounded corners=3pt, draw=black!70, thick,
+                    align=center, inner sep=6pt, minimum height=1cm},
+  comp/.style    = {rectangle, rounded corners=2pt, draw=black!60,
+                    fill=white, align=center, font=\footnotesize,
+                    inner sep=4pt, minimum height=0.8cm},
+  extern/.style  = {rectangle, dashed, draw=black!60, align=center,
+                    font=\footnotesize, inner sep=4pt},
+  ucase/.style   = {ellipse, draw=black!70, align=center,
+                    font=\footnotesize, inner sep=2pt, minimum width=2.6cm},
+  flow/.style    = {-{Latex[length=2mm]}, thick},
+  flowdash/.style= {-{Latex[length=2mm]}, thick, dashed}
+}
 
 % Captions
 \usepackage[font=scriptsize, skip=5pt, justification=centering]{caption}
@@ -57,6 +78,19 @@
 % Impaginazione e margini
 \usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
 \usepackage[fontsize=12pt]{scrextend} % dimensione font
+
+% Aspetto dei listati di codice
+\setminted{
+  fontsize=\small,
+  breaklines=true,
+  breakanywhere=true,
+  tabsize=2,
+  frame=lines,
+  framesep=6pt,
+  xleftmargin=0pt
+}
+\renewcommand{\listingscaption}{Listato}
+\renewcommand{\listoflistingscaption}{Elenco dei listati}
 
 % ------------------------
 % ---- DOCUMENT SETUP ----
@@ -103,14 +137,10 @@
 \input{Capitoli/Introduzione}
 \input{Capitoli/StatoArte}
 \input{Capitoli/AnalisiRequisiti}
-%\input{Capitoli/Architettura}
 \input{Capitoli/Progettazione}
 \input{Capitoli/Sviluppo}
 \input{Capitoli/Testing}
 \input{Capitoli/Conclusioni}
-
-% \appendix
-% \input{Capitoli/Appendice}
 
 % ----------------------
 % ---- BIBLIOGRAPHY ----

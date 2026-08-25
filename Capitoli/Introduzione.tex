@@ -2,4 +2,39 @@
 
 \section{Contesto}\label{sec:contesto}
 
+La dermatite atopica e la psoriasi condividono una caratteristica che, dal punto di vista informatico, pesa più di quanto si potrebbe pensare: non guariscono. Sono patologie infiammatorie croniche recidivanti, in cui fasi di remissione e fasi di riacutizzazione si alternano nel corso di anni o di decenni \cite{weidingerAD, griffithsPsoriasis}. Chi ne è affetto non ha bisogno di una visita isolata, ma di un percorso: controlli periodici, aggiustamenti della terapia topica o sistemica e, in una parte dei casi, trattamenti biologici che possono essere prescritti soltanto da strutture autorizzate.
+
+L'Organizzazione Mondiale della Sanità, nel rapporto globale dedicato alla psoriasi, ha riconosciuto esplicitamente il ritardo diagnostico e la difficoltà di accesso alle cure specialistiche come problemi di salute pubblica, non come semplici disagi organizzativi \cite{whoPsoriasis}. In Italia il Piano Nazionale della Cronicità muove nella stessa direzione, quando individua nella continuità assistenziale e nella presa in carico territoriale i due assi su cui intervenire \cite{pianoCronicita}.
+
+Tradotto in una domanda concreta, quella che un paziente si pone davvero: dove si trova il centro più vicino che segue la mia patologia, e come ci arrivo? La risposta esiste, ma è distribuita. Le strutture di riferimento sono censite, però l'informazione vive in elenchi separati, ciascuno con la propria organizzazione e i propri criteri di aggiornamento. Due portali in particolare raccolgono i centri italiani dedicati alla dermatite atopica e alla psoriasi \cite{dermatopia, viciniDiPelle}, e sono un punto di partenza serio; restano tuttavia pagine web pensate per essere lette su un monitor, dove la ricerca procede per regione o per provincia e la distanza dall'utente non è una grandezza che il sistema conosca.
+
+Uno smartphone, invece, quella grandezza la conosce. Sa dove si trova, sa disegnare una mappa, sa aprire il navigatore, sa avviare una telefonata, e sa conservare dei dati per quando la rete non c'è. Da questa asimmetria nasce il lavoro descritto nelle pagine che seguono: un'applicazione mobile che prende dati già pubblici e li rende interrogabili nel modo in cui la domanda viene formulata, cioè per posizione.
+
 \section{Obiettivi del Progetto}\label{sec:obiettivi-progetto}
+
+L'obiettivo generale è la progettazione e la realizzazione di un'applicazione mobile cross-platform, sviluppata con il framework Flutter, che permetta di individuare su mappa i centri dermatologici italiani dedicati alla dermatite atopica e alla psoriasi, e di integrarli con voci inserite dall'utente. In termini più operativi, il progetto si è dato i seguenti obiettivi:
+
+\begin{itemize}[itemsep=2pt]
+  \item acquisire l'elenco dei centri da sorgenti pubbliche già esistenti, senza richiedere la costruzione di un archivio proprietario e senza duplicare un lavoro di censimento già svolto da altri;
+  \item normalizzare dati provenienti da servizi con schemi diversi in un'unica rappresentazione interna coerente, gestendo i casi di record incompleti o malformati;
+  \item visualizzare i centri su una mappa interattiva, con un raggruppamento automatico dei segnaposto che mantenga la scena leggibile anche quando le strutture sono concentrate nella stessa area urbana;
+  \item consentire il filtraggio per patologia e per raggio di distanza dalla posizione dell'utente, con l'ordinamento dei risultati per distanza geodetica;
+  \item offrire una ricerca per indirizzo o per località, appoggiandosi a un servizio di geocodifica;
+  \item permettere all'utente di salvare i centri di interesse tra i preferiti e di inserire, modificare ed eliminare centri propri, conservati localmente sul dispositivo;
+  \item integrare le azioni che seguono la consultazione, cioè l'avvio della navigazione verso il centro, la chiamata telefonica, l'invio di una email e la condivisione della scheda;
+  \item garantire un funzionamento accettabile in assenza di connessione, attraverso una cache persistente dell'ultimo elenco scaricato.
+\end{itemize}
+
+Vale la pena dichiarare anche ciò che il progetto non si propone di fare, perché delimitare il perimetro è parte del lavoro di analisi. L'applicazione non formula diagnosi e non esprime valutazioni cliniche: si limita a mostrare dove sono le strutture e a fornirne i contatti. Non prevede autenticazione né profili utente, e di conseguenza non trasmette all'esterno alcun dato personale. Non include un backend proprietario, scelta di cui nel capitolo \ref{ch:conclusioni} discuto costi e conseguenze.
+
+\section{Struttura della Tesi}\label{sec:struttura-tesi}
+
+Il capitolo \ref{ch:stato-arte} inquadra il problema, prima dal lato clinico e poi dal lato tecnologico: esamina gli strumenti già disponibili per cercare un centro dermatologico e ne individua i limiti, confronta le piattaforme cartografiche utilizzabili in ambito mobile e motiva la scelta del framework di sviluppo.
+
+Il capitolo \ref{ch:analisi-dei-requisiti} formalizza attori, requisiti funzionali e requisiti non funzionali, e li raccoglie in un diagramma dei casi d'uso corredato dalle schede dei tre scenari principali.
+
+Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'applicazione, la strategia di gestione dello stato, l'impianto dell'interfaccia e il modello dei dati adottato per riconciliare sorgenti eterogenee.
+
+Il capitolo \ref{ch:sviluppo} è la parte più estesa e ripercorre l'implementazione: acquisizione dei dati con endpoint di riserva, normalizzazione, persistenza, resa cartografica, algoritmo di raggruppamento dei segnaposto, macchina a stati dei permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni del dispositivo.
+
+Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati dei test automatici, incluso un difetto dell'interfaccia emerso proprio durante la loro scrittura. Il capitolo \ref{ch:conclusioni} tira le somme, elenca i limiti che restano aperti e indica le direzioni di sviluppo che mi sembrano più sensate.
