@@ -2,10 +2,140 @@
 
 \section{Strategia di Testing}\label{sec:strategia-testing}
 
-\section{Test Unitari sulla Logica di Business}\label{sec:test-unitari}
+La verifica di un modulo come questo incontra una difficolt\`a di fondo: quasi tutto ci\`o che fa dipende da qualcosa che non controlla. I dati arrivano da servizi di terzi, la posizione arriva dal sistema operativo, le azioni finali vengono eseguite da altre applicazioni, e la resa cartografica dipende da immagini scaricate dalla rete. Sottoporre a prova automatica l'intero percorso richiederebbe di simulare tutti questi interlocutori, con un impianto di prova pi\`u grande del modulo stesso.
 
-\subsection{Verifica della Correttezza del Calcolo BSA}\label{subsec:test-bsa}
+La strategia adottata parte quindi da una domanda diversa da quella usuale, cio\`e non che cosa sarebbe desiderabile verificare, ma che cosa \`e verificabile in modo affidabile e ripetibile senza un dispositivo collegato e senza dipendere dalla rete. La risposta individua tre fasce di verifica, riassunte nella tabella \ref{tab:strategia-test}, e lascia dichiaratamente fuori tutto il resto.
 
-\section{Test di Interfaccia e Usabilità (UI/UX)}\label{sec:test-ui}
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{2.9cm} p{2.6cm} X@{}}
+\toprule
+\textbf{Livello} & \textbf{Strumento} & \textbf{Oggetto della verifica} \tabularnewline
+\midrule
+Prove unitarie & framework di prova del linguaggio & Serializzazione dei centri personalizzati, lettura e scrittura dell'archivio locale, calcolo delle distanze geodetiche \tabularnewline
+Prove di widget & framework di prova dell'interfaccia & Validazione del modulo di inserimento, comportamento in modifica, esito del salvataggio \tabularnewline
+Prove manuali & dispositivo ed emulatore & Permessi di posizione, raggruppamenti, delega alle applicazioni esterne, comportamento senza rete \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Livelli di verifica adottati e rispettivo oggetto.}
+\label{tab:strategia-test}
+\end{table}
 
-\section{Verifica della Compatibilità Cross-Platform e Dispositivi}\label{sec:test-compatibilita}
+La distribuzione fra i tre livelli segue l'impostazione consueta, in cui le prove pi\`u numerose sono anche le pi\`u veloci e le pi\`u vicine al codice \cite{sommervilleSoftwareEng, flutterTesting}. Le prove unitarie non richiedono alcun ambiente grafico e si eseguono in una frazione di secondo; quelle di widget costruiscono un albero di componenti in memoria e simulano le toccate, con un costo maggiore ma ancora senza dispositivo; le prove manuali sono le pi\`u costose e sono state riservate a ci\`o che le prime due non possono raggiungere.
+
+Va dichiarato con precisione ci\`o che non \`e stato verificato in modo automatico, perch\'e un elenco di prove superate senza il perimetro di ci\`o che copre dice poco. Non esistono prove sulle richieste di rete, che avrebbero richiesto un client sostitutivo e la costruzione di risposte artificiali per ciascuna delle due sorgenti; non esistono prove sulla macchina a stati dei permessi descritta al paragrafo \ref{sec:impl-localizzazione}, che avrebbe richiesto la simulazione del canale di comunicazione con la piattaforma; non esistono prove di integrazione che percorrano un caso d'uso completo su dispositivo, n\'e prove di prestazione strumentate. Le prime due assenze sono le pi\`u significative, perch\'e riguardano proprio il codice pi\`u ricco di percorsi alternativi, ed \`e la sede in cui un lavoro di verifica pi\`u esteso dovrebbe cominciare.
+
+Un'ultima precisazione riguarda l'algoritmo di raggruppamento del paragrafo \ref{subsec:impl-clustering}, che a rigore \`e la parte pi\`u facilmente verificabile di tutto il modulo, essendo una funzione che a partire da un elenco di coordinate e da un livello di zoom restituisce un elenco di raggruppamenti, senza dipendenze esterne. Prove su quella funzione non sono state scritte, perch\'e il metodo che la realizza \`e privato della classe di stato del widget e non risulta raggiungibile dall'esterno; renderla verificabile avrebbe richiesto di estrarla in una unit\`a autonoma, che \`e esattamente l'intervento che il requisito RNF-18 avrebbe dovuto imporre e che qui \`e stato disatteso. La correttezza dell'algoritmo \`e stata dunque valutata soltanto per osservazione diretta sulla mappa, e le proprietà numeriche riportate nella tabella \ref{tab:celle} sono verifiche analitiche, non risultati di prove eseguite.
+
+\section{Test Unitari sulla Logica Applicativa}\label{sec:test-unitari}
+
+Le prove unitarie sono dodici, raggruppate in tre insiemi omogenei, e vengono superate tutte. La tabella \ref{tab:test-unitari} le elenca con l'esito e con il requisito a cui ciascun insieme si riferisce.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.6cm} X p{1.5cm}@{}}
+\toprule
+\textbf{N.} & \textbf{Caso di prova} & \textbf{Esito} \tabularnewline
+\midrule
+\multicolumn{3}{@{}l}{\textbf{Serializzazione dei centri personalizzati} (RF-29, RNF-18)} \tabularnewline
+1 & La conversione verso JSON e il ritorno conservano tutti i campi & superato \tabularnewline
+2 & I campi opzionali vuoti o di soli spazi diventano assenza di valore & superato \tabularnewline
+3 & In assenza dell'elenco delle patologie vengono assegnate entrambe & superato \tabularnewline
+4 & Coordinate mancanti ricadono a zero senza sollevare errori & superato \tabularnewline
+5 & La copia con modifica altera i soli campi richiesti e conserva l'identificatore & superato \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Archivio locale dei centri personalizzati} (RF-29, RNF-11)} \tabularnewline
+6 & Un archivio vuoto restituisce un elenco vuoto & superato \tabularnewline
+7 & Scrittura e successiva lettura conservano i centri e il loro ordine & superato \tabularnewline
+8 & Un contenuto corrotto non propaga l'errore e restituisce un elenco vuoto & superato \tabularnewline
+9 & Un documento JSON valido ma di forma diversa da un elenco viene ignorato & superato \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Calcolo geodetico delle distanze} (RF-21, RF-22) } \tabularnewline
+10 & La distanza Milano-Roma corrisponde al valore ortodromico noto & superato \tabularnewline
+11 & La distanza di un punto da se stesso \`e nulla & superato \tabularnewline
+12 & La distanza \`e simmetrica rispetto allo scambio degli estremi & superato \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Prove unitarie sulla logica applicativa: dodici casi, tutti superati.}
+\label{tab:test-unitari}
+\end{table}
+
+I casi 2, 3 e 4 verificano comportamenti che l'uso normale non produce mai, ed \`e questa la ragione per cui sono stati scritti. Un campo opzionale vuoto, un elenco di patologie assente e una coordinata mancante non si ottengono compilando il modulo di inserimento, che li rifiuterebbe; si ottengono leggendo un archivio scritto da una versione precedente dell'applicazione, oppure un archivio manomesso. Sono percorsi che senza una prova automatica resterebbero non esercitati fino al momento in cui, sul dispositivo di un utente, provocherebbero un errore all'avvio.
+
+Lo stesso vale per i casi 8 e 9, che riguardano il requisito RNF-11. Il caso 8 inietta nell'archivio una stringa non interpretabile e verifica che la lettura restituisca un elenco vuoto invece di propagare l'errore. Il caso 9 \`e la variante meno evidente e pi\`u insidiosa: il contenuto \`e un documento JSON perfettamente valido, ma rappresenta un oggetto e non un elenco. Una lettura che si limitasse a intercettare gli errori di interpretazione supererebbe il caso 8 e fallirebbe il caso 9, perch\'e l'interpretazione riuscirebbe e l'errore comparirebbe dopo, al primo tentativo di scorrere il risultato. La distinzione fra i due casi \`e il motivo per cui la lettura verifica esplicitamente il tipo del contenuto interpretato.
+
+Il caso 10 merita una nota di metodo. Il valore atteso non \`e stato ricavato eseguendo il codice e registrandone il risultato, procedimento che avrebbe prodotto una prova capace di rilevare soltanto le variazioni future ma non un errore gi\`a presente. \`E stato invece assunto dall'esterno il valore noto della distanza ortodromica fra le due citt\`a, circa quattrocentosettantasette chilometri, con una tolleranza di sei chilometri che assorbe le differenze fra i possibili raggi terrestri di riferimento e l'arbitrariet\`a delle coordinate scelte per rappresentare due citt\`a. Una prova costruita in questo modo rileva anche l'errore che pi\`u facilmente si commette in questo ambito, cio\`e il calcolo di una distanza euclidea sui gradi: quel calcolo, sulle stesse coordinate, restituirebbe un valore incompatibile con la tolleranza, e la prova fallirebbe.
+
+I casi 11 e 12 verificano due proprietà formali della funzione di distanza, cio\`e l'annullamento sull'argomento coincidente e la simmetria. Sono verifiche che sembrano superflue, dato che entrambe le proprietà sono garantite dalla formula impiegata, ma il loro costo \`e nullo e il loro valore \`e di sorveglianza: se in una versione futura la funzione di distanza venisse sostituita con una che tiene conto di un percorso stradale, la simmetria non sarebbe pi\`u garantita, e la prova segnalerebbe il cambiamento di semantica invece di lasciarlo passare inosservato.
+
+\section{Test di Interfaccia sul Modulo di Inserimento}\label{sec:test-ui}
+
+Le prove di widget riguardano il modulo di inserimento dei centri personalizzati, e sono state scelte per due ragioni. La prima \`e che quel modulo contiene la logica di validazione descritta al paragrafo \ref{subsec:impl-validazione}, cio\`e la parte di interfaccia con il maggior numero di percorsi alternativi. La seconda \`e che si tratta di un componente che non dipende dalla rete, dalla posizione o dalla mappa, e che pu\`o quindi essere costruito in isolamento: ogni altra parte dell'interfaccia avrebbe richiesto un impianto di simulazione sproporzionato.
+
+Il modulo viene presentato nella prova cos\`i come lo \`e in esercizio, cio\`e come pannello che sale dal basso aperto da una rotta, e non montato direttamente come componente isolato. La scelta \`e voluta: presentarlo nello stesso modo permette di intercettare il valore restituito alla chiusura, che \`e ci\`o che il codice chiamante riceve, e verifica quindi anche il fatto che il pannello si chiuda restituendo un centro valido, oppure che non si chiuda affatto quando la validazione non passa.
+
+La tabella \ref{tab:test-widget} elenca le otto prove con il rispettivo esito.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.6cm} X p{2.1cm}@{}}
+\toprule
+\textbf{N.} & \textbf{Caso di prova} & \textbf{Esito} \tabularnewline
+\midrule
+1 & I campi obbligatori non compilati bloccano il salvataggio & non superato \tabularnewline
+2 & In assenza sia di telefono sia di posta il salvataggio viene rifiutato & non superato \tabularnewline
+3 & Un numero con troppe poche cifre viene segnalato & non superato \tabularnewline
+4 & Un numero con prefisso non nazionale viene rifiutato & non superato \tabularnewline
+5 & Un indirizzo di posta malformato viene segnalato & non superato \tabularnewline
+6 & Un numero con prefisso internazionale viene accettato & non superato \tabularnewline
+7 & Deselezionando ogni patologia il salvataggio \`e impedito & non superato \tabularnewline
+8 & In modifica il modulo \`e precompilato e conserva l'identificatore & non superato \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Prove di widget sul modulo di inserimento: otto casi, nessuno superato per la ragione discussa nel testo.}
+\label{tab:test-widget}
+\end{table}
+
+Una colonna di esiti negativi richiede una spiegazione, e la spiegazione \`e la parte pi\`u istruttiva di questo capitolo. Le prove non falliscono perch\'e le condizioni che verificano risultino disattese: tutte le condizioni sono soddisfatte, e in nessuna delle otto prove si registra uno scostamento fra il valore atteso e quello osservato. I messaggi di errore compaiono dove devono comparire, il salvataggio viene impedito quando deve esserlo, il modulo in modifica risulta precompilato e conserva l'identificatore, e il numero con prefisso internazionale viene accettato producendo un centro valido. La logica di validazione, per quanto queste prove la esercitano, \`e corretta.
+
+Il fallimento ha un'altra origine. Durante la costruzione dell'albero dei componenti l'applicazione stessa solleva un avviso del framework, ripetuto ventotto volte nel corso dell'esecuzione complessiva, e l'ambiente di prova considera non superata ogni prova nel corso della quale il framework segnali un'anomalia, indipendentemente dall'esito delle condizioni verificate. Le otto prove risultano quindi non superate a causa di un difetto del codice sottoposto a prova, e non di un difetto delle prove.
+
+Il difetto \`e il seguente. Le due righe con casella di selezione che permettono di scegliere le patologie sono componenti che disegnano il proprio sfondo e la propria animazione di tocco sulla superficie del materiale pi\`u vicino che le contiene. Nel modulo, per\`o, fra quelle righe e la superficie di materiale fornita dal pannello si interpone il contenitore bianco con angoli arrotondati che d\`a al modulo il suo aspetto, e il pannello \`e dichiarato con fondo trasparente. La conseguenza \`e che l'animazione di tocco viene disegnata al di sotto del contenitore bianco, che la nasconde: premendo su una delle due righe l'utente non riceve alcun riscontro visivo dell'avvenuto tocco, mentre la selezione cambia effettivamente stato.
+
+Si tratta quindi della violazione di un requisito non funzionale, e precisamente del requisito RNF-03, che chiede un riscontro visivo immediato per ogni azione dell'utente. La gravit\`a \`e contenuta, perch\'e la casella di selezione cambia aspetto e l'esito dell'azione resta percepibile; l'elemento mancante \`e l'animazione che accompagna il tocco, cio\`e la conferma che il tocco \`e stato raccolto nel punto in cui \`e avvenuto. La correzione consiste nel racchiudere quelle righe in una propria superficie di materiale, oppure nell'ottenere il fondo bianco del modulo da un componente che sia esso stesso una superficie di materiale invece che da un contenitore decorato: in entrambi i casi si tratta della sostituzione di un componente.
+
+Il difetto non \`e stato corretto nella versione descritta, e lo riporto qui insieme al suo effetto sulle prove per una ragione di metodo. Nessuna delle verifiche manuali svolte durante lo sviluppo lo aveva rilevato, e non per distrazione: l'assenza di un'animazione di tocco su una riga che cambia comunque aspetto \`e precisamente il genere di difetto che l'occhio non nota, perch\'e non c'\`e nulla di sbagliato da vedere ma soltanto qualcosa di corretto che manca. Le prove automatiche lo hanno reso visibile al primo tentativo di esecuzione, prima ancora di essere state completate. \`E l'argomento pi\`u concreto a favore delle prove automatiche che questo lavoro ha prodotto, ed \`e anche la ragione per cui ho preferito documentare la colonna di esiti negativi invece di sospendere la segnalazione nell'ambiente di prova, che avrebbe restituito otto esiti positivi lasciando il difetto nel codice.
+
+\section{Verifiche Manuali e Compatibilit\`a}\label{sec:test-compatibilita}
+
+Le parti del modulo che le prove automatiche non raggiungono sono state verificate manualmente su emulatore Android e su dispositivo Android fisico. La tabella \ref{tab:test-manuali} riporta gli scenari percorsi e l'esito osservato.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{4.0cm} X p{1.6cm}@{}}
+\toprule
+\textbf{Scenario} & \textbf{Comportamento atteso} & \textbf{Esito} \tabularnewline
+\midrule
+Permesso concesso & La mappa si centra sulla posizione e l'indicatore la segue negli spostamenti & conforme \tabularnewline
+Permesso negato una volta & L'applicazione resta utilizzabile sull'inquadratura predefinita e la richiesta pu\`o essere ripresentata & conforme \tabularnewline
+Permesso negato in modo permanente & Compare il collegamento alle impostazioni dell'applicazione & conforme \tabularnewline
+Localizzazione disattivata & Compare il collegamento alle impostazioni di sistema, distinto dal precedente & conforme \tabularnewline
+Avvio senza rete con cache presente & I segnaposti compaiono dai dati conservati, senza avviso di errore & conforme \tabularnewline
+Avvio senza rete e senza cache & Compare l'avviso di errore ed \`e disponibile il comando di aggiornamento & conforme \tabularnewline
+Raggruppamenti in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & conforme \tabularnewline
+Spostamento continuo dell'inquadratura & I segnaposti si aggiornano al termine del gesto e non durante & conforme \tabularnewline
+Delega a navigatore, telefono e posta & Si apre l'applicazione competente con il dato precompilato & conforme \tabularnewline
+Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & conforme dopo correzione \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Scenari verificati manualmente su Android e relativo esito.}
+\label{tab:test-manuali}
+\end{table}
+
+L'ultima riga della tabella registra un difetto rilevato e corretto durante lo sviluppo, ed \`e il caso descritto al paragrafo \ref{subsec:design-mappa-centri}: all'apertura della tastiera i comandi flottanti risultavano parzialmente coperti dall'elenco dei suggerimenti. La correzione \`e quella descritta al paragrafo \ref{subsec:impl-ricerca}, cio\`e la ritrazione dei comandi durante la ricerca, valutata su tre indizi distinti invece che su uno solo.
+
+Sulla compatibilit\`a fra le due piattaforme va ripetuta con precisione la limitazione gi\`a dichiarata al paragrafo \ref{subsec:scelta-flutter}. Non avendo a disposizione una macchina Apple, n\'e un dispositivo iOS, la verifica su quella piattaforma non \`e stata svolta: non \`e stata parziale, non \`e stata svolta affatto. Il codice \`e scritto per entrambe le piattaforme e i punti in cui le distingue sono espliciti, ma il comportamento su iOS resta previsto e non osservato.
+
+I punti che restano non verificati sono tre, e vale elencarli perch\'e sono esattamente quelli in cui il codice contiene una diramazione dipendente dalla piattaforma. Il primo \`e la comparsa di Apple Maps fra le destinazioni di navigazione, subordinata al riconoscimento del sistema operativo. Il secondo \`e la ricaduta della modalit\`a in bicicletta sul percorso automobilistico nel collegamento di Apple Maps, descritta nella tabella \ref{tab:navigazione}, che \`e stata ricavata dalla documentazione del collegamento e non da una prova. Il terzo \`e la comparsa del testo di motivazione del permesso di posizione, dichiarato nel file di configurazione della piattaforma, di cui non \`e stato possibile osservare la resa effettiva nella finestra di sistema.
+
+Una nota infine sull'ambiente di esecuzione delle prove di widget. Il modulo di inserimento \`e pi\`u alto di uno schermo di dimensioni predefinite, e le prove impostano quindi esplicitamente una superficie di lavoro pi\`u estesa, ripristinandola al termine. Senza questo accorgimento i componenti collocati in fondo al modulo, fra cui il pulsante di conferma, non risulterebbero raggiungibili dalle toccate simulate, e le prove fallirebbero per una ragione che non ha nulla a che vedere con il comportamento verificato. \`E un dettaglio tecnico, ma \`e anche un promemoria del fatto che una prova di interfaccia verifica il componente dentro le condizioni che l'ambiente di prova stabilisce, e che quelle condizioni vanno dichiarate insieme al risultato.

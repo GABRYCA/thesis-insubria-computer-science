@@ -187,3 +187,113 @@ Il filtraggio per patologia merita una nota, perch\'e agisce su due insiemi dist
 L'asimmetria \`e voluta. Duplicare i centri personalizzati in due archivi separati per allinearli al comportamento dei centri pubblici avrebbe obbligato a inserire due volte la stessa struttura, oppure a mantenere sincronizzate due copie dello stesso dato, con la certezza di vederle divergere. Trattare la patologia come attributo del centro, e non come partizione dell'archivio, evita il problema alla radice; la scelta \`e discussa insieme al resto del modello nel paragrafo \ref{subsec:modello-centri}.
 
 Una conseguenza pratica riguarda l'inserimento: un nuovo centro personalizzato nasce associato alla patologia correntemente selezionata, non a entrambe. La preselezione risparmia un tocco nel caso frequente, cio\`e quando l'utente sta aggiungendo una struttura pertinente a quello che sta consultando, e resta comunque modificabile nel modulo di inserimento. La scelta opposta, associare per difetto tutte le patologie, avrebbe fatto comparire il segnaposto anche in un contesto in cui l'utente non lo aveva richiesto, che \`e l'errore pi\`u fastidioso dei due.
+
+\section{Modello dei Dati e Persistenza}\label{sec:modello-dati}
+
+Resta da descrivere la parte meno visibile del lavoro, e probabilmente la pi\`u delicata: come vengono rappresentati i centri all'interno dell'applicazione, e dove finiscono quando l'applicazione viene chiusa. Il problema nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti} non sono state pensate per essere consumate insieme, e nessuna delle due \`e stata pensata per questa applicazione.
+
+\subsection{Rappresentazione e Normalizzazione}\label{subsec:modello-centri}
+
+Le sorgenti differiscono su tre piani, e conviene distinguerli perch\'e richiedono risposte diverse. Differiscono nella forma della risposta, perch\'e una restituisce un oggetto con i record annidati sotto una chiave mentre l'altra restituisce direttamente un elenco. Differiscono nei nomi dei campi, per cui la stessa informazione si chiama in un caso in un modo e nell'altro in un altro. Differiscono, infine, nel grado di strutturazione: una espone i contatti in campi dedicati, l'altra li annega in un frammento di HTML destinato a essere mostrato in una finestra informativa, dal quale vanno estratti.
+
+La tabella \ref{tab:mappatura-campi} riporta la corrispondenza fra i campi delle due sorgenti e le informazioni effettivamente impiegate.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{2.7cm} p{2.5cm} p{2.5cm} X@{}}
+\toprule
+\textbf{Informazione} & \textbf{Sorgente A} & \textbf{Sorgente B} & \textbf{Trattamento} \tabularnewline
+\midrule
+Denominazione & \texttt{center\_name} & \texttt{title} & Primo valore non nullo fra gli alias noti \tabularnewline
+Indirizzo & \texttt{address} & \texttt{address} & Composto con citt\`a e provincia in un'unica stringa \tabularnewline
+Citt\`a & \texttt{city} & assente & Concatenata all'indirizzo quando presente \tabularnewline
+Provincia & \texttt{district} & assente & Aggiunta fra parentesi quando presente \tabularnewline
+Latitudine & \texttt{lat} & \texttt{lat} & Conversione tollerante; record scartato se non valida \tabularnewline
+Longitudine & \texttt{lon} & \texttt{lng} & Alias distinti, poi conversione tollerante \tabularnewline
+Telefono & \texttt{phone} & dentro \texttt{description} & Estratto dal testo con espressione regolare \tabularnewline
+Posta elettronica & \texttt{email} & dentro \texttt{description} & Estratto dal testo con espressione regolare \tabularnewline
+Patologia & implicita nella sorgente & campo \texttt{category} & Selezionata a monte, non conservata nel record \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Corrispondenza fra i campi delle due sorgenti remote e le informazioni impiegate dall'applicazione.}
+\label{tab:mappatura-campi}
+\end{table}
+
+Davanti a una situazione come questa la soluzione da manuale sarebbe una classe di dominio, con un costruttore per ciascuna sorgente che riceve la mappa grezza e restituisce un oggetto tipizzato. La strada seguita \`e diversa, e va dichiarata con precisione perch\'e costituisce il compromesso pi\`u discutibile del progetto: i record remoti restano mappe non tipizzate, e la normalizzazione avviene al momento dell'accesso, attraverso catene di alias che interrogano in sequenza i nomi possibili di ciascun campo.
+
+La ragione della scelta \`e la tolleranza. Una classe di dominio con campi obbligatori impone di decidere in anticipo quali informazioni devono esserci, e fallisce quando la sorgente cambia forma; l'accesso per alias, al contrario, ignora ci\`o che non riconosce e continua a lavorare su ci\`o che riconosce. Non avendo il progetto alcun controllo sulle sorgenti, e nessun preavviso sulle loro modifiche, la resistenza al cambiamento \`e stata preferita alla garanzia sul tipo.
+
+Il costo, per\`o, esiste, e va messo per iscritto. La catena di alias non \`e concentrata in un punto ma ricompare in ogni luogo in cui un record viene letto: nella selezione dei centri visibili, nel raggruppamento, nel calcolo delle distanze, nell'elenco dei centri vicini e nella scheda informativa. La conseguenza \`e che l'aggiunta di una terza sorgente con nomi ancora diversi richiederebbe di intervenire in tutti quei punti invece che in uno solo. Il requisito RNF-17, che chiede l'indipendenza del modello interno dallo schema remoto, risulta quindi soddisfatto nel comportamento osservabile ma non nella struttura del codice: l'interfaccia non conosce i nomi dei campi remoti, mentre la logica che la alimenta li conosce in pi\`u punti. Se dovessi riprendere il modulo, sarebbe questo il primo intervento.
+
+Sui dati creati dall'utente il ragionamento si capovolge, perch\'e qui lo schema \`e sotto il controllo del progetto. I centri personalizzati hanno una classe propria, con campi tipizzati, serializzazione simmetrica verso e da JSON e un metodo di copia con modifica che conserva l'identificatore. La differenza di trattamento fra i due casi non \`e una incoerenza: dove lo schema \`e imposto da altri conviene essere permissivi, dove lo schema \`e nostro conviene essere rigorosi, perch\'e \`e l'unico modo di accorgersi di un errore prima che finisca nell'archivio.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{2.7cm} p{2.5cm} X@{}}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Comportamento in assenza del dato} \tabularnewline
+\midrule
+Identificatore & testo & Generato dall'istante di creazione espresso in microsecondi \tabularnewline
+Denominazione & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
+Indirizzo & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
+Citt\`a & testo opzionale & Le stringhe vuote o di soli spazi diventano assenza di valore \tabularnewline
+Telefono & testo opzionale & Come sopra; almeno un contatto fra telefono e posta \`e richiesto \tabularnewline
+Posta elettronica & testo opzionale & Come sopra \tabularnewline
+Coordinate & numeri reali & Ricadono a zero in lettura, condizione non producibile dal modulo \tabularnewline
+Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le patologie \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Struttura di un centro personalizzato e trattamento dei campi mancanti in lettura.}
+\label{tab:modello-custom}
+\end{table}
+
+Due righe di questa tabella meritano una spiegazione, perch\'e sono decisioni e non conseguenze automatiche. La prima \`e la riduzione delle stringhe vuote ad assenza di valore: senza di essa un campo lasciato in bianco produrrebbe una stringa vuota, e la scheda del centro mostrerebbe un comando di chiamata verso un numero inesistente. Ricondurre il vuoto all'assenza permette di decidere una sola volta, in lettura, quali comandi abbiano senso.
+
+La seconda \`e l'assegnazione di entrambe le patologie quando il campo manca. Il caso si presenta soltanto leggendo un archivio scritto da una versione precedente, che quel campo non prevedeva. Fra le due possibilit\`a, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, ho scelto la seconda: un centro inserito dall'utente e poi diventato invisibile sarebbe percepito come una perdita di dati, mentre un centro che compare una volta di troppo \`e al pi\`u una imprecisione visibile, e correggibile in due tocchi.
+
+Va dichiarato infine un punto in cui i due modelli non si incontrano. Per i centri remoti la patologia non \`e un attributo del record ma una propriet\`a dell'insieme da cui il record proviene, poich\'e la selezione avviene a monte, all'atto della richiesta; per i centri personalizzati \`e invece un attributo esplicito e multivalore. \`E la stessa asimmetria osservata al paragrafo \ref{subsec:design-mappa-centri}, vista dal lato dei dati: due meccanismi diversi che convergono sullo stesso effetto per l'utente, cio\`e vedere sulla mappa soltanto i centri pertinenti alla patologia scelta.
+
+\subsection{Strategia di Cache e Funzionamento Offline}\label{subsec:strategia-cache}
+
+Il requisito RNF-10 chiede che l'applicazione resti utilizzabile in assenza di connessione. Non \`e una richiesta di comodo: la ricerca di un centro avviene tipicamente in viaggio, cio\`e nella condizione in cui la copertura di rete \`e meno affidabile, e uno strumento che in quel momento mostra una schermata vuota non \`e utile.
+
+La conservazione dei dati \`e organizzata su tre depositi distinti, che rispondono a esigenze diverse e hanno tempi di vita diversi. Il primo \`e una mappa in memoria, indicizzata per nome della patologia, che evita di ripetere una richiesta gi\`a soddisfatta nel corso della stessa sessione. Il secondo \`e un archivio persistente sul dispositivo, in cui l'ultimo elenco ricevuto viene serializzato in JSON con una chiave derivata dal nome della patologia, e che sopravvive alla chiusura dell'applicazione. Il terzo \`e l'archivio dei centri personalizzati, che non \`e una cache ma la sorgente primaria di quei dati, e che quindi non viene mai invalidato.
+
+La distinzione fra il secondo e il terzo deposito \`e importante e non \`e soltanto terminologica. Una cache pu\`o essere cancellata senza perdita di informazione, perch\'e il dato originale sta altrove; un archivio primario, no. Per questo i due usano chiavi separate e non vengono mai scritti dalla stessa procedura, cos\`i che un aggiornamento dell'elenco remoto non possa in nessun caso sovrascrivere ci\`o che l'utente ha inserito a mano.
+
+Sul deposito persistente \`e stata adottata una politica che privilegia la reattivit\`a: all'avvio l'elenco conservato viene letto e mostrato prima che parta qualunque richiesta di rete, cos\`i la mappa si popola immediatamente e la richiesta remota, quando arriva, si limita a sostituire i dati con la versione aggiornata. \`E la stessa idea del requisito RNF-07, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai segnaposti.
+
+La contropartita di questa politica va dichiarata. Se l'elenco della patologia richiesta \`e gi\`a presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono quelli dell'ultimo scaricamento, e restano tali finch\'e l'utente non richiede espressamente un aggiornamento con il comando dedicato. Questo significa che l'applicazione pu\`o mostrare un elenco non aggiornatissimo senza segnalarlo, ed \`e una scelta consapevole a favore della prontezza e del risparmio di richieste verso servizi pubblici gratuiti; una politica pi\`u corretta assocerebbe alla cache una scadenza, dopo la quale l'aggiornamento avverrebbe da s\'e. Il punto \`e ripreso fra i limiti al paragrafo \ref{sec:limiti-attuali}.
+
+La figura \ref{fig:cascata-dati} riassume la catena di ricadute che governa l'acquisizione. Ogni anello interviene soltanto quando il precedente non ha prodotto un risultato utilizzabile, e l'ultimo anello, cio\`e l'avviso all'utente, viene raggiunto solo quando nessun dato \`e disponibile.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.88, transform shape, font=\footnotesize]
+\node[comp, text width=2.5cm, minimum height=1.1cm] (n1) at (0,6.6) {Sorgente\\ principale};
+\node[comp, text width=2.5cm, minimum height=1.1cm] (n2) at (3.6,6.6) {Sorgente\\ alternativa};
+\node[comp, text width=2.5cm, minimum height=1.1cm] (n3) at (7.2,6.6) {Archivio\\ persistente};
+\node[comp, text width=2.5cm, minimum height=1.1cm, fill=black!5] (n4) at (10.8,6.6) {Avviso\\ all'utente};
+\draw[flow] (n1) -- node[above, font=\scriptsize] {errore} (n2);
+\draw[flow] (n2) -- node[above, font=\scriptsize] {errore} (n3);
+\draw[flow] (n3) -- node[above, font=\scriptsize] {vuoto} (n4);
+% bus di convergenza
+\node[layer, minimum width=7.3cm, minimum height=0.85cm, fill=black!3] (norm) at (3.6,4.5) {Normalizzazione e elenco in memoria};
+\draw[flow] (n1.south) -- (0,4.93);
+\draw[flow] (n2.south) -- (3.6,4.93);
+\draw[flow] (n3.south) -- (7.2,4.93);
+\node[anchor=west, font=\scriptsize] at (7.45,5.6) {dati validi};
+\node[layer, minimum width=3.4cm, minimum height=0.85cm, fill=black!3] (map) at (1.75,2.7) {Disegno sulla mappa};
+\node[layer, minimum width=3.4cm, minimum height=0.85cm, fill=black!3] (save) at (5.9,2.7) {Scrittura in archivio};
+\draw[flow] (1.75,4.07) -- (map);
+\draw[flow] (5.9,4.07) -- (save);
+\node[extern, text width=3.0cm, anchor=west] (cust) at (8.9,2.7) {Archivio dei centri personalizzati};
+\draw[flow] (cust.west) -- (map.east);
+\end{tikzpicture}
+\caption{Catena di ricadute nell'acquisizione dei dati. I centri personalizzati entrano nel disegno per una via propria, indipendente dalla rete.}
+\label{fig:cascata-dati}
+\end{figure}
+
+Nella figura si notano due cose che riassumono l'impostazione dell'intero modulo. La prima \`e che i centri personalizzati raggiungono il disegno per una via che non attraversa mai la rete: sono l'unica parte del contenuto che resta disponibile e completa anche quando ogni servizio esterno \`e irraggiungibile. La seconda \`e che la scrittura in archivio avviene dopo la normalizzazione e non prima, cio\`e viene conservata la forma originaria del record cos\`i come arriva dalla sorgente. La scelta \`e discutibile, perch\'e conservare la forma normalizzata renderebbe la lettura successiva pi\`u semplice; conservare l'originale ha per\`o il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione, che pu\`o cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
+
+Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-11. Un archivio locale pu\`o essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cio\`e nel momento peggiore. Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito ricostruisce l'archivio. La verifica di questo comportamento \`e fra i casi di prova descritti al paragrafo \ref{sec:test-unitari}, perch\'e \`e esattamente il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza una prova automatica, resterebbe non verificato.
