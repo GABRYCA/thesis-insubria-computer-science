@@ -25,13 +25,12 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-% Colonne di tabella a bandiera: nelle colonne strette la giustificazione
-% produce spaziature eccessive fra le parole (underfull hbox).
+% Colonne di tabella a bandiera
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{B}[1]{>{\raggedright\arraybackslash\bfseries}p{#1}}
 
-% Percorso per le immagini
+% Percorso immagini
 \graphicspath{{Immagini/}{Immagini/Sessioni/}{Immagini/Screenshot/}}
 
 % Diagrammi TikZ
@@ -47,7 +46,7 @@
 \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
 
-% Stili per i diagrammi architetturali
+% Stili per i diagrammi
 \tikzset{
   layer/.style   = {rectangle, rounded corners=3pt, draw=black!70, thick,
                     align=center, inner sep=6pt, minimum height=1cm},
@@ -60,7 +59,7 @@
                     font=\footnotesize, inner sep=2pt, minimum width=2.6cm},
   flow/.style    = {-{Latex[length=2mm]}, thick},
   flowdash/.style= {-{Latex[length=2mm]}, thick, dashed},
-  % Stili per i diagrammi cartografici e temporali aggiunti nei capitoli
+  % Stili per i diagrammi
   tile/.style    = {rectangle, draw=black!55, fill=black!2, thin},
   cellgrid/.style= {draw=black!35, thin, dash pattern=on 1.2pt off 1.2pt},
   pin/.style     = {circle, fill=black!75, draw=none, inner sep=0pt,
@@ -76,8 +75,7 @@
 
 \usepackage[backend=biber, style=numeric, backref=true, defernumbers=true]{biblatex}
 
-% Consente di spezzare gli indirizzi web dopo lettere e cifre: senza questo
-% permesso le righe della sitografia risultano allargate a forza.
+% Per sitografia
 \setcounter{biburlnumpenalty}{7000}
 \setcounter{biburlucpenalty}{7000}
 \setcounter{biburllcpenalty}{7000}
@@ -87,24 +85,21 @@
 \usepackage{sectsty}
 \DeactivateWarningFilters[temp]
 
-% Impaginazione e margini. scrextend precede footmisc e hyperref: caricato dopo,
-% il suo controllo di integrita' su \@footnotemark troverebbe la macro gia'
-% ridefinita e produrrebbe un avviso.
+% Impaginazione e margini
 \usepackage[fontsize=12pt]{scrextend} % dimensione font
 
-% footmisc precede hyperref, come richiesto dalla sua documentazione.
-\usepackage[bottom]{footmisc} % Posiziona le footnotes alla fine della pagina
-\usepackage{hyperref} % Rende l'indice cliccabile
+% footmisc
+\usepackage[bottom]{footmisc}
+\usepackage{hyperref}
 \usepackage{subcaption}
 
-% Sperimentali. La toppa `footnote' di microtype non e' applicabile quando
-% footmisc ha gia' ridefinito \@footnotetext: l'avviso relativo e' innocuo.
+% Sperimentali
 \WarningFilter{microtype}{Unable to apply patch `footnote'}
 \usepackage{microtype}
 
 \usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
 
-% Aspetto dei listati di codice
+% Aspetto liste
 \setminted{
   fontsize=\small,
   breaklines=true,
@@ -121,20 +116,19 @@
 % ---- DOCUMENT SETUP ----
 % ------------------------
 \pagestyle{plain}
-\raggedbottom % Se la pagina non è completa, lascia lo spazio alla fine
+\raggedbottom
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\LARGE}
 \titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \chaptertitlefont{\fontsize{22pt}{30pt}\selectfont}
 
-% Titoli a bandiera: giustificati, quelli su due righe non sono spezzabili
-% senza eccedere il margine destro.
+% Titoli
 \sectionfont{\raggedright}
 \subsectionfont{\raggedright}
 \subsubsectionfont{\raggedright}
 
-\hypersetup{ % Aspetto dei link
+\hypersetup{
     colorlinks,
     citecolor=black,
     filecolor=black,
@@ -143,7 +137,7 @@
 }
 
 \renewcommand{\footnotesize}{\fontsize{11pt}{13pt}\selectfont} % Imposta la dimensione del testo delle footnotes
-\setlength{\footnotesep}{0.5cm} % Imposta lo spazio fra e singole footnotes
+\setlength{\footnotesep}{0.5cm} % Imposta lo spazio fra le singole footnotes
 \setlength{\skip\footins}{1.5cm} % Imposta lo spazio fra il corpo e le footnotes
 
 \DeclareUnicodeCharacter{02BC}{}
@@ -160,7 +154,7 @@
 \tableofcontents  % Genera l'indice
 \mainmatter
 \hypersetup{pageanchor=true}
-\setcounter{chapter}{0} % Fa risultare l'introduzione come capitolo 0
+\setcounter{chapter}{0} % Capitolo 0 per l'introduzione
 
 % ------------------
 % ---- CHAPTERS ----
@@ -184,4 +178,4 @@
 % ----------------------
 % ---- DOCUMENT END ----
 % ----------------------
-\end{document} % Fine documento
+\end{document}
