@@ -90,7 +90,7 @@ RF-30 & Il sistema deve permettere di contrassegnare un centro come preferito e 
 RF-31 & La selezione di un segnaposto deve aprire una scheda con denominazione, indirizzo e contatti disponibili. & Obbligatorio \tabularnewline
 RF-32 & Il sistema deve consentire di avviare la navigazione verso il centro delegandola a un'applicazione esterna. & Obbligatorio \tabularnewline
 RF-33 & Il sistema deve permettere di scegliere il mezzo di trasporto per il calcolo del percorso. & Desiderabile \tabularnewline
-RF-34 & Il sistema deve consentire di avviare una chiamata telefonica e di comporre una email verso i contatti del centro, quando presenti. & Obbligatorio \tabularnewline
+RF-34 & Il sistema deve consentire di avviare una chiamata telefonica e di comporre un'email verso i contatti del centro, quando presenti. & Obbligatorio \tabularnewline
 RF-35 & Il sistema deve consentire la condivisione della scheda del centro tramite le applicazioni installate sul dispositivo. & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
@@ -347,7 +347,7 @@ Scenario principale & 1. L'utente seleziona il segnaposto di un centro.
 \newline 2. Il sistema apre la scheda con denominazione, indirizzo e contatti disponibili, mostrando i comandi di chiamata, posta e condivisione soltanto per i dati effettivamente presenti.
 \newline 3. L'utente richiede la chiamata.
 \newline 4. Il sistema individua il primo numero fra quelli elencati nel campo, ne rimuove i caratteri di separazione e apre l'applicazione telefonica con il numero gi\`a composto, senza avviare la chiamata. \tabularnewline
-Scenari alternativi & 3a. L'utente richiede l'invio di una email: il sistema individua il primo indirizzo elencato nel campo e apre il client di posta con il destinatario precompilato.
+Scenari alternativi & 3a. L'utente richiede l'invio di un'email: il sistema individua il primo indirizzo elencato nel campo e apre il client di posta con il destinatario precompilato.
 \newline 3b. L'utente richiede la condivisione: il sistema compone un testo con i dati del centro e un collegamento alla sua posizione sulla mappa, quindi apre il pannello di condivisione del sistema operativo.
 \newline 4a. Il campo contiene pi\`u recapiti separati da virgole o barre, come accade nei dati di origine: il sistema utilizza il primo, lasciando all'utente la lettura degli altri nella scheda.
 \newline 4b. Dopo la rimozione dei caratteri non ammessi il numero risulta vuoto: il sistema non effettua alcuna azione.
