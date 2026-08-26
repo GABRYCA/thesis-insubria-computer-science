@@ -25,11 +25,11 @@ e sono un buon punto di partenza;
 restano tuttavia pagine web pensate per essere lette su un monitor, dove la ricerca procede per regione o per provincia e la
 distanza dall'utente non è una grandezza che il sistema conosca o di cui tenga conto.
 
-Uno smartphone, invece, quella grandezza la conosce.
-Sa dove si trova, sa disegnare una mappa, sa aprire il navigatore, sa avviare una telefonata, e sa conservare dei dati per
-quando la rete non c'è.
-Da questa asimmetria nasce il lavoro descritto nelle pagine che seguono: un'applicazione mobile che prende dati già pubblici e
-li rende interrogabili nel modo in cui la domanda viene formulata, cioè per posizione.
+Uno smartphone, al contrario, dispone già di queste informazioni: conosce la propria posizione,
+è in grado di visualizzare una mappa, di avviare la navigazione, di effettuare una chiamata e di conservare dati anche in assenza
+di connessione.
+Da questa asimmetria nasce il lavoro descritto nelle pagine seguenti: un'applicazione mobile che rende interrogabili per posizione
+dati già pubblici, ossia nella stessa forma in cui la domanda viene formulata.
 
 \section{Obiettivi del Progetto}\label{sec:obiettivi-progetto}
 
@@ -43,7 +43,7 @@ In termini più operativi, il progetto si è dato i seguenti obiettivi:
   proprietario e senza duplicare un lavoro di censimento già svolto da altri;
   \item Normalizzare dati provenienti da servizi con schemi diversi in un'unica rappresentazione interna coerente, gestendo
   i casi di record incompleti o malformati;
-  \item Visualizzare i centri su una mappa interattiva, con un raggruppamento automatico dei segnaposto che mantenga la scena
+  \item Visualizzare i centri su una mappa interattiva, con un clustering automatico dei marker che mantenga la scena
   leggibile anche quando le strutture sono concentrate nella stessa area urbana;
   \item Consentire il filtraggio per patologia e per raggio di distanza dalla posizione dell'utente, con l'ordinamento dei
   risultati per distanza geodetica;
@@ -55,11 +55,12 @@ In termini più operativi, il progetto si è dato i seguenti obiettivi:
   \item Garantire un funzionamento accettabile in assenza di connessione, attraverso una cache persistente dell'ultimo elenco scaricato.
 \end{itemize}
 
-Non si ignora lo stabilire che cosa il progetto non si propone di fare: delimitare il perimetro è parte del lavoro di analisi.
-L'applicazione non formula diagnosi e non esprime valutazioni cliniche: si limita a mostrare dove sono le strutture e a
-fornirne i contatti.
-Non prevede autenticazione né profili utente, e di conseguenza non trasmette all'esterno alcun dato personale.
-Non include un backend proprietario, scelta di cui nel capitolo \ref{ch:conclusioni} discuto costi e conseguenze.
+È altrettanto importante definire ciò che il progetto non si propone di fare: delimitare il perimetro rientra a pieno titolo
+nel lavoro di analisi.
+L'applicazione non formula diagnosi e non esprime valutazioni cliniche: si limita a mostrare dove si trovano le strutture
+e a fornirne i contatti.
+Non prevede autenticazione né profili utente e, di conseguenza, non trasmette all'esterno alcun dato personale.
+Non include un backend dedicato, scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
 
 \section{Struttura della Tesi}\label{sec:struttura-tesi}
 
@@ -74,11 +75,12 @@ Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'applic
 l'impianto dell'interfaccia (\textit{UI e UX}) e il modello dei dati adottato per riconciliare sorgenti eterogenee.
 
 Il capitolo \ref{ch:sviluppo} è la parte più estesa e ripercorre l'implementazione: acquisizione dei dati con endpoint di
-riserva, normalizzazione, persistenza, resa cartografica, algoritmo di raggruppamento dei segnaposto, macchina a stati dei
+riserva, normalizzazione, persistenza, resa cartografica, algoritmo di clustering dei marker, macchina a stati dei
 permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni del dispositivo.
 
 Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati dei test automatici, incluso un difetto dell'interfaccia
 emerso proprio durante la loro scrittura.
+
 Il capitolo \ref{ch:conclusioni} raggruppa l'intero operato, elenca i limiti che restano aperti e indica le direzioni di
 sviluppo che al sottoscritto sembrano migliori.
 

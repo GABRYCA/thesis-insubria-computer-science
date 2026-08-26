@@ -77,7 +77,7 @@ remoti nella stessa mappa e negli stessi filtri.
 
 \section{Piattaforme Cartografiche per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
 
-La scelta del fornitore cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
+La scelta del provider cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
 di scrivere l'applicazione.
 Ho valutato tre alternative.
 
@@ -88,13 +88,13 @@ Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un co
 
 La seconda è Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero
 di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
-La qualità dello stile è notevole, ma restano la dipendenza da un fornitore commerciale e la necessità di un token.
+La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.
 
 La terza è OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
 l'attribuzione \cite{osmCopyright}.
-In Flutter il compito è affidato a \texttt{flutter\_map}, una libreria della \textit{community} che disegna i \textit{tile layers}
-senza vincolarsi a un fornitore specifico \cite{flutterMapPkg, flutterMapDocs}.
-Non serve una chiave, non serve un profilo di fatturazione, e la sorgente dei \textit{tile} (i quali possiamo chiamarli anche tasselli)
+In Flutter il compito è affidato a \texttt{flutter\_map}, un package della \textit{community} che effettua il rendering dei \textit{tile layer}
+senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
+Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
 può essere sostituita modificando un URL.
 
 \begin{table}[H]
@@ -107,9 +107,9 @@ può essere sostituita modificando un URL.
 Costo di esercizio & a consumo oltre la soglia gratuita & a consumo oltre la soglia gratuita & nessun costo diretto \tabularnewline
 Credenziali richieste & chiave API con fatturazione attiva & token di accesso & nessuna \tabularnewline
 Licenza dei dati & proprietaria & proprietaria & ODbL con attribuzione \tabularnewline
-Personalizzazione dei segnaposto & vincolata al plugin nativo & buona & totale, sono widget Flutter \tabularnewline
-Sostituibilità del fornitore & bassa & bassa & alta \tabularnewline
-Vincoli d'uso & contrattuali & contrattuali & policy di utilizzo dei tasselli \tabularnewline
+Personalizzazione dei marker & vincolata al plugin nativo & buona & totale, sono widget Flutter \tabularnewline
+Sostituibilità del provider & bassa & bassa & alta \tabularnewline
+Vincoli d'uso & contrattuali & contrattuali & policy di utilizzo dei tile \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Confronto tra le piattaforme cartografiche valutate per il progetto.}
@@ -117,20 +117,20 @@ Vincoli d'uso & contrattuali & contrattuali & policy di utilizzo dei tasselli \t
 \end{table}
 
 La decisione è caduta su OpenStreetMap con \texttt{flutter\_map}.
-Il fattore determinante non è stato soltanto il costo, ma il fatto che i segnaposto (\textit{markers}) siano widget Flutter
-a tutti gli effetti: questo permette di costruire il raggruppamento dinamico descritto al paragrafo \ref{subsec:impl-clustering}
-con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un livello nativo.
+Il fattore determinante non è stato soltanto il costo, ma il fatto che i marker siano widget Flutter
+a tutti gli effetti: questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
+con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un layer nativo.
 
 Un compromesso tuttavia esiste ed è duplice.
-I \textit{tiles} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
-identificare l'applicazione richiedente e richiede di rispettare la cache \cite{osmTilePolicy}: sono vincoli che vanno rispettati
+I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
+identificare l'applicazione richiedente e richiede di rispettare le direttive di caching \cite{osmTilePolicy}: sono vincoli che vanno rispettati
 e che diventerebbero un limite se l'applicazione crescesse in numero di utenti.
-In secondo luogo, la resa grafica dei \textit{tiles} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
+In secondo luogo, la resa grafica dei \textit{tile} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
 
 Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator e suddivisa,
 a ogni livello di zoom, in una griglia di immagini quadrate indicizzate da tre valori, cioè zoom, colonna e riga \cite{slippyMap}.
-Ogni incremento unitario dello zoom raddoppia il numero di tasselli per lato, come illustrato nella figura \ref{fig:tasselli}.
-Questa relazione esponenziale non è un dettaglio confinato al livello di rendering: torna, come si vedrà, nella formula che dimensiona le celle dell'algoritmo di raggruppamento.
+Ogni incremento unitario dello zoom raddoppia il numero di tile per lato, come illustrato nella figura \ref{fig:tasselli}.
+Questa relazione esponenziale non è un dettaglio confinato al rendering: torna, come si vedrà, nella formula che dimensiona le celle dell'algoritmo di clustering.
 
 \begin{figure}[H]
 \centering
@@ -160,7 +160,7 @@ Questa relazione esponenziale non è un dettaglio confinato al livello di render
 \node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}2$, $8\times8$};
 \end{scope}
 \end{tikzpicture}
-\caption{Schema slippy map: la stessa porzione di territorio ai livelli di zoom successivi, con un tassello evidenziato per ciascuno. Ogni incremento unitario dello zoom raddoppia il numero di tiles per lato, e ogni tile è individuato dagli indici di zoom, colonna e riga.}
+\caption{Schema slippy map: la stessa porzione di territorio ai livelli di zoom successivi, con un tile evidenziato per ciascuno. Ogni incremento unitario dello zoom raddoppia il numero di tile per lato e ogni tile è individuato dagli indici di zoom, colonna e riga.}
 \label{fig:tasselli}
 \end{figure}
 
@@ -174,7 +174,7 @@ Anche qui valgono vincoli precisi, dichiarati nella policy di utilizzo: al massi
 divieto di geocodifica massiva e invito esplicito a memorizzare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
 Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il
 servizio a ogni carattere digitato violerebbe la policy dopo poche lettere.
-La soluzione adottata, ossia un ritardo di stabilizzazione sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
+La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
 nasce proprio da questo vincolo e non da una preferenza estetica.
 
 \section{Framework per lo Sviluppo Cross-Platform}\label{sec:framework-cross-platform}
@@ -189,9 +189,9 @@ quando si dispone già di competenze nell'ecosistema web.
 Infine, Flutter segue una strada diversa: compila codice Dart in binario nativo e disegna l'interfaccia con un proprio motore
 grafico, ottenendo un controllo completo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
 
-Per questo progetto Flutter presentava due grandi vantaggi.
-Il primo è il controllo totale sul disegno, indispensabile quando i segnaposto della mappa devono cambiare forma e dimensione
+Per questo progetto Flutter presentava due vantaggi principali.
+Il primo è il controllo totale sul rendering, indispensabile quando i marker della mappa devono cambiare forma e dimensione
 in funzione del livello di zoom.
-Il secondo è la disponibilità di Material 3 come sistema di design già implementato \cite{material3}, che ha permesso di
+Il secondo è la disponibilità di Material 3 come design system già implementato \cite{material3}, che ha permesso di
 ottenere un'interfaccia coerente senza costruire da zero i componenti.
-A questi si aggiunge un ecosistema di pacchetti che copre con precisione le esigenze del progetto, dalla geolocalizzazione alla persistenza locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
+A questi si aggiunge un ecosistema di package che copre con precisione le esigenze del progetto, dalla geolocalizzazione alla persistenza locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.

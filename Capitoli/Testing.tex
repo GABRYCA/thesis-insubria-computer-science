@@ -14,7 +14,7 @@ La strategia adottata parte quindi da una domanda diversa da quella usuale, cio\
 \midrule
 Prove unitarie & framework di prova del linguaggio & Serializzazione dei centri personalizzati, lettura e scrittura dell'archivio locale, calcolo delle distanze geodetiche \tabularnewline
 Prove di widget & framework di prova dell'interfaccia & Validazione del modulo di inserimento, comportamento in modifica, esito del salvataggio \tabularnewline
-Prove manuali & dispositivo ed emulatore & Permessi di posizione, raggruppamenti, delega alle applicazioni esterne, comportamento senza rete \tabularnewline
+Prove manuali & dispositivo ed emulatore & Permessi di posizione, cluster, delega alle applicazioni esterne, comportamento senza rete \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Livelli di verifica adottati e rispettivo oggetto.}
@@ -25,11 +25,11 @@ La distribuzione fra i tre livelli segue l'impostazione consueta, in cui le prov
 
 Occorre dire con precisione che cosa non \`e stato verificato in modo automatico: un elenco di prove superate, senza il perimetro di ci\`o che copre, dice poco. Non esistono prove sulle richieste di rete, che avrebbero richiesto un client sostitutivo e la costruzione di risposte artificiali per ciascuna delle due sorgenti; non esistono prove sulla macchina a stati dei permessi descritta al paragrafo \ref{sec:impl-localizzazione}, che avrebbe richiesto la simulazione del canale di comunicazione con la piattaforma; non esistono prove di integrazione che percorrano un caso d'uso completo su dispositivo, n\'e prove di prestazione strumentate. Le prime due assenze sono le pi\`u significative, perch\'e riguardano proprio il codice pi\`u ricco di percorsi alternativi, ed \`e la sede in cui un lavoro di verifica pi\`u esteso dovrebbe cominciare.
 
-Un'ultima precisazione riguarda l'algoritmo di raggruppamento del paragrafo \ref{subsec:impl-clustering}, che a rigore \`e la parte pi\`u facilmente verificabile di tutto il modulo, essendo una funzione che a partire da un elenco di coordinate e da un livello di zoom restituisce un elenco di raggruppamenti, senza dipendenze esterne. Prove su quella funzione non sono state scritte, perch\'e il metodo che la realizza \`e privato della classe di stato del widget e non risulta raggiungibile dall'esterno; renderla verificabile avrebbe richiesto di estrarla in una unit\`a autonoma, che \`e esattamente l'intervento che il requisito RNF-18 avrebbe dovuto imporre e che qui \`e stato disatteso. La correttezza dell'algoritmo \`e stata dunque valutata soltanto per osservazione diretta sulla mappa, e le proprietà numeriche riportate nella tabella \ref{tab:celle} sono verifiche analitiche, non risultati di prove eseguite.
+Un'ultima precisazione riguarda l'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}, che a rigore \`e la parte pi\`u facilmente verificabile di tutto il modulo, essendo una funzione che a partire da un elenco di coordinate e da un livello di zoom restituisce un elenco di cluster, senza dipendenze esterne. Prove su quella funzione non sono state scritte, perch\'e il metodo che la realizza \`e privato della classe di stato del widget e non risulta raggiungibile dall'esterno; renderla verificabile avrebbe richiesto di estrarla in una unit\`a autonoma, che \`e esattamente l'intervento che il requisito RNF-18 avrebbe dovuto imporre e che qui \`e stato disatteso. La correttezza dell'algoritmo \`e stata dunque valutata soltanto per osservazione diretta sulla mappa, e le proprietà numeriche riportate nella tabella \ref{tab:celle} sono verifiche analitiche, non risultati di prove eseguite.
 
 \section{Test Unitari sulla Logica Applicativa}\label{sec:test-unitari}
 
-Le prove unitarie sono dodici, raggruppate in tre insiemi omogenei, e vengono superate tutte. La tabella \ref{tab:test-unitari} le elenca con l'esito e con il requisito a cui ciascun insieme si riferisce.
+Le prove unitarie sono dodici, clusterizzate in tre insiemi omogenei, e vengono superate tutte. La tabella \ref{tab:test-unitari} le elenca con l'esito e con il requisito a cui ciascun insieme si riferisce.
 
 \begin{table}[H]
 \footnotesize
@@ -117,13 +117,13 @@ Le parti del modulo che le prove automatiche non raggiungono sono state verifica
 \textbf{Scenario} & \textbf{Comportamento atteso} & \textbf{Esito} \tabularnewline
 \midrule
 Permesso concesso & La mappa si centra sulla posizione e l'indicatore la segue negli spostamenti & conforme \tabularnewline
-Permesso negato una volta & L'applicazione resta utilizzabile sull'inquadratura predefinita e la richiesta pu\`o essere ripresentata & conforme \tabularnewline
+Permesso negato una volta & L'applicazione resta utilizzabile sulla viewport predefinita e la richiesta pu\`o essere ripresentata & conforme \tabularnewline
 Permesso negato in modo permanente & Compare il collegamento alle impostazioni dell'applicazione & conforme \tabularnewline
 Localizzazione disattivata & Compare il collegamento alle impostazioni di sistema, distinto dal precedente & conforme \tabularnewline
-Avvio senza rete con cache presente & I segnaposti compaiono dai dati conservati, senza avviso di errore & conforme \tabularnewline
+Avvio senza rete con cache presente & I marker compaiono dai dati conservati, senza avviso di errore & conforme \tabularnewline
 Avvio senza rete e senza cache & Compare l'avviso di errore ed \`e disponibile il comando di aggiornamento & conforme \tabularnewline
-Raggruppamenti in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & conforme \tabularnewline
-Spostamento continuo dell'inquadratura & I segnaposti si aggiornano al termine del gesto e non durante & conforme \tabularnewline
+cluster in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & conforme \tabularnewline
+Spostamento continuo della viewport & I marker si aggiornano al termine del gesto e non durante & conforme \tabularnewline
 Delega a navigatore, telefono e posta & Si apre l'applicazione competente con il dato precompilato & conforme \tabularnewline
 Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & conforme dopo correzione \tabularnewline
 \bottomrule
