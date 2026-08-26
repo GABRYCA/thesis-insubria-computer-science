@@ -70,7 +70,7 @@ Fra le soluzioni multipiattaforma la scelta \`e ricaduta su Flutter, con Dart co
 
 La decisione tecnica pi\`u significativa riguarda per\`o la libreria cartografica, e non il framework. La strada consueta sarebbe stata affidarsi al servizio cartografico di Google, che offre raggruppamenti e ricerca gi\`a pronti. Quella strada richiede tuttavia una chiave di accesso associata a un profilo di fatturazione attivo, con oneri che crescono con le richieste. Per un progetto di tesi, privo di budget e destinato a rimanere una dimostrazione, sarebbe stata una dipendenza sproporzionata e un ostacolo alla riproducibilit\`a del lavoro da parte di chi lo esamina.
 
-La cartografia si appoggia quindi a OpenStreetMap attraverso una libreria che si limita a disegnare i tasselli e a gestire l'inquadratura, senza chiavi n\'e registrazioni. La contropartita \`e che tutto ci\`o che il servizio commerciale avrebbe fornito compreso nel prezzo va costruito: il raggruppamento dei segnaposti, la selezione di quelli effettivamente visibili, la ricerca per indirizzo. Questa \`e la ragione per cui buona parte del capitolo seguente descrive algoritmi che, con un'altra scelta iniziale, non sarebbe stato necessario scrivere.
+La cartografia si appoggia quindi a OpenStreetMap attraverso una libreria che si limita a disegnare i tasselli e a gestire l'inquadratura, senza chiavi n\'e registrazioni. La contropartita \`e che tutto ci\`o che il servizio commerciale avrebbe fornito compreso nel prezzo va costruito: il raggruppamento dei segnaposti, la selezione di quelli effettivamente visibili, la ricerca per indirizzo. Ecco perch\'e buona parte del capitolo seguente descrive algoritmi che, con un'altra scelta iniziale, non sarebbe stato necessario scrivere.
 
 Il costo si \`e manifestato anche in una forma meno prevedibile. Esiste un'estensione della libreria cartografica dedicata proprio al raggruppamento dei segnaposti, che sulla carta avrebbe risolto il problema senza scrivere codice. In pratica quell'estensione richiede una versione della libreria di calcolo geografico incompatibile con quella imposta dalle altre dipendenze del progetto, e il conflitto non \`e risolvibile senza retrocedere l'intera catena di dipendenze. Il raggruppamento \`e stato perci\`o realizzato a mano, con l'algoritmo descritto al capitolo seguente. \`E un esempio istruttivo di come, nell'ecosistema dei pacchetti, la disponibilit\`a nominale di una funzione non coincida con la sua utilizzabilit\`a.
 
@@ -112,7 +112,7 @@ La seconda riguarda la frequenza dei ricalcoli. Durante uno spostamento continuo
 
 \section{Progettazione dell'Interfaccia}\label{sec:progettazione-ui-ux}
 
-L'interfaccia \`e stata pensata attorno a un vincolo semplice: su una mappa il contesto \`e il contenuto. Se per leggere i dettagli di una struttura l'utente perde di vista la mappa, perde anche la relazione fra quella struttura e le altre, che \`e la ragione per cui stava consultando una mappa invece di un elenco. Tutte le decisioni descritte in questa sezione derivano da questa considerazione.
+L'interfaccia \`e stata pensata attorno a un vincolo semplice: su una mappa il contesto \`e il contenuto. Se per leggere i dettagli di una struttura l'utente perde di vista la mappa, perde anche la relazione fra quella struttura e le altre, il motivo per cui stava consultando una mappa invece di un elenco. Tutte le decisioni descritte in questa sezione derivano da questa considerazione.
 
 \subsection{Flusso di Navigazione e Mappa dell'App}\label{subsec:flusso-navigazione}
 
