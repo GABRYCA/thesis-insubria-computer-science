@@ -6,7 +6,33 @@ Il lavoro ha prodotto un modulo cartografico funzionante, che raccoglie da elenc
 
 Rispetto alla domanda da cui il lavoro \`e partito, cio\`e dove si trovi il centro pi\`u vicino che segue una determinata patologia e come raggiungerlo, la risposta \`e ora ottenibile con due tocchi a partire dall'apertura della schermata, contro una navigazione per suddivisione amministrativa e un confronto manuale fra elenchi. Il contributo non sta nei dati, che restano quelli censiti da altri, ma nel modo in cui vengono interrogati: per prossimit\`a invece che per appartenenza territoriale.
 
-Sul piano quantitativo la copertura della specifica \`e riassunta nella tabella \ref{tab:copertura}. La classificazione distingue i requisiti soddisfatti, quelli soddisfatti soltanto in parte e quelli non soddisfatti, e in questa sede la colonna che conta \`e la terza: un riepilogo che dichiarasse tutto soddisfatto sarebbe pi\`u gradevole e meno utile.
+Sul piano quantitativo la copertura della specifica \`e riassunta nella tabella \ref{tab:copertura} e distribuita graficamente nella figura \ref{fig:copertura}. La classificazione distingue i requisiti soddisfatti, quelli soddisfatti soltanto in parte e quelli non soddisfatti, e in questa sede la colonna che conta \`e la terza: un riepilogo che dichiarasse tutto soddisfatto sarebbe pi\`u gradevole e meno utile.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=1.1cm,
+  width=\textwidth - 2.6cm, height=6.4cm,
+  ymin=0, ymax=52,
+  ytick distance=10,
+  ylabel={Requisiti},
+  symbolic x coords={Soddisfatti, Parziali, Non soddisfatti},
+  xtick=data,
+  x tick label style={font=\footnotesize, yshift=-2pt},
+  y tick label style={font=\footnotesize},
+  tick align=outside,
+  axis lines=left,
+  nodes near coords,
+  nodes near coords style={font=\footnotesize},
+  enlarge x limits=0.3
+]
+\addplot[fill=black!25, draw=black!55] coordinates {(Soddisfatti,43) (Parziali,11) (Non soddisfatti,2)};
+\end{axis}
+\end{tikzpicture}
+\caption{Distribuzione della copertura della specifica: quarantatr\'e requisiti soddisfatti, undici soddisfatti soltanto in parte e due non soddisfatti.}
+\label{fig:copertura}
+\end{figure}
 
 \begin{table}[H]
 \centering

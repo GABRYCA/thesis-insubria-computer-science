@@ -38,3 +38,26 @@ Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'applic
 Il capitolo \ref{ch:sviluppo} è la parte più estesa e ripercorre l'implementazione: acquisizione dei dati con endpoint di riserva, normalizzazione, persistenza, resa cartografica, algoritmo di raggruppamento dei segnaposto, macchina a stati dei permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni del dispositivo.
 
 Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati dei test automatici, incluso un difetto dell'interfaccia emerso proprio durante la loro scrittura. Il capitolo \ref{ch:conclusioni} tira le somme, elenca i limiti che restano aperti e indica le direzioni di sviluppo che mi sembrano più sensate.
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c1) at (1.55,0) {\textbf{1.} Introduzione};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c2) at (5.0,0) {\textbf{2.} Stato dell'Arte};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c3) at (8.45,0) {\textbf{3.} Analisi\\ dei Requisiti};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c4) at (11.9,0) {\textbf{4.} Progettazione};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c5) at (11.9,-2.1) {\textbf{5.} Sviluppo};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c6) at (8.45,-2.1) {\textbf{6.} Testing};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c7) at (5.0,-2.1) {\textbf{7.} Conclusioni};
+\draw[flow] (c1) -- (c2);
+\draw[flow] (c2) -- (c3);
+\draw[flow] (c3) -- (c4);
+\draw[flow] (c4.south) -- (c5.north);
+\draw[flow] (c5) -- (c6);
+\draw[flow] (c6) -- (c7);
+\end{tikzpicture}
+\caption{Struttura della tesi: l'ordine dei capitoli segue il percorso del lavoro, dalla definizione del problema al bilancio conclusivo.}
+\label{fig:struttura-tesi}
+\end{figure}
+
+Il percorso logico dei capitoli, in cui ciascuno prepara le basi del successivo, è riassunto nella figura \ref{fig:struttura-tesi}.

@@ -236,6 +236,39 @@ Il costo dell'algoritmo \`e lineare nel numero di centri esaminati, perch\'e cia
 
 Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perch\'e non \`e evidente dal codice. La griglia \`e ancorata all'origine delle coordinate, cio\`e all'intersezione fra equatore e meridiano fondamentale, e non all'angolo dell'area visibile. Ne segue che la cella di appartenenza di un centro dipende soltanto dalle sue coordinate e dallo zoom, e non da dove l'utente stia guardando: spostando l'inquadratura senza modificare l'ingrandimento, i raggruppamenti restano identici e si limitano a entrare e uscire dallo schermo. Se la griglia fosse ancorata alla vista, ogni spostamento ne modificherebbe l'allineamento e le bolle si ricomporrebbero continuamente durante lo scorrimento.
 
+La figura \ref{fig:clustering} riassume il principio con un esempio ridotto, dove le coordinate sono state riportate in unit\`a di cella per rendere la lettura indipendente dal livello di zoom.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+% Griglia di celle ancorata all'origine
+\draw[cellgrid] (0,0) grid (3,3);
+\draw[black!70, thick] (0,0) rectangle (3,3);
+\node[below=2pt, font=\scriptsize] at (0,0) {$x_{0}$, $y_{0}$};
+% Cella con un solo membro: segnaposto ordinario
+\fill[pin] (1.4,0.35) circle (3pt);
+% Cella con due membri: bolla numerata nel baricentro
+\fill[pin] (0.3,0.25) circle (3pt);
+\fill[pin] (0.6,0.75) circle (3pt);
+\node[bubble, minimum size=0.55cm] at (0.45,0.5) {2};
+% Cella con tre membri: bolla numerata nel baricentro
+\fill[pin] (2.25,2.15) circle (3pt);
+\fill[pin] (2.65,2.35) circle (3pt);
+\fill[pin] (2.35,2.85) circle (3pt);
+\node[bubble, minimum size=0.55cm] at (2.45,2.42) {3};
+% Cella vuota lungo il confine inferiore
+\fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
+\node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
+\node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: segnaposto ordinario};
+\node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun raggruppamento};
+\draw[flowdash, shorten >=1pt] (2.62,2.42) -- (3.15,2.42);
+\draw[flowdash, shorten >=1pt] (1.4,0.35) -- (3.15,1.5);
+\draw[flowdash, shorten >=1pt] (1.05,0.2) -- (3.15,0.6);
+\end{tikzpicture}
+\caption{Principio del raggruppamento a griglia: le celle sono ancorate all'origine delle coordinate e ogni celle non vuota produce un raggruppamento nel baricentro dei propri membri, oppure un segnaposto ordinario quando di membri ne contiene uno solo.}
+\label{fig:clustering}
+\end{figure}
+
 Il limite dell'approccio va dichiarato, perch\'e \`e strutturale e non si elimina con una taratura. Due centri molto vicini ma situati su lati opposti del confine fra due celle non vengono raggruppati, e compaiono come due segnaposti distinti a breve distanza; il raggruppamento per distanza, con tutti i suoi difetti, non ha questo problema. Ho considerato accettabile l'inconveniente per due ragioni: si manifesta su una frazione ridotta delle configurazioni possibili, e produce comunque una scena leggibile, dato che l'esito peggiore \`e mostrare due bolle dove una sarebbe bastata. La stabilit\`a del risultato mi \`e sembrata un requisito pi\`u importante della completezza dell'aggregazione.
 
 La selezione di una bolla provoca un avvicinamento di due livelli di zoom rispetto a quello corrente, con un limite superiore al diciottesimo livello. Il valore risponde alla richiesta del requisito RF-10, che chiede la scomposizione del raggruppamento negli elementi che lo costituiscono. Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di partenza in un massimo di sedici celle nuove: la scomposizione \`e garantita a meno del caso in cui i centri siano effettivamente coincidenti, situazione che nei dati reali si presenta quando la stessa struttura compare due volte con coordinate identiche. Un solo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente pi\`u toccate successive sulla stessa bolla; tre avrebbero fatto perdere il contesto circostante a ogni selezione.
