@@ -4,49 +4,98 @@
 
 \subsection{Dermatite Atopica e Psoriasi: Caratteristiche e Differenze}\label{subsec:dermatite-psoriasi}
 
-Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve. Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono, però, sono distinti, e distinti sono i percorsi terapeutici.
+Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
+Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e
+un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono, però, sono distinti, e
+distinti sono i percorsi terapeutici.
 
-La dermatite atopica è caratterizzata da un difetto della barriera cutanea associato a una risposta immunitaria di tipo 2. Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}. La psoriasi ha un profilo immunologico differente, dominato dall'asse interleuchina-23 e dei linfociti T helper 17, si presenta con placche eritematose a desquamazione argentea e, in una quota rilevante di pazienti, si accompagna a manifestazioni articolari e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
+La dermatite atopica è caratterizzata da un difetto della barriera cutanea associato a una risposta immunitaria di tipo 2.
+Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}.
+La psoriasi ha un profilo immunologico differente, dominato dall'asse interleuchina-23 e dei linfociti T helper 17, si presenta
+con placche eritematose a desquamazione argentea e, in una quota rilevante di pazienti, si accompagna a manifestazioni articolari
+e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
 
-La conseguenza organizzativa è che le due patologie non vengono seguite necessariamente dalle stesse strutture. Alcuni ambulatori sono dedicati a una sola delle due, altri a entrambe, e la specializzazione si riflette sui farmaci disponibili e sui protocolli di monitoraggio. Un elenco che non distingua i due casi costringe l'utente a verificare struttura per struttura, che è esattamente il lavoro che si vorrebbe evitargli. Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è un attributo di prima classe del centro e non un'annotazione testuale.
+La conseguenza organizzativa è che le due patologie non vengono seguite necessariamente dalle stesse strutture.
+Alcuni ambulatori sono dedicati a una sola delle due, altri a entrambe, e la specializzazione si riflette sui farmaci disponibili
+e sui protocolli di monitoraggio.
+Un elenco che non distingua i due casi costringe l'utente a verificare struttura per struttura, che è esattamente il lavoro che si vorrebbe evitargli.
+Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è un attributo di
+prima classe del centro e non un'annotazione testuale.
 
 \subsection{Il Percorso di Cura e il Ruolo dei Centri Specialistici}\label{subsec:percorso-cura}
 
-Nelle forme moderate e severe la gestione esce dall'ambito della medicina generale. I farmaci biologici e le piccole molecole di più recente introduzione richiedono una prescrizione specialistica, esami di monitoraggio periodici e, in Italia, l'erogazione attraverso centri individuati a livello regionale. Questo genera una geografia particolare: le strutture non sono distribuite in modo uniforme sul territorio, e la distanza dal centro più vicino diventa un fattore che incide sull'aderenza alla terapia.
+Nelle forme moderate e severe la gestione esce dall'ambito della medicina generale.
+I farmaci biologici e le piccole molecole di più recente introduzione richiedono una prescrizione specialistica, esami di
+monitoraggio periodici e, in Italia, l'erogazione attraverso centri individuati a livello regionale.
+Questo genera una geografia particolare: le strutture non sono distribuite in modo uniforme sul territorio, e la distanza
+dal centro più vicino diventa un fattore che incide sull'aderenza alla terapia.
 
-Il Piano Nazionale della Cronicità individua nella frammentazione informativa uno degli ostacoli alla presa in carico \cite{pianoCronicita}. È una frammentazione che l'utente percepisce in modo molto concreto, sotto forma di elenchi da confrontare a mano. Ridurre quel confronto a un'unica vista ordinata per distanza è l'obiettivo minimo che un'applicazione come questa deve raggiungere per essere utile.
+Il Piano Nazionale della Cronicità (\textit{PNC}) individua nella frammentazione informativa uno degli ostacoli alla presa
+in carico \cite{pianoCronicita}.
+È una frammentazione che l'utente percepisce in modo molto concreto, sotto forma di elenchi da confrontare a mano.
+Ridurre quel confronto a un'unica vista ordinata per distanza è l'obiettivo minimo che un'applicazione come questa deve
+raggiungere per essere utile.
 
 \section{Strumenti Esistenti per la Ricerca di Centri Dermatologici}\label{sec:strumenti-esistenti}
 
 \subsection{I Portali Dermatopia e Vicini di Pelle}\label{subsec:portali-esistenti}
 
-Nel panorama italiano due iniziative si distinguono per completezza. La prima, Dermatopia, espone un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}. La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento, costruita sopra un plugin cartografico per WordPress \cite{viciniDiPelle}.
+Nel panorama italiano due iniziative si distinguono per completezza.
+La prima, Dermatopia, espone un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
+La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento,
+costruita sopra un plugin cartografico per WordPress \cite{viciniDiPelle}.
 
-Entrambe risolvono la parte difficile del problema, cioè il censimento. Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, che nessuna tesi triennale potrebbe replicare con la stessa affidabilità. Per questa ragione il progetto non tenta di costruire un archivio proprio: assume queste sorgenti come dato di partenza e concentra il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
+Entrambe risolvono la parte difficile del problema, cioè il censimento.
+Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, che nessuna tesi triennale
+potrebbe replicare con la stessa affidabilità.
+Per questa ragione il progetto non tenta di costruire un archivio proprio: assume queste sorgenti come dato di partenza e
+concentra il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
 
 \subsection{Limiti degli Strumenti Attuali}\label{subsec:limiti-strumenti}
 
-Dall'analisi dei due portali emergono alcuni limiti ricorrenti, che hanno orientato in modo diretto i requisiti del capitolo \ref{ch:analisi-dei-requisiti}.
+Dall'analisi dei due portali emergono alcuni limiti ricorrenti, che hanno orientato in modo diretto i requisiti del
+capitolo \ref{ch:analisi-dei-requisiti}.
 
-La navigazione è organizzata per suddivisione amministrativa e non per prossimità. L'utente sceglie una regione o una provincia e ottiene un elenco; se abita al confine tra due province, deve ripetere la ricerca. La domanda originaria, cioè quale sia il centro più vicino, non ha una risposta diretta.
+La navigazione è organizzata per suddivisione amministrativa e non per prossimità.
+L'utente sceglie una regione o una provincia e ottiene un elenco; se abita al confine tra due province, deve ripetere la ricerca.
+La domanda originaria, cioè quale sia il centro più vicino, non ha una risposta diretta.
 
-La posizione dell'utente non viene utilizzata. Nessuno dei due strumenti chiede o impiega le coordinate del dispositivo, quindi non esiste ordinamento per distanza né filtro per raggio.
+La posizione dell'utente non viene utilizzata.
+Nessuno dei due strumenti chiede o impiega le coordinate del dispositivo, quindi non esiste ordinamento per distanza né filtro per raggio.
 
-L'esperienza su schermo piccolo è penalizzata. Le tabelle a più colonne richiedono scorrimento orizzontale, e le azioni successive alla consultazione, come chiamare la struttura o avviare la navigazione, richiedono la copia manuale del dato.
+L'esperienza sui piccoli schermi è penalizzata.
+Le tabelle a più colonne richiedono lo scorrimento orizzontale, e le azioni successive alla consultazione, come chiamare la
+struttura o avviare la navigazione, richiedono la copia manuale del dato.
 
-Non esiste alcun funzionamento offline. Ogni consultazione richiede una connessione attiva, condizione non garantita quando la ricerca avviene in viaggio.
+Non esiste alcun funzionamento offline.
+Ogni consultazione richiede una connessione attiva, condizione non garantita quando la ricerca avviene in viaggio.
 
-Infine, non è previsto alcun contributo da parte dell'utente. Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo di annotarlo e ritrovarlo insieme agli altri. Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli remoti nella stessa mappa e negli stessi filtri.
+Infine, non è previsto alcun contributo da parte dell'utente.
+Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo di annotarlo e ritrovarlo insieme agli altri.
+Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli
+remoti nella stessa mappa e negli stessi filtri.
 
 \section{Piattaforme Cartografiche per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
 
-La scelta del fornitore cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima di scrivere l'applicazione. Ho valutato tre alternative.
+La scelta del fornitore cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
+di scrivere l'applicazione.
+Ho valutato tre alternative.
 
-La prima è Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale. Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}. Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
+La prima è Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
+Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
+e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}.
+Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
 
-La seconda è Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}. La qualità dello stile è notevole, ma restano la dipendenza da un fornitore commerciale e la necessità di un token.
+La seconda è Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero
+di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
+La qualità dello stile è notevole, ma restano la dipendenza da un fornitore commerciale e la necessità di un token.
 
-La terza è OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto l'attribuzione \cite{osmCopyright}. In Flutter la resa è affidata a \texttt{flutter\_map}, una libreria della comunità che disegna livelli di tasselli senza vincolarsi a un fornitore specifico \cite{flutterMapPkg, flutterMapDocs}. Non serve una chiave, non serve un profilo di fatturazione, e la sorgente dei tasselli può essere sostituita modificando un URL.
+La terza è OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
+l'attribuzione \cite{osmCopyright}.
+In Flutter il compito è affidato a \texttt{flutter\_map}, una libreria della \textit{community} che disegna i \textit{tile layers}
+senza vincolarsi a un fornitore specifico \cite{flutterMapPkg, flutterMapDocs}.
+Non serve una chiave, non serve un profilo di fatturazione, e la sorgente dei \textit{tile} (i quali possiamo chiamarli anche tasselli)
+può essere sostituita modificando un URL.
 
 \begin{table}[H]
 \centering
@@ -67,11 +116,21 @@ Vincoli d'uso & contrattuali & contrattuali & policy di utilizzo dei tasselli \t
 \label{tab:confronto-piattaforme}
 \end{table}
 
-La decisione è caduta su OpenStreetMap con \texttt{flutter\_map}. Il fattore determinante non è stato soltanto il costo, ma il fatto che i segnaposto siano widget Flutter a tutti gli effetti: questo permette di costruire il raggruppamento dinamico descritto al paragrafo \ref{subsec:impl-clustering} con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un livello nativo.
+La decisione è caduta su OpenStreetMap con \texttt{flutter\_map}.
+Il fattore determinante non è stato soltanto il costo, ma il fatto che i segnaposto (\textit{markers}) siano widget Flutter
+a tutti gli effetti: questo permette di costruire il raggruppamento dinamico descritto al paragrafo \ref{subsec:impl-clustering}
+con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un livello nativo.
 
-La contropartita esiste ed è duplice. I tasselli pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di identificare l'applicazione richiedente e richiede di rispettare la cache \cite{osmTilePolicy}: sono vincoli che vanno onorati e che diventerebbero un limite se l'applicazione crescesse in numero di utenti. In secondo luogo, la resa grafica dei tasselli raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
+Un compromesso tuttavia esiste ed è duplice.
+I \textit{tiles} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
+identificare l'applicazione richiedente e richiede di rispettare la cache \cite{osmTilePolicy}: sono vincoli che vanno rispettati
+e che diventerebbero un limite se l'applicazione crescesse in numero di utenti.
+In secondo luogo, la resa grafica dei \textit{tiles} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
 
-Sul piano tecnico la resa segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator e suddivisa, a ogni livello di zoom, in una griglia di immagini quadrate indicizzate da tre valori, cioè zoom, colonna e riga \cite{slippyMap}. Ogni incremento unitario dello zoom raddoppia il numero di tasselli per lato, come illustrato nella figura \ref{fig:tasselli}. Questa relazione esponenziale non è un dettaglio confinato al livello di rendering: torna, come si vedrà, nella formula che dimensiona le celle dell'algoritmo di raggruppamento.
+Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator e suddivisa,
+a ogni livello di zoom, in una griglia di immagini quadrate indicizzate da tre valori, cioè zoom, colonna e riga \cite{slippyMap}.
+Ogni incremento unitario dello zoom raddoppia il numero di tasselli per lato, come illustrato nella figura \ref{fig:tasselli}.
+Questa relazione esponenziale non è un dettaglio confinato al livello di rendering: torna, come si vedrà, nella formula che dimensiona le celle dell'algoritmo di raggruppamento.
 
 \begin{figure}[H]
 \centering
@@ -101,20 +160,38 @@ Sul piano tecnico la resa segue lo schema \emph{slippy map}: la superficie terre
 \node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}2$, $8\times8$};
 \end{scope}
 \end{tikzpicture}
-\caption{Schema slippy map: la stessa porzione di territorio ai livelli di zoom successivi, con un tassello evidenziato per ciascuno. Ogni incremento unitario dello zoom raddoppia il numero di tasselli per lato, e ogni tassello è individuato dagli indici di zoom, colonna e riga.}
+\caption{Schema slippy map: la stessa porzione di territorio ai livelli di zoom successivi, con un tassello evidenziato per ciascuno. Ogni incremento unitario dello zoom raddoppia il numero di tiles per lato, e ogni tile è individuato dagli indici di zoom, colonna e riga.}
 \label{fig:tasselli}
 \end{figure}
 
 \subsection{Geocodifica e Ricerca per Indirizzo}\label{subsec:geocodifica}
 
-Una mappa senza barra di ricerca è utile soltanto a chi già sa dove guardare. Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate. Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON.
+Una mappa senza barra di ricerca è utile soltanto a chi già sa dove guardare.
+Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate.
+Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON\@.
 
-Anche qui valgono vincoli precisi, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione, divieto di geocodifica massiva e invito esplicito a memorizzare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}. Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il servizio a ogni carattere digitato violerebbe la policy dopo poche lettere. La soluzione adottata, un ritardo di stabilizzazione sull'input descritto al paragrafo \ref{subsec:impl-ricerca}, nasce da questo vincolo e non da una preferenza estetica.
+Anche qui valgono vincoli precisi, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
+divieto di geocodifica massiva e invito esplicito a memorizzare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
+Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il
+servizio a ogni carattere digitato violerebbe la policy dopo poche lettere.
+La soluzione adottata, ossia un ritardo di stabilizzazione sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
+nasce proprio da questo vincolo e non da una preferenza estetica.
 
 \section{Framework per lo Sviluppo Cross-Platform}\label{sec:framework-cross-platform}
 
-Il requisito di una singola base di codice per Android e iOS restringe il campo. Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta due implementazioni parallele dell'intera interfaccia, un costo non giustificabile in un progetto di queste dimensioni.
+Il requisito di una singola base di codice per Android e iOS restringe il campo.
+Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta
+due implementazioni parallele dell'intera interfaccia, un costo non giustificabile in un progetto di queste dimensioni.
 
-React Native adotta un approccio a componenti nativi pilotati da JavaScript \cite{reactNative}, ed è una scelta solida quando si dispone già di competenze nell'ecosistema web. Flutter segue una strada diversa: compila codice Dart in binario nativo e disegna l'interfaccia con un proprio motore grafico, ottenendo un controllo completo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
+React Native adotta un approccio a componenti nativi pilotati da JavaScript \cite{reactNative}, ed è una scelta solida
+quando si dispone già di competenze nell'ecosistema web.
 
-Per questo progetto Flutter presentava due vantaggi che pesavano più degli altri. Il primo è il controllo totale sul disegno, indispensabile quando i segnaposto della mappa devono cambiare forma e dimensione in funzione del livello di zoom. Il secondo è la disponibilità di Material 3 come sistema di design già implementato \cite{material3}, che ha permesso di ottenere un'interfaccia coerente senza costruire da zero i componenti. A questi si aggiunge un ecosistema di pacchetti che copre con precisione le esigenze del progetto, dalla geolocalizzazione alla persistenza locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
+Infine, Flutter segue una strada diversa: compila codice Dart in binario nativo e disegna l'interfaccia con un proprio motore
+grafico, ottenendo un controllo completo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
+
+Per questo progetto Flutter presentava due grandi vantaggi.
+Il primo è il controllo totale sul disegno, indispensabile quando i segnaposto della mappa devono cambiare forma e dimensione
+in funzione del livello di zoom.
+Il secondo è la disponibilità di Material 3 come sistema di design già implementato \cite{material3}, che ha permesso di
+ottenere un'interfaccia coerente senza costruire da zero i componenti.
+A questi si aggiunge un ecosistema di pacchetti che copre con precisione le esigenze del progetto, dalla geolocalizzazione alla persistenza locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
