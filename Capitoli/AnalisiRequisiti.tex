@@ -11,7 +11,7 @@ Accanto all'attore primario operano diversi sistemi esterni, che nella terminolo
 \begin{table}[H]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\begin{tabularx}{\textwidth}{@{}l l L@{}}
 \toprule
 \textbf{Attore} & \textbf{Tipo} & \textbf{Ruolo nel sistema} \tabularnewline
 \midrule
@@ -32,7 +32,7 @@ Applicazioni esterne & secondario & Ricevono le richieste di navigazione, chiama
 I requisiti funzionali sono raccolti nella tabella \ref{tab:requisiti-funzionali}, raggruppati per area. La colonna di priorità distingue i requisiti obbligatori, senza i quali l'applicazione non assolve al proprio scopo, da quelli desiderabili, che migliorano l'esperienza ma la cui assenza non compromette il funzionamento.
 
 \footnotesize
-\begin{longtable}{@{}p{1.4cm} p{9.1cm} p{2.3cm}@{}}
+\begin{longtable}{@{}P{1.4cm} P{9.1cm} P{2.3cm}@{}}
 \toprule
 \textbf{ID} & \textbf{Descrizione} & \textbf{Priorità} \tabularnewline
 \midrule
@@ -107,7 +107,7 @@ RF-38 & Il sistema deve fornire un comando di ritorno immediato alla posizione d
 I requisiti non funzionali riguardano il modo in cui il sistema deve comportarsi, più che le funzioni che deve offrire. Nel caso specifico assumono un peso maggiore del solito per due ragioni: l'applicazione dipende da servizi di terzi che non controlla, e opera in un contesto d'uso mobile in cui la connettività non è garantita.
 
 \footnotesize
-\begin{longtable}{@{}p{1.6cm} p{2.4cm} p{8.8cm}@{}}
+\begin{longtable}{@{}P{1.6cm} P{2.4cm} P{8.8cm}@{}}
 \toprule
 \textbf{ID} & \textbf{Categoria} & \textbf{Descrizione} \tabularnewline
 \midrule
@@ -178,10 +178,10 @@ Il diagramma di figura \ref{fig:casi-uso} raccoglie le interazioni principali. L
     \draw[black!65] (-2.06,4.55) -- (uc\i.west);
   }
 
-  \node[extern] (s1) at (10.1,8.3) {Server dei tasselli\ e servizio elenco centri};
-  \node[extern] (s2) at (10.1,7.1) {Servizio di\ geocodifica};
-  \node[extern] (s3) at (10.1,4.7) {Sistema operativo\ (posizione)};
-  \node[extern] (s4) at (10.1,0.5) {Applicazioni\ esterne};
+  \node[extern] (s1) at (10.1,8.3) {Server dei tasselli\\ e servizio elenco centri};
+  \node[extern] (s2) at (10.1,7.1) {Servizio di\\ geocodifica};
+  \node[extern] (s3) at (10.1,4.7) {Sistema operativo\\ (posizione)};
+  \node[extern] (s4) at (10.1,0.5) {Applicazioni\\ esterne};
 
   \draw[flowdash] (uc1.east) -- (s1.west);
   \draw[flowdash] (uc2.east) -- (s2.west);
@@ -197,7 +197,7 @@ I casi d'uso sono numerati da UC-01 a UC-08 seguendo l'ordine con cui compaiono 
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-01 \textemdash{} Consultare la mappa dei centri}} \tabularnewline
 \midrule
@@ -224,7 +224,7 @@ Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09, RF-10
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Cercare una localit\`a per indirizzo}} \tabularnewline
 \midrule
@@ -250,7 +250,7 @@ Requisiti & RF-16, RF-17, RF-18 \tabularnewline
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-04 \textemdash{} Trovare i centri pi\`u vicini}} \tabularnewline
 \midrule
@@ -278,7 +278,7 @@ Requisiti & RF-12, RF-13, RF-14, RF-15, RF-19, RF-20, RF-21, RF-22, RF-23, RF-24
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-06 \textemdash{} Inserire un centro personalizzato}} \tabularnewline
 \midrule
@@ -307,7 +307,7 @@ Requisiti & RF-25, RF-26, RF-27, RF-28, RF-29 \tabularnewline
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-07 \textemdash{} Ottenere le indicazioni stradali}} \tabularnewline
 \midrule
@@ -335,7 +335,7 @@ Requisiti & RF-32, RF-33 \tabularnewline
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.1cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
 \multicolumn{2}{@{}l}{\textbf{UC-08 \textemdash{} Contattare il centro}} \tabularnewline
 \midrule

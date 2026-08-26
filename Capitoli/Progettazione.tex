@@ -14,41 +14,41 @@ L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura 
 \centering
 \begin{tikzpicture}[scale=0.9, transform shape, font=\footnotesize]
 % Livello di presentazione
-\node[layer, minimum width=9.6cm, minimum height=2.3cm, fill=black!3] at (4.8,8.35) {};
+\node[layer, minimum width=10.6cm, minimum height=2.3cm, fill=black!3] at (5.3,8.35) {};
 \node[anchor=north west, font=\scriptsize\bfseries] at (0.15,9.42) {Presentazione};
-\node[comp, text width=1.8cm] at (1.35,8.0) {Mappa e livelli};
-\node[comp, text width=1.8cm] at (3.65,8.0) {Controlli di vista};
-\node[comp, text width=1.8cm] at (5.95,8.0) {Barra di ricerca};
-\node[comp, text width=1.8cm] at (8.25,8.0) {Schede e moduli};
+\node[comp, text width=2.1cm] at (1.50,8.0) {Mappa e livelli};
+\node[comp, text width=2.1cm] at (4.05,8.0) {Controlli di vista};
+\node[comp, text width=2.1cm] at (6.60,8.0) {Barra di ricerca};
+\node[comp, text width=2.1cm] at (9.15,8.0) {Schede e moduli};
 % Livello di logica applicativa
-\node[layer, minimum width=9.6cm, minimum height=2.3cm, fill=black!3] at (4.8,5.15) {};
+\node[layer, minimum width=10.6cm, minimum height=2.3cm, fill=black!3] at (5.3,5.15) {};
 \node[anchor=north west, font=\scriptsize\bfseries] at (0.15,6.22) {Logica applicativa};
-\node[comp, text width=1.8cm] at (1.35,4.8) {Selezione e raggruppamento};
-\node[comp, text width=1.8cm] at (3.65,4.8) {Filtri e prossimit\`a};
-\node[comp, text width=1.8cm] at (5.95,4.8) {Localizzazione};
-\node[comp, text width=1.8cm] at (8.25,4.8) {Validazione e collegamenti};
+\node[comp, text width=2.1cm] at (1.50,4.8) {Selezione e raggruppamento};
+\node[comp, text width=2.1cm] at (4.05,4.8) {Filtri e prossimit\`a};
+\node[comp, text width=2.1cm] at (6.60,4.8) {Permessi e posizione};
+\node[comp, text width=2.1cm] at (9.15,4.8) {Validazione e collegamenti};
 % Livello di accesso ai dati
-\node[layer, minimum width=9.6cm, minimum height=2.3cm, fill=black!3] at (4.8,1.95) {};
+\node[layer, minimum width=10.6cm, minimum height=2.3cm, fill=black!3] at (5.3,1.95) {};
 \node[anchor=north west, font=\scriptsize\bfseries] at (0.15,3.02) {Accesso ai dati};
-\node[comp, text width=2.5cm] at (1.9,1.6) {Acquisizione remota};
-\node[comp, text width=2.5cm] at (4.8,1.6) {Normalizzazione};
-\node[comp, text width=2.5cm] at (7.7,1.6) {Cache e persistenza};
+\node[comp, text width=2.9cm] at (2.0,1.6) {Acquisizione remota};
+\node[comp, text width=2.9cm] at (5.3,1.6) {Normalizzazione};
+\node[comp, text width=2.9cm] at (8.6,1.6) {Cache e persistenza};
 % Scambi fra livelli
-\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (2.4,7.2) -- (2.4,6.3);
-\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (7.2,7.2) -- (7.2,6.3);
-\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (2.4,4.0) -- (2.4,3.1);
-\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (7.2,4.0) -- (7.2,3.1);
+\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (2.6,7.2) -- (2.6,6.3);
+\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (8.0,7.2) -- (8.0,6.3);
+\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (2.6,4.0) -- (2.6,3.1);
+\draw[{Latex[length=2mm]}-{Latex[length=2mm]}, thick] (8.0,4.0) -- (8.0,3.1);
 % Sistemi esterni
-\node[extern, text width=2.9cm, anchor=west] at (10.3,8.0) {Tasselli OpenStreetMap};
-\node[extern, text width=2.9cm, anchor=west] at (10.3,5.3) {Servizi di posizione del dispositivo};
-\node[extern, text width=2.9cm, anchor=west] at (10.3,4.3) {Navigazione, telefono, posta, condivisione};
-\node[extern, text width=2.9cm, anchor=west] at (10.3,2.1) {Elenchi pubblici dei centri};
-\node[extern, text width=2.9cm, anchor=west] at (10.3,1.1) {Servizio di geocodifica};
-\draw[flowdash] (9.6,8.0) -- (10.3,8.0);
-\draw[flowdash] (9.6,5.3) -- (10.3,5.3);
-\draw[flowdash] (9.6,4.3) -- (10.3,4.3);
-\draw[flowdash] (9.6,2.1) -- (10.3,2.1);
-\draw[flowdash] (9.6,1.1) -- (10.3,1.1);
+\node[extern, text width=2.9cm, anchor=west] at (11.3,8.0) {Tasselli OpenStreetMap};
+\node[extern, text width=2.9cm, anchor=west] at (11.3,6.0) {Servizi di posizione del dispositivo};
+\node[extern, text width=2.9cm, anchor=west] at (11.3,4.0) {Navigazione, telefono, posta, condivisione};
+\node[extern, text width=2.9cm, anchor=west] at (11.3,2.1) {Elenchi pubblici dei centri};
+\node[extern, text width=2.9cm, anchor=west] at (11.3,1.1) {Servizio di geocodifica};
+\draw[flowdash] (10.6,8.0) -- (11.3,8.0);
+\draw[flowdash] (10.6,6.0) -- (11.3,6.0);
+\draw[flowdash] (10.6,4.0) -- (11.3,4.0);
+\draw[flowdash] (10.6,2.1) -- (11.3,2.1);
+\draw[flowdash] (10.6,1.1) -- (11.3,1.1);
 \end{tikzpicture}
 \caption{Organizzazione del modulo mappa in tre livelli e sistemi esterni interrogati.}
 \label{fig:architettura}
@@ -88,7 +88,7 @@ La tabella \ref{tab:stato} riassume la distribuzione dello stato e il meccanismo
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}p{4.2cm} X p{2.9cm}@{}}
+\begin{tabularx}{\textwidth}{@{}P{4.2cm} L P{2.9cm}@{}}
 \toprule
 \textbf{Elemento di stato} & \textbf{Contenuto} & \textbf{Propagazione} \tabularnewline
 \midrule
@@ -164,7 +164,7 @@ La tabella \ref{tab:strati} elenca gli strati sovrapposti nell'ordine in cui ven
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{4.3cm} X p{2.8cm}@{}}
+\begin{tabularx}{\textwidth}{@{}B{4.3cm} L P{2.8cm}@{}}
 \toprule
 \textbf{Strato} & \textbf{Contenuto} & \textbf{Presenza} \tabularnewline
 \midrule
@@ -200,7 +200,7 @@ La tabella \ref{tab:mappatura-campi} riporta la corrispondenza fra i campi delle
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}p{2.7cm} p{2.5cm} p{2.5cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}P{2.7cm} P{2.5cm} P{2.5cm} L@{}}
 \toprule
 \textbf{Informazione} & \textbf{Sorgente A} & \textbf{Sorgente B} & \textbf{Trattamento} \tabularnewline
 \midrule
@@ -229,7 +229,7 @@ Sui dati creati dall'utente il ragionamento si capovolge, perch\'e qui lo schema
 
 \begin{table}[H]
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}p{2.7cm} p{2.5cm} X@{}}
+\begin{tabularx}{\textwidth}{@{}P{2.7cm} P{2.5cm} L@{}}
 \toprule
 \textbf{Campo} & \textbf{Tipo} & \textbf{Comportamento in assenza del dato} \tabularnewline
 \midrule

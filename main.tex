@@ -25,6 +25,12 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
+% Colonne di tabella a bandiera: nelle colonne strette la giustificazione
+% produce spaziature eccessive fra le parole (underfull hbox).
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{B}[1]{>{\raggedright\arraybackslash\bfseries}p{#1}}
+
 % Percorso per le immagini
 \graphicspath{{Immagini/}{Immagini/Sessioni/}{Immagini/Screenshot/}}
 
@@ -54,7 +60,16 @@
   ucase/.style   = {ellipse, draw=black!70, align=center,
                     font=\footnotesize, inner sep=2pt, minimum width=2.6cm},
   flow/.style    = {-{Latex[length=2mm]}, thick},
-  flowdash/.style= {-{Latex[length=2mm]}, thick, dashed}
+  flowdash/.style= {-{Latex[length=2mm]}, thick, dashed},
+  % Stili per i diagrammi cartografici e temporali aggiunti nei capitoli
+  tile/.style    = {rectangle, draw=black!55, fill=black!2, thin},
+  cellgrid/.style= {draw=black!35, thin, dash pattern=on 1.2pt off 1.2pt},
+  pin/.style     = {circle, fill=black!75, draw=none, inner sep=0pt,
+                    minimum size=3pt},
+  bubble/.style  = {circle, draw=black!65, fill=black!12, thick,
+                    inner sep=0pt, font=\scriptsize},
+  tick/.style    = {black!70, thin},
+  band/.style    = {rectangle, draw=black!55, fill=black!6, rounded corners=1pt}
 }
 
 % Captions
@@ -62,22 +77,33 @@
 
 \usepackage[backend=biber, style=numeric, backref=true, defernumbers=true]{biblatex}
 
+% Consente di spezzare gli indirizzi web dopo lettere e cifre: senza questo
+% permesso le righe della sitografia risultano allargate a forza.
+\setcounter{biburlnumpenalty}{7000}
+\setcounter{biburlucpenalty}{7000}
+\setcounter{biburllcpenalty}{7000}
+
 \usepackage[immediate]{silence}
 \WarningFilter[temp]{latex}{Command}
 \usepackage{sectsty}
 \DeactivateWarningFilters[temp]
-\WarningFilter{microtype}{Unable to apply patch `footnote'}
 
-\usepackage{hyperref} % Rende l'indice cliccabile
+% Impaginazione e margini. scrextend precede footmisc e hyperref: caricato dopo,
+% il suo controllo di integrita' su \@footnotemark troverebbe la macro gia'
+% ridefinita e produrrebbe un avviso.
+\usepackage[fontsize=12pt]{scrextend} % dimensione font
+
+% footmisc precede hyperref, come richiesto dalla sua documentazione.
 \usepackage[bottom]{footmisc} % Posiziona le footnotes alla fine della pagina
+\usepackage{hyperref} % Rende l'indice cliccabile
 \usepackage{subcaption}
 
-% Sperimentali
+% Sperimentali. IL `footnote' di microtype non e' applicabile quando
+% footmisc ha gia' ridefinito \@footnotetext: l'avviso relativo e' innocuo.
+\WarningFilter{microtype}{Unable to apply patch `footnote'}
 \usepackage{microtype}
 
-% Impaginazione e margini
 \usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
-\usepackage[fontsize=12pt]{scrextend} % dimensione font
 
 % Aspetto dei listati di codice
 \setminted{
@@ -102,6 +128,12 @@
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\LARGE}
 \titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \chaptertitlefont{\fontsize{22pt}{30pt}\selectfont}
+
+% Titoli a bandiera: giustificati, quelli su due righe non sono spezzabili
+% senza eccedere il margine destro.
+\sectionfont{\raggedright}
+\subsectionfont{\raggedright}
+\subsubsectionfont{\raggedright}
 
 \hypersetup{ % Aspetto dei link
     colorlinks,
