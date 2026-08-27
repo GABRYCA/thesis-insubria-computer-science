@@ -451,8 +451,8 @@ Ogni anello interviene soltanto quando il precedente non ha prodotto un risultat
 l'avviso all'utente, viene raggiunto solo quando nessun dato è disponibile.
 
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=0.88, transform shape, font=\footnotesize]
+    \centering
+    \begin{tikzpicture}[scale=0.88, transform shape, font=\footnotesize]
 \node[comp, text width=2.5cm, minimum height=1.1cm] (n1) at (0,6.6) {Sorgente\\ principale};
 \node[comp, text width=2.5cm, minimum height=1.1cm] (n2) at (3.6,6.6) {Sorgente\\ alternativa};
 \node[comp, text width=2.5cm, minimum height=1.1cm] (n3) at (7.2,6.6) {Archivio\\ persistente};
@@ -460,21 +460,20 @@ l'avviso all'utente, viene raggiunto solo quando nessun dato è disponibile.
 \draw[flow] (n1) -- node[above, font=\scriptsize] {errore} (n2);
 \draw[flow] (n2) -- node[above, font=\scriptsize] {errore} (n3);
 \draw[flow] (n3) -- node[above, font=\scriptsize] {vuoto} (n4);
-% bus di convergenza
-\node[layer, minimum width=7.3cm, minimum height=0.85cm, fill=black!3] (norm) at (3.6,4.5) {Normalizzazione e elenco in memoria};
-\draw[flow] (n1.south) -- (0,4.93);
-\draw[flow] (n2.south) -- (3.6,4.93);
-\draw[flow] (n3.south) -- (7.2,4.93);
+\node[layer, minimum width=10.0cm, minimum height=0.85cm, fill=black!3] (norm) at (3.6,4.5) {Normalizzazione e elenco in memoria};
+\draw[flow] (n1.south) -- (0,4.925);
+\draw[flow] (n2.south) -- (3.6,4.925);
+\draw[flow] (n3.south) -- (7.2,4.925);
 \node[anchor=west, font=\scriptsize] at (7.45,5.6) {dati validi};
 \node[layer, minimum width=3.4cm, minimum height=0.85cm, fill=black!3] (map) at (1.75,2.7) {Disegno sulla mappa};
 \node[layer, minimum width=3.4cm, minimum height=0.85cm, fill=black!3] (save) at (5.9,2.7) {Scrittura in archivio};
-\draw[flow] (1.75,4.07) -- (map);
-\draw[flow] (5.9,4.07) -- (save);
-\node[extern, text width=3.0cm, anchor=west] (cust) at (8.9,2.7) {Archivio dei centri personalizzati};
-\draw[flow] (cust.west) -- (map.east);
-\end{tikzpicture}
-\caption{Catena di ricadute nell'acquisizione dei dati. I centri personalizzati entrano nel disegno per una via propria, indipendente dalla rete.}
-\label{fig:cascata-dati}
+\draw[flow] (1.75,4.075) -- (map.north);
+\draw[flow] (5.9,4.075) -- (save.north);
+\node[extern, text width=6.0cm, anchor=west] (cust) at (8.3,2.7) {Archivio dei centri personalizzati};
+\draw[flow] (cust.west) -- (save.east);
+    \end{tikzpicture}
+    \caption{Catena dell'acquisizione e utilizzo dei dati. I centri personalizzati ricevono i dati da una fonte propria, indipendente dalla rete.}
+    \label{fig:cascata-dati}
 \end{figure}
 
 Nella figura si notano due cose che riassumono l'impostazione dell'intero modulo.
