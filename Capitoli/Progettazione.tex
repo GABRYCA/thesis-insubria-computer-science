@@ -17,7 +17,7 @@ L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura 
 \node[layer, minimum width=10.6cm, minimum height=2.3cm, fill=black!3] at (5.3,8.35) {};
 \node[anchor=north west, font=\scriptsize\bfseries] at (0.15,9.42) {Presentazione};
 \node[comp, text width=2.1cm] at (1.50,8.0) {Mappa e livelli};
-\node[comp, text width=2.1cm] at (4.05,8.0) {Controlli di vista};
+\node[comp, text width=2.1cm] at (4.05,8.0) {Controlli della mappa};
 \node[comp, text width=2.1cm] at (6.60,8.0) {Barra di ricerca};
 \node[comp, text width=2.1cm] at (9.15,8.0) {Schede e moduli};
 % Livello di logica applicativa
@@ -54,7 +54,7 @@ L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura 
 \label{fig:architettura}
 \end{figure}
 
-Il livello di presentazione contiene la mappa con i suoi livelli sovrapposti, i comandi di vista, la barra di ricerca e le schede informative. Non prende decisioni: riceve gli elenchi da mostrare e inoltra i gesti dell'utente al livello sottostante.
+Il livello di presentazione contiene la mappa con i suoi livelli sovrapposti, i controlli della mappa, la barra di ricerca e le schede informative. Non prende decisioni: riceve gli elenchi da mostrare e inoltra i gesti dell'utente al livello sottostante.
 
 Il livello di logica applicativa è la parte che decide. Qui vengono stabiliti quali centri ricadono nell'area visibile, come vanno clusterizzati al variare dello zoom, quale struttura risulta la più vicina, se un permesso di posizione va richiesto oppure se occorre rimandare l'utente alle impostazioni di sistema, e se i dati immessi in un modulo sono accettabili.
 
@@ -74,7 +74,7 @@ La cartografia si appoggia quindi a OpenStreetMap attraverso una libreria che si
 
 Il costo si è manifestato anche in una forma meno prevedibile. Esiste un'estensione della libreria cartografica dedicata proprio al clustering dei marker, che sulla carta avrebbe risolto il problema senza scrivere codice. In pratica quell'estensione richiede una versione della libreria di calcolo geografico incompatibile con quella imposta dalle altre dipendenze del progetto, e il conflitto non è risolvibile senza retrocedere l'intera catena di dipendenze. Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al capitolo seguente. è un esempio istruttivo di come, nell'ecosistema dei package, la disponibilità nominale di una funzione non coincida con la sua utilizzabilità.
 
-Chiudo con una limitazione. Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato. La questione è ripresa al capitolo dedicato alle prove.
+Chiudo con una limitazione. Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato. La questione è ripresa al capitolo dedicato ai test.
 
 \subsection{Pattern Architetturale e Gestione Stato}\label{subsec:gestione-stato}
 
@@ -296,4 +296,4 @@ La figura \ref{fig:cascata-dati} riassume la catena di ricadute che governa l'ac
 
 Nella figura si notano due cose che riassumono l'impostazione dell'intero modulo. La prima è che i centri personalizzati raggiungono il disegno per una via che non attraversa mai la rete: sono l'unica parte del contenuto che resta disponibile e completa anche quando ogni servizio esterno è irraggiungibile. La seconda è che la scrittura in archivio avviene dopo la normalizzazione e non prima, cioè viene conservata la forma originaria del record così come arriva dalla sorgente. La scelta è discutibile, perch\'e conservare la forma normalizzata renderebbe la lettura successiva più semplice; conservare l'originale ha però il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione, che può cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
 
-Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-11. Un archivio locale può essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cioè nel momento peggiore. Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito ricostruisce l'archivio. La verifica di questo comportamento è fra i casi di prova descritti al paragrafo \ref{sec:test-unitari}, perch\'e è esattamente il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza una prova automatica, resterebbe non verificato.
+Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-11. Un archivio locale può essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cioè nel momento peggiore. Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito ricostruisce l'archivio. La verifica di questo comportamento è fra i casi di test descritti al paragrafo \ref{sec:test-unitari}, perch\'e è esattamente il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza un test automatico, resterebbe non verificato.
