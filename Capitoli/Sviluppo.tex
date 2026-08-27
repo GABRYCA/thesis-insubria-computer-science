@@ -444,34 +444,35 @@ La figura \ref{fig:clustering} riassume il principio con un esempio ridotto, dov
 cella per rendere la lettura indipendente dal livello di zoom.
 
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\footnotesize]
-% Griglia di celle ancorata all'origine
-\draw[cellgrid] (0,0) grid (3,3);
-\draw[black!70, thick] (0,0) rectangle (3,3);
-\node[below=2pt, font=\scriptsize] at (0,0) {$x_{0}$, $y_{0}$};
-% Cella con un solo membro: marker ordinario
-\fill[pin] (1.4,0.35) circle (3pt);
-% Cella con due membri: bolla numerata nel baricentro
-\fill[pin] (0.3,0.25) circle (3pt);
-\fill[pin] (0.6,0.75) circle (3pt);
-\node[bubble, minimum size=0.55cm] at (0.45,0.5) {2};
-% Cella con tre membri: bolla numerata nel baricentro
-\fill[pin] (2.25,2.15) circle (3pt);
-\fill[pin] (2.65,2.35) circle (3pt);
-\fill[pin] (2.35,2.85) circle (3pt);
-\node[bubble, minimum size=0.55cm] at (2.45,2.42) {3};
-% Cella vuota lungo il confine inferiore
-\fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
-\node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
-\node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: marker ordinario};
-\node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun clustering};
-\draw[flowdash, shorten >=1pt] (2.62,2.42) -- (3.15,2.42);
-\draw[flowdash, shorten >=1pt] (1.4,0.35) -- (3.15,1.5);
-\draw[flowdash, shorten >=1pt] (1.05,0.2) -- (3.15,0.6);
-\end{tikzpicture}
-\caption{Principio del clustering a griglia: le celle sono ancorate all'origine delle coordinate e ogni celle non vuota produce un clustering nel baricentro dei propri membri, oppure un marker ordinario quando di membri ne contiene uno solo.}
-\label{fig:clustering}
+  \centering
+  \begin{tikzpicture}[font=\footnotesize]
+    % Griglia di celle ancorata all'origine
+    \draw[cellgrid] (0,0) grid (3,3);
+    \draw[black!70, thick] (0,0) rectangle (3,3);
+    \node[below=2pt, font=\scriptsize] at (0,0) {$x_{0}$, $y_{0}$};
+    % Cella con un solo membro: marker ordinario
+    \fill[pin] (1.4,0.35) circle (3pt);
+    % Cella con due membri: bolla numerata nel baricentro
+    \fill[pin] (0.3,0.25) circle (3pt);
+    \fill[pin] (0.6,0.75) circle (3pt);
+    \node[bubble, minimum size=0.55cm] at (0.45,0.5) {2};
+    % Cella con tre membri: bolla numerata nel baricentro
+    \fill[pin] (2.25,2.15) circle (3pt);
+    \fill[pin] (2.65,2.35) circle (3pt);
+    \fill[pin] (2.35,2.85) circle (3pt);
+    % Baricentro
+    \node[bubble, minimum size=0.55cm] at (2.42,2.45) {3};
+    % Cella vuota lungo il confine inferiore
+    \fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: marker ordinario};
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun clustering};
+    \draw[flowdash, shorten >=1pt] (2.62,2.42) -- (3.15,2.42);
+    \draw[flowdash, shorten >=1pt] (1.4,0.35) -- (3.15,1.5);
+    \draw[flowdash, shorten >=1pt] (1.05,0.2) -- (3.15,0.6);
+  \end{tikzpicture}
+  \caption{Principio del clustering a griglia: le celle sono ancorate all'origine delle coordinate e ogni x celle non vuote si crea un clustering nel baricentro dei propri membri, oppure un marker ordinario qualora ne sia presente soltanto uno.}
+  \label{fig:clustering}
 \end{figure}
 
 L'approccio ha un limite strutturale, che nessuna taratura elimina.
