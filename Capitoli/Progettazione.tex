@@ -186,7 +186,7 @@ Tutte le decisioni descritte in questa sezione derivano da questa considerazione
 
 \subsection{Flusso di Navigazione e Mappa dell'App}\label{subsec:flusso-navigazione}
 
-Il modulo occupa una schermata intera, raggiunta da una vista precedente che gli trasmette due informazioni: la patologia di
+Il modulo occupa una schermata intera, raggiunta da una View precedente che gli trasmette due informazioni: la patologia di
 interesse e, se già disponibile, la posizione dell'utente.
 Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe essere già stato concesso, e consente di
 aprire la mappa direttamente sulla zona utile invece che su una viewport predefinita.
@@ -205,31 +205,31 @@ Accade nel passaggio dalla scheda di una struttura personalizzata al modulo di m
 di chiusura difficile da prevedere per l'utente.
 
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=0.92, transform shape, font=\footnotesize]
-\node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!4] (vista) at (2,7.5) {Vista precedente};
+    \centering
+    \begin{tikzpicture}[font=\footnotesize]
+\node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!4] (view) at (2,7.5) {View precedente};
 \node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!8] (mappa) at (2,6.0) {Schermata mappa};
 \draw[flow] (2,7.05) -- (2,6.45);
 \node[anchor=west, font=\scriptsize, align=left, text width=3.3cm] at (4.05,6.7) {patologia selezionata, posizione se disponibile};
-\draw[thick, black!70] (2,5.55) -- (2,0.8);
-\node[comp, text width=4.4cm, anchor=west] (p1) at (4.2,4.8) {Scheda della struttura};
-\node[comp, text width=4.4cm, anchor=west] (p2) at (4.2,4.0) {Scelta del percorso e del mezzo};
-\node[comp, text width=4.4cm, anchor=west] (p3) at (4.2,3.2) {Elenco dei centri vicini};
-\node[comp, text width=4.4cm, anchor=west] (p4) at (4.2,2.4) {Elenco dei centri personalizzati};
-\node[comp, text width=4.4cm, anchor=west] (p5) at (4.2,1.6) {Scheda della struttura personalizzata};
-\node[comp, text width=4.4cm, anchor=west] (p6) at (4.2,0.8) {Modulo di inserimento e modifica};
+\draw[thick, black!70] (2,5.55) -- (2,0.3);
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p1) at (4.2,4.8) {Scheda della struttura};
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p2) at (4.2,3.9) {Scelta del percorso e del mezzo};
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p3) at (4.2,3.0) {Elenco dei centri vicini};
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p4) at (4.2,2.1) {Elenco dei centri personalizzati};
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p5) at (4.2,1.2) {Scheda struttura personalizzata};
+\node[comp, text width=6.0cm, minimum height=0.8cm, anchor=west] (p6) at (4.2,0.3) {Modulo di inserimento e modifica};
 \draw[flow] (2,4.8) -- (p1.west);
-\draw[flow] (2,4.0) -- (p2.west);
-\draw[flow] (2,3.2) -- (p3.west);
-\draw[flow] (2,2.4) -- (p4.west);
-\draw[flow] (2,1.6) -- (p5.west);
-\draw[flow] (2,0.8) -- (p6.west);
+\draw[flow] (2,3.9) -- (p2.west);
+\draw[flow] (2,3.0) -- (p3.west);
+\draw[flow] (2,2.1) -- (p4.west);
+\draw[flow] (2,1.2) -- (p5.west);
+\draw[flow] (2,0.3) -- (p6.west);
 \draw[flowdash] (p4.east) to[out=0,in=0,looseness=1.6] (p6.east);
 \draw[flowdash] (p5.east) to[out=0,in=0,looseness=1.1] (p6.east);
-\node[anchor=west, font=\scriptsize, align=left, text width=2.1cm] at (10.35,1.6) {previa chiusura del pannello};
-\end{tikzpicture}
-\caption{Flusso di navigazione del modulo. I pannelli non si sovrappongono: i passaggi tratteggiati richiedono la chiusura del pannello di partenza.}
-\label{fig:navigazione}
+\node[anchor=west, font=\scriptsize, align=left, text width=2.2cm] at (11.4,1.1) {previa chiusura del pannello};
+    \end{tikzpicture}
+    \caption{Flusso di navigazione del modulo. I passaggi tratteggiati richiedono la chiusura del pannello di partenza.}
+    \label{fig:navigazione}
 \end{figure}
 
 \subsection{Progettazione del Modulo Mappa e del Filtraggio}\label{subsec:design-mappa-centri}
