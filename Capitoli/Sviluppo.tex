@@ -509,32 +509,33 @@ dispositivo può essere disattivato del tutto, il permesso può non essere ancor
 volta, oppure può essere stato negato in modo permanente.
 
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=0.88, transform shape, font=\footnotesize, node distance=0.6cm]
-\node[comp, text width=2.6cm, minimum height=0.9cm] (start) at (0,7.4) {Comando che richiede la posizione};
-\node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d1) at (0,5.7) {servizio attivo?};
-\node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp1) at (5.0,5.7) {Impostazioni di sistema};
-\node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d2) at (0,3.9) {permesso?};
-\node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp2) at (5.0,3.9) {Impostazioni dell'app};
-\node[comp, text width=3.0cm, minimum height=0.9cm] (req) at (-4.6,3.9) {Richiesta all'utente};
-\node[comp, text width=3.4cm, minimum height=0.9cm] (last) at (0,2.1) {Ultima posizione nota};
-\node[comp, text width=3.4cm, minimum height=0.9cm] (fresh) at (0,0.7) {Posizione aggiornata};
-\node[comp, text width=3.4cm, minimum height=0.9cm] (stream) at (0,-0.7) {Flusso di aggiornamento};
-\draw[flow] (start) -- (d1);
-\draw[flow] (d1) -- node[above, font=\scriptsize] {no} (imp1);
-\draw[flow] (d1) -- node[right, font=\scriptsize, xshift=1pt] {si} (d2);
-\draw[flow] (d2) -- node[above, font=\scriptsize] {negato sempre} (imp2);
-\draw[flow] (d2) -- node[above, font=\scriptsize] {da chiedere} (req);
-\draw[flow] (req.south) |- (-4.6,2.1) -- (last.west);
-\draw[flow] (d2) -- node[right, font=\scriptsize, xshift=1pt] {concesso} (last);
-\draw[flow] (last) -- (fresh);
-\draw[flow] (fresh) -- (stream);
-\node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,2.1) {immediata, se presente};
-\node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,0.7) {alta precisione, richiede attesa};
-\node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-0.7) {soglia di 25 metri};
-\end{tikzpicture}
-\caption{Stati attraversati nell'acquisizione della posizione. I due esiti a destra abbandonano il flusso mantenendo l'applicazione funzionante senza posizione.}
-\label{fig:permessi}
+  \centering
+  \begin{tikzpicture}[scale=0.88, transform shape, font=\footnotesize, node distance=0.6cm]
+  \node[comp, text width=2.6cm, minimum height=0.9cm] (start) at (0,7.8) {Comando che richiede la posizione};
+  \node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d1) at (0,5.7) {servizio attivo?};
+  \node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp1) at (5.2,5.7) {Impostazioni di sistema};
+  \node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d2) at (0,3.9) {permesso?};
+  \node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp2) at (5.2,3.9) {Impostazioni dell'app};
+  \node[comp, text width=3.0cm, minimum height=0.9cm] (req) at (-4.8,3.9) {Richiesta all'utente};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (last) at (0,1.5) {Ultima posizione nota};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (fresh) at (0,0.1) {Posizione aggiornata};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (stream) at (0,-1.4) {Flusso di aggiornamento};
+  \draw[flow] (start) -- (d1);
+  \draw[flow] (d1) -- node[above, font=\scriptsize] {no} (imp1);
+  \draw[flow] (d1) -- node[right, font=\scriptsize, xshift=1pt] {si} (d2);
+  \draw[flow] (d2) -- node[above, font=\scriptsize] {negato sempre} (imp2);
+  \draw[flow] (d2) -- node[above, font=\scriptsize] {da chiedere} (req);
+  \draw[flow] (req.south) |- (0,2.8) -| (imp2.south) node[midway, above, font=\scriptsize] {negato};
+  \draw[flow] (req.south) |- (-4.6,1.5) -- (last.west) node[midway, above, font=\scriptsize] {concesso};
+  \draw[flow] (d2) -- node[right, font=\scriptsize, xshift=1pt] {concesso} (last);
+  \draw[flow] (last) -- (fresh);
+  \draw[flow] (fresh) -- (stream);
+  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,1.5) {se presente};
+  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,0.1) {appena disponibile};
+  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-1.4) {ogni 25 metri si aggiorna};
+  \end{tikzpicture}
+  \caption{Stati attraversati nell'acquisizione della posizione. Sia in caso di posizione concessa o meno.}
+  \label{fig:permessi}
 \end{figure}
 
 La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perchè le due
