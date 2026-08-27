@@ -1,23 +1,22 @@
 \chapter{Sviluppo}\label{ch:sviluppo}
 
-Questo capitolo ripercorre la realizzazione del modulo.
-L'ordine non segue quello dei file ma quello del percorso dei dati: prima l'ambiente e i package, poi l'acquisizione
-dalle sorgenti remote e la loro normalizzazione, quindi la conservazione sul dispositivo, la resa sulla mappa con il
-clustering dei marker, la localizzazione, la ricerca, i filtri, i centri inseriti dall'utente e infine la delega ai servizi
-del dispositivo.
-Laddove il codice realizza comportamenti non immediati, la trattazione ne illustra prima le ragioni e poi il meccanismo.
+Questo capitolo ripercorre la realizzazione dell'App.
+L'ordine segue il percorso dei dati, prima l'ambiente e i package, poi l'acquisizione dalle fonti remote e la loro
+successiva normalizzazione, quindi il \textit{caching} sul dispositivo, la resa sulla mappa con il
+clustering dei marker, la localizzazione, la ricerca, i filtri, i centri personalizzati inseriti dall'utente e infine
+la delega ai servizi del dispositivo.
+Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno illustrate prima le ragioni e poi il meccanismo.
 
 \section{Ambiente di Sviluppo e Librerie Utilizzate}\label{sec:ambiente-sviluppo}
 
 Lo sviluppo si è svolto su Windows 11 con Android Studio, impiegando Flutter e il linguaggio Dart \cite{flutterDocs, dartLang}.
-La verifica durante la scrittura è avvenuta prevalentemente su emulatore Android e su dispositivo fisico Android, con la
+La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16, con la
 limitazione su iOS già dichiarata al paragrafo \ref{subsec:scelta-flutter} e ripresa al paragrafo \ref{sec:test-compatibilita}.
-L'interfaccia adotta Material 3 \cite{material3}, che fornisce già implementati i componenti impiegati nei pannelli e nei moduli,
-dalle scelte a gruppo ai selettori a scorrimento.
+L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implementazione dei componenti impiegati nei pannelli e nei moduli.
 
-Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio semplice: ogni package aggiunto è una superficie
-che può rompersi a un aggiornamento e un vincolo sulle versioni degli altri. La tabella \ref{tab:dipendenze} elenca quelle
-effettivamente impiegate dal modulo, con la funzione che ciascuna assolve.
+Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità: ogni package aggiunto è una parte
+che può causare errori a un aggiornamento e un vincolo sulle versioni degli altri sull'intero progetto.
+La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App, con la funzione.
 
 \begin{table}[H]
 \footnotesize
@@ -25,12 +24,12 @@ effettivamente impiegate dal modulo, con la funzione che ciascuna assolve.
 \toprule
 \textbf{Package} & \textbf{Versione} & \textbf{Funzione nel modulo} \tabularnewline
 \midrule
-\texttt{flutter\_map} & 8.3.1 & Rendering dei tile, controllo della viewport, livelli di marker e cerchi \cite{flutterMapPkg} \tabularnewline
+\texttt{flutter\_map} & 8.3.1 & Rendering dei tile, controllo della viewport, livelli di marker e cerchi del raggio \cite{flutterMapPkg} \tabularnewline
 \texttt{latlong2} & 0.10.1 & Rappresentazione delle coordinate e calcolo delle distanze geodetiche \cite{latlong2Pkg} \tabularnewline
-\texttt{geolocator} & 14.0.3 & Posizione del dispositivo, stato dei permessi, apertura delle impostazioni \cite{geolocatorPkg} \tabularnewline
+\texttt{geolocator} & 14.0.3 & Posizione del dispositivo, autorizzazioni di geolocalizzazione, apertura delle impostazioni \cite{geolocatorPkg} \tabularnewline
 \texttt{http} & 1.6.0 & Richieste verso gli elenchi dei centri e verso la geocodifica \cite{httpPkg} \tabularnewline
 \texttt{shared\_preferences} & 2.5.5 & Archivio locale per la cache e per i centri personalizzati \cite{sharedPrefsPkg} \tabularnewline
-\texttt{url\_launcher} & 6.3.2 & Apertura di navigatore, applicazione telefonica e client di posta \cite{urlLauncherPkg} \tabularnewline
+\texttt{url\_launcher} & 6.3.2 & Apertura del navigatore, percorso, applicazione telefonica e client di posta \cite{urlLauncherPkg} \tabularnewline
 \texttt{share\_plus} & 13.3.0 & Condivisione della scheda di un centro \cite{sharePlusPkg} \tabularnewline
 \bottomrule
 \end{tabularx}
@@ -38,18 +37,17 @@ effettivamente impiegate dal modulo, con la funzione che ciascuna assolve.
 \label{tab:dipendenze}
 \end{table}
 
-Uno dei dettagli della tabella ha bisogno di una parola, perchè è una precauzione e non una distrazione.
-Tutte le dipendenze sono dichiarate con un vincolo che ammette gli aggiornamenti compatibili, tranne quella per la
+Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
 condivisione, fissata a una versione esatta.
-La ragione è che quel package ha modificato la propria interfaccia pubblica fra due versioni maggiori, sostituendo la chiamata
-diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un aggiornamento apparentemente
-innocuo interrompa la compilazione in un punto isolato del codice, per una funzione accessoria.
+Questo perchè quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
+diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
+innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
 
-Sul fronte delle piattaforme il modulo richiede alcune dichiarazioni esplicite, riassunte nella tabella \ref{tab:permessi}.
-Su Android sono necessari l'accesso alla rete e i due livelli di precisione della posizione; a questi si aggiunge la dichiarazione
-degli schemi di collegamento che l'applicazione intende interrogare, introdotta dalle versioni recenti del sistema, senza la quale
-la verifica di disponibilità di un'applicazione esterna fallisce anche quando quella applicazione è installata.
-Su iOS occorre la motivazione testuale dell'uso della posizione, mostrata all'utente nel momento della richiesta \cite{androidLocation, appleLocation}.
+Sul fronte del supporto multipiattaforma, sia per Android che per iOS, l'App richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
+Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
+degli schemi di collegamento che l'applicazione intende interrogare, introdotta nelle ultime versioni del sistema, senza la quale
+la verifica della disponibilità di un'applicazione esterna (per esempio, Google Maps) fallirebbe anche quando l'applicazione è installata.
+Su iOS occorre invece motivare testualmente l'uso della posizione, mostrata all'utente nel momento in cui viene richiesta \cite{androidLocation, appleLocation}.
 
 \begin{table}[H]
 \footnotesize
@@ -57,70 +55,67 @@ Su iOS occorre la motivazione testuale dell'uso della posizione, mostrata all'ut
 \toprule
 \textbf{Piattaforma} & \textbf{Dichiarazione} & \textbf{Motivo} \tabularnewline
 \midrule
-Android & \texttt{INTERNET} & Richieste verso elenchi, geocodifica e tile \tabularnewline
-Android & \texttt{ACCESS\_FINE\_LOCATION} & Posizione precisa per distanze e centraggio \tabularnewline
-Android & \texttt{ACCESS\_COARSE\_LOCATION} & Ricaduta quando l'utente concede la sola posizione approssimata \tabularnewline
-Android & schemi \texttt{https}, \texttt{tel}, \texttt{mailto} & Verifica di disponibilità delle applicazioni esterne da interrogare \tabularnewline
-iOS & \texttt{NSLocationWhenInUse\-UsageDescription} & Testo mostrato all'utente alla richiesta del permesso \tabularnewline
+Android & \texttt{INTERNET} & Richieste verso elenchi, \textit{endpoint} di tipo \textit{GET}, geocodifica e tile \tabularnewline
+Android & \texttt{ACCESS\_FINE\_LOCATION} & Posizione precisa \tabularnewline
+Android & \texttt{ACCESS\_COARSE\_LOCATION} & Alternativa quando l'utente concede l'accesso solamente alla posizione approssimativa \tabularnewline
+Android & schemi \texttt{https}, \texttt{tel}, \texttt{mailto} & Verifica della disponibilità delle applicazioni esterne da interrogare \tabularnewline
+iOS & \texttt{NSLocationWhenInUse\-UsageDescription} & Testo mostrato all'utente alla richiesta del permesso per l'accesso alla posizione \tabularnewline
 \bottomrule
 \end{tabularx}
-\caption{Dichiarazioni richieste dalle due piattaforme e relativa motivazione.}
+\caption{Permessi richiesti dalle due piattaforme e relativa motivazione.}
 \label{tab:permessi}
 \end{table}
 
-Il modulo è realizzato come un widget con stato, che mantiene l'elenco dei centri, la posizione dell'utente, i filtri attivi e i
-riferimenti ai controller della mappa e del campo di ricerca.
-Alla classe di stato sono applicate due estensioni: la prima consente di dichiarare che il widget deve essere mantenuto in vita quando
-l'utente si allontana dalla schermata, la seconda fornisce il supporto temporale necessario alle animazioni, impiegato dal comando
+Il modulo è realizzato come un albero di widget, che mantiene l'elenco dei centri, la posizione dell'utente, i filtri attivi e i
+riferimenti ai controller della mappa e del campo per la ricerca.
+Alla classe dello stato sono applicate due estensioni: la prima consente di dichiarare che il widget deve essere mantenuto in vita quando
+l'utente perde il \textit{focus} dalla schermata, la seconda fornisce il supporto temporale necessario alle animazioni, impiegato dal comando
 della bussola descritto al paragrafo \ref{subsec:impl-marker}.
 
 \section{Acquisizione e Normalizzazione dei Dati}\label{sec:impl-acquisizione}
 
 L'acquisizione è la parte del modulo che ha richiesto il maggior numero di correzioni, e non per la complessità del protocollo,
-che si riduce a due richieste HTTP, ma perchè i dati reali si sono rivelati diversi da quelli che la documentazione delle sorgenti
-lasciava prevedere.
-Ogni accorgimento descritto in questo paragrafo corrisponde a un caso concreto osservato durante lo sviluppo.
+che si riduce a due richieste HTTP, ma piuttosto a causa della variabilità dei dati nei campi.
+Ogni accorgimento descritto in questo paragrafo corrisponde a un caso reale osservato durante lo sviluppo.
 
-\subsection{Interrogazione delle Sorgenti e Ricaduta}\label{subsec:impl-endpoint}
+\subsection{Interrogazione delle fonti e Fallback}\label{subsec:impl-endpoint}
 
-Le due patologie sono servite da due sorgenti indipendenti.
-Quella per la dermatite atopica espone un servizio che restituisce un oggetto con i record annidati sotto una chiave, e non
-richiede alcuna intestazione particolare.
-Quella per la psoriasi è esposta da un sistema di gestione di contenuti, che restituisce l'insieme completo dei marker di una
+Le due patologie sono servite da due fonti indipendenti.
+Quella per la dermatite atopica espone un servizio che restituisce un oggetto con \textit{record} annidati raggruppati da una chiave, e non
+richiede alcun criterio particolare.
+Quella per la psoriasi è esposta da un sistema CMS (\textit{Content Management System}), che restituisce l'insieme completo dei marker per una
 mappa, dai quali occorre selezionare la categoria di interesse: la stessa mappa ospita infatti sia i centri per la psoriasi sia
 quelli per la dermatite atopica, distinti da un campo di categoria che può contenerne più di una separate da virgola.
 
-Due particolarità di questa seconda sorgente hanno richiesto interventi.
+Due particolarità di questa seconda fonte hanno richiesto delle correzioni.
 La prima è che il servizio nega la risposta alle richieste che non dichiarano un'intestazione di identificazione compatibile con
 quella di un normale browser; la richiesta la dichiara quindi esplicitamente.
-La seconda è che il corpo della risposta arriva preceduto dal marcatore di ordine dei byte, che il decodificatore non rimuove e che,
-restando come primo carattere della stringa, rende non interpretabile l'intero documento.
-La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze non valide invece di interrompersi,
-e rimozione del marcatore iniziale quando presente.
+La seconda è che il \textit{body} della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il \textit{decoder} non rimuove e che,
+rimanendo come primo carattere della stringa, render l'intero documento non interpretabile.
+La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
+e rimozione del BOM iniziale quando presente.
 
-Quando la sorgente della psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
-si arrende ma ricade sull'altra sorgente.
-La scelta è un compromesso discutibile, ed è bene ammetterlo senza attenuanti: i centri mostrati in quel caso non sono quelli
-specifici della
-patologia richiesta, ma un insieme affine: una parte considerevole delle strutture segue entrambe le patologie.
-Preferire un elenco parzialmente pertinente a una schermata vuota è ragionevole in un contesto dimostrativo, mentre in un'applicazione
-destinata a un uso reale la ricaduta dovrebbe essere accompagnata da un avviso esplicito, che nella versione attuale manca.
+Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
+si ferma ma passa in \textit{fallback} sull'altra fonte.
+Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
+Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
+il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
 
-Ogni richiesta ha un limite di attesa di quarantacinque secondi, come previsto dal requisito RNF-08.
-Il valore è volutamente generoso: le due sorgenti sono servizi pubblici gratuiti, con tempi di risposta occasionalmente lunghi,
-e un limite stretto avrebbe trasformato una risposta lenta in un errore, facendo ricadere l'applicazione sulla cache quando
+Ogni richiesta ha un \textit{timeout} di quarantacinque secondi, come previsto dal requisito RNF-08.
+Il valore è volutamente alto: le due fonti sono servizi pubblici gratuiti, con tempi di risposta potenzialmente lunghi,
+e un limite minore avrebbe trasformato una risposta lenta in un errore, facendo ricorrere l'applicazione sulla cache quando
 l'aggiornamento sarebbe arrivato pochi secondi dopo.
 
 Un ultimo accorgimento riguarda il precaricamento.
-Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvia in sottofondo il recupero dell'altra, senza
-attenderne il risultato e senza segnalare l'operazione.
-Il passaggio da una patologia all'altra avviene infatti con un comando a due sole posizioni, molto usato, e senza
-precaricamento comporterebbe un'attesa di rete a ogni cambio; con il precaricamento il cambio è istantaneo dopo la prima volta.
-L'eventuale errore del precaricamento viene ignorato, perchè riguarda dati che l'utente non ha ancora chiesto di vedere.
+Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvia in \textit{background} il recupero dell'altra, senza
+attenderne il risultato e senza segnalarne l'operazione.
+Il passaggio da una patologia all'altra avviene infatti con un comando a due sole posizioni, e senza
+precaricamento comporterebbe un'attesa della risposta dalla rete a ogni cambio; con il precaricamento il passaggio è istantaneo dopo la prima volta.
+L'eventuale errore del precaricamento viene ignorato, perchè riguarda dati che l'utente non ha ancora richiesto di vedere.
 
 \subsection{Normalizzazione dei Record}\label{subsec:impl-normalizzazione}
 
-La normalizzazione ha tre compiti distinti: ricondurre a un nome unico i campi che le due sorgenti chiamano in modo diverso,
+La normalizzazione ha tre compiti distinti: ricondurre a un nome unico i campi che le due fonti chiamano in modo diverso,
 recuperare le informazioni che una delle due non espone in forma strutturata, e riconoscere i record inutilizzabili scartandoli
 senza interrompere l'elaborazione degli altri, come impone il requisito RNF-09.
 
@@ -775,8 +770,8 @@ Apple Maps & solo iOS & Automobile, piedi e mezzi pubblici; la bicicletta ricade
 \label{tab:navigazione}
 \end{table}
 
-Le due ricadute riportate nella terza colonna corrispondono agli scenari alternativi del caso d'uso UC-07 e sono state
-verificate sulla documentazione dei rispettivi collegamenti.
+I due \textit{fallback} riportati nella terza colonna corrispondono agli scenari alternativi del caso d'uso UC-07 e sono stati
+verificati sui rispettivi collegamenti.
 Nessuna delle due produce un errore visibile: l'applicazione si apre con la destinazione corretta e una modalità di percorso
 diversa da quella richiesta, che l'utente può cambiare sul posto.
 Ho preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
