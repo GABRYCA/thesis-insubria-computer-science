@@ -191,105 +191,75 @@ sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non
 È lo stesso ragionamento che si applica alla migrazione di uno schema di database (che ho anche trattato in un tirocinio esterno),
 ridotto alla scala dell'App.
 
-L'ordine delle operazioni all'avvio realizza la politica descritta al paragrafo \ref{subsec:strategia-cache}.
-Vengono prima lette le voci conservate per entrambe le patologie e riportate nella mappa in memoria, quindi parte la richiesta di rete.
-Il vantaggio è che al primo fotogramma utile la mappa ha già dei marker da disegnare, e l'attesa della rete non è percepita
-come un'attesa; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, si innesta su questo
-stesso meccanismo.
+All'avvio vengono eseguite diverse operazioni come sono definite in \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
+Vengono prima letti i \textit{record} salvati in memoria per entrambe le patologie e riportate nella mappa,
+poi viene effettuata una richiesta alla fonte.
+Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'attesa della risposta dalla rete non crea
+un'attesa; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
+sempre basandosi su questo meccanismo.
 
-Sulla scrittura vale un'osservazione riguardo alla sequenza.
-Il salvataggio nell'archivio persistente viene avviato senza attenderne il completamento, subito prima di aggiornare lo stato che
-provoca il ridisegno.
-La scelta è voluta: l'utente non ha alcun interesse ad attendere una scrittura su disco per vedere comparire i marker, e un eventuale
-errore di scrittura non ha conseguenze sulla sessione in corso, perchè i dati sono comunque presenti in memoria.
-L'errore viene registrato nel log di sviluppo e non mostrato, perchè non c'è nulla che l'utente possa fare al riguardo.
+Il salvataggio in locale viene avviato subito prima di aggiornare lo stato che attiva l'evento che esegue
+l'aggiornamento sulla mappa.
+In questo modo l'utente vede subito i marker senza dover aspettare che vengano prima scritti su disco, e un eventuale
+errore di scrittura non ha conseguenze sulla sessione in corso, poichè i dati sono comunque presenti in memoria.
+L'errore viene comunque registrato nei log, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
 
-Tutte le letture dagli archivi locali sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile, restituisce un elenco vuoto.
-Il caso non è teorico: un aggiornamento interrotto o una scrittura non completata lasciano nell'archivio una stringa troncata, e
-l'interpretazione di quella stringa solleverebbe un errore durante l'avvio.
-La lettura verifica inoltre che il contenuto interpretato sia effettivamente un elenco, perchè un documento JSON sintatticamente
-valido ma di forma diversa, per esempio un oggetto, supererebbe l'interpretazione per poi fallire alla prima iterazione.
-I due casi sono verificati separatamente fra i test descritti al paragrafo \ref{sec:test-unitari}.
+Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o d'errore, restituisce un elenco vuoto.
+La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perchè un documento JSON sintatticamente
+valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
+I due casi sono verificati fra i test descritti al paragrafo \ref{sec:test-unitari}.
 
-\section{Resa Cartografica e Gestione dei marker}\label{sec:impl-mappe}
+\section{Caricamento mappa e Gestione dei marker}\label{sec:impl-mappe}
 
 \subsection{Livelli, marker e Controlli della Mappa}\label{subsec:impl-marker}
 
 La schermata è costruita per sovrapposizione, secondo l'ordine di disegno riportato nella tabella \ref{tab:strati}.
-Alla base sta il livello dei tile, che richiede due soli parametri: l'URL template da cui ricavare l'immagine di ciascun tile a
-partire da zoom, colonna e riga, secondo lo schema descritto al paragrafo \ref{sec:piattaforme-cartografiche}, e un identificativo
-dell'applicazione richiedente.
-
-Su questo livello pesa una mancanza, la più seria fra quelle emerse nel riesame del codice svolto per scrivere questo capitolo.
-Il requisito RF-07 chiede che l'attribuzione della sorgente cartografica sia visibile, e il requisito RNF-12 ripete la richiesta come
-vincolo di conformità, perchè la licenza dei dati di OpenStreetMap la impone \cite{osmCopyright}.
-Nella versione realizzata quell'attribuzione non c'è: la libreria offre un componente predisposto allo scopo, ma non è stato
-inserito fra i livelli della mappa.
-Non è una scelta progettuale, è una omissione, e comporta il mancato rispetto di un obbligo di licenza; la correzione richiede
-l'aggiunta di un singolo componente ed è la prima voce fra i limiti elencati al paragrafo \ref{sec:limiti-attuali}.
-
-Alla stessa famiglia appartiene un secondo difetto, di gravità minore ma della stessa natura.
-L'identificativo dell'applicazione trasmesso con la richiesta dei tile è rimasto quello generato automaticamente alla creazione
-del progetto, che porta il prefisso convenzionale usato negli esempi.
-La politica d'uso dei tile pubblici richiede che la richiesta identifichi l'applicazione in modo veritiero \cite{osmTilePolicy},
-e un identificativo di esempio soddisfa la forma ma non la sostanza della richiesta.
-Le interrogazioni al servizio di geocodifica, per contro, dichiarano un nome proprio dell'applicazione.
+Alla base sta il livello dei tile, che richiede due soli parametri: l'URL del template da cui ricavare l'immagine di ciascun tile a
+partire da un determinato zoom, riga e colonna, secondo lo schema descritto al paragrafo \ref{sec:piattaforme-cartografiche}, e un identificativo
+dell'applicazione.
 
 Sopra i tile, quando il filtro per raggio è attivo, viene disegnato il cerchio che ne rappresenta l'estensione.
-Il raggio è espresso in metri e non in punti dello schermo, così che il cerchio resti ancorato al territorio e si dilati o
-si contragga con lo zoom, come l'utente si aspetta da una grandezza geografica; il riempimento è quasi trasparente e il bordo
-appena visibile, perchè l'elemento deve delimitare senza coprire.
+Il raggio è espresso in chilometri e non in punti dello schermo, così che il cerchio resti ancorato al territorio e si dilati o
+si contragga con lo zoom, come l'utente si aspetterebbe da una grandezza geografica.
 
-Il livello dei marker dei centri pubblici è l'unico avvolto in un costruttore che si sottoscrive all'oggetto osservabile
+Il livello dei marker dei centri pubblici è l'unico che si appoggia a un costruttore che si lega all'oggetto osservabile
 discusso al paragrafo \ref{subsec:gestione-stato}.
-La conseguenza pratica è che l'aggiornamento dell'elenco dei visibili ridisegna quel solo livello: i tile non vengono
-richiesti di nuovo, i comandi non vengono ricostruiti, e il costo del ridisegno resta proporzionale al numero di marker
-e non alla complessità dell'intera schermata.
+A livello pratico l'unica conseguenza è che l'aggiornamento dell'elenco dei centri visibili ridisegna quel solo livello:
+i tile non vengono nuovamente richiesti, i comandi non vengono ricostruiti, e il costo del ridisegno resta
+proporzionale al numero di marker e non alla complessità dell'intera schermata.
 
-La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport corrente,
+La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport attiva,
 allargati di metà della loro estensione su ciascun lato.
-Il margine non è un dettaglio estetico: senza di esso un marker appena fuori dal bordo comparirebbe soltanto al termine dello
+Se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
 spostamento, producendo un effetto di comparsa improvvisa lungo i lati dello schermo.
-Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha lati doppi di quelli visibili, e quindi quadrupla superficie:
+Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha una superficie più ampia:
 si disegnano più marker di quelli necessari, in cambio di un ingresso graduale ai bordi.
-Nello stesso passaggio, quando il filtro per raggio è attivo, viene scartato ciò che eccede la distanza ammessa, così che le due
-condizioni siano valutate in un unico attraversamento dell'elenco.
+Allo stesso modo, quando il filtro per raggio è attivo, viene scartato ciò che risulti al di fuori della distanza ammessa, così che le due
+condizioni siano valutate in un unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
 
-Il ricalcolo è governato da due meccanismi che agiscono in sequenza.
-Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante un gesto continuo, e il ricalcolo viene rimandato di
-centoquaranta millisecondi, rimandando ancora l'esecuzione ogni volta che arriva un nuovo evento, così da svolgerlo una volta sola
-quando il movimento si ferma.
-Il secondo è il confronto con il risultato precedente: se l'elenco appena calcolato coincide con quello già in uso, la notifica
-non viene emessa affatto e nessun ridisegno ha luogo.
-Il confronto procede per identità degli elementi, il che è corretto in questo contesto perchè i record provengono sempre dalla
-stessa struttura in memoria e non vengono ricostruiti a ogni passaggio.
+L'aggiornamento è governato da due meccanismi che agiscono in sequenza.
+Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi al posto
+di aggiornarla a ogni pixel, viene emesso un timer e allo scadere di esso, la mappa viene aggiornata.
+Il secondo è il confronto con il risultato precedente: se l'elenco aggiornato coincide con quello già in uso, ne viene
+annullato l'aggiornamento.
 
 Non tutti gli eventi della mappa provocano un ricalcolo.
-Vengono considerati solo quelli che segnalano la conclusione di un movimento, di un lancio inerziale, di un avvicinamento per doppio
-tocco, di una rotazione o di uno scorrimento della rotella; gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora
+Vengono considerati solo quelli che segnalano la conclusione di un movimento, spostamento, di uno zoom per doppio
+tocco, l'utilizzo di un controllo; gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora
 sullo schermo, vengono ignorati.
-è la realizzazione del requisito RNF-06.
+È la realizzazione del requisito RNF-06.
 
-I centri personalizzati occupano un livello proprio, e il loro trattamento differisce da quello dei centri pubblici su due
-punti che vale dichiarare.
-Non sono sottoposti alla selezione per viewport, e non sono sottoposti al clustering: vengono disegnati tutti, filtrati soltanto
-per patologia.
-L'asimmetria è giustificata dai numeri, perchè si tratta di voci inserite a mano, dell'ordine delle unità o delle decine, e ogni
-ottimizzazione su quell'insieme sarebbe un costo di complessità senza un beneficio misurabile.
-Va però registrata come una differenza di comportamento: con un archivio personale molto grande quei marker si sovrapporrebbero
-senza raggrupparsi.
+Un controllo particolare sulla mappa è la bussola, specialmente come riallinearla al valore di default dopo una rotazione della mappa.
+Il comando compare soltanto quando si ruota la mappa di oltre due gradi, per questione pratica ed estetica,
+e la rotazione viene registrata nello stato solo quando si discosta di oltre mezzo grado dall'ultimo valore noto, per non provocare un
+aggiornamento sulla schermata a ogni fotogramma della rotazione.
 
-Fra i controlli della mappa, quello che ha richiesto più attenzione è la bussola, per una ragione che non riguarda la rotazione in
-sè ma il modo in cui va riportata a zero.
-Il comando compare soltanto quando la mappa risulta ruotata oltre due gradi, soglia che evita di mostrarlo per le rotazioni accidentali
-di frazioni di grado prodotte dal gesto a due dita, e la rotazione corrente viene registrata nello stato solo quando si discosta di
-oltre mezzo grado dal valore già noto, per non provocare un ridisegno a ogni fotogramma della rotazione.
-
-Il ritorno al nord non consiste nel portare la rotazione a zero, ma nel percorrere l'arco più breve fino a zero.
-Se la mappa è ruotata di trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
-trecentocinquanta all'indietro, e senza una normalizzazione esplicita l'animazione compirebbe il giro lungo.
-Lo scarto viene quindi ricondotto all'intervallo fra meno e più centottanta gradi prima di essere animato, con l'espressione
-riportata nel listato \ref{lst:bussola}.
+Per far ruotare la mappa a nord, non viene spostata istantaneamente a zero, ma viene interpolata seguendo il percorso
+più breve.
+Se la mappa è ruotata di, per esempio, trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
+trecentocinquanta all'indietro, e senza un controllo esplicito a livello di codice l'animazione compierebbe il giro lungo.
+Viene quindi calcolato prima di essere animato lo scarto basandosi sull'intervallo fra meno e più centottanta gradi, con l'espressione
+riportata in \ref{lst:bussola}.
 
 \begin{listing}[H]
 \begin{minted}{dart}
@@ -298,66 +268,55 @@ double delta = -start;
 delta = ((delta + 180) % 360) - 180;
 final double target = start + delta;
 \end{minted}
-\caption{Riduzione della rotazione all'arco più breve prima dell'animazione di ritorno al nord.}
+\caption{Calcolo percorso più breve della bussola per puntare a nord.}
 \label{lst:bussola}
 \end{listing}
 
-L'animazione dura trecentocinquanta millisecondi con una funzione di attenuazione a entrambi gli estremi, e al termine la
-rotazione viene imposta esattamente a zero.
-L'ultima assegnazione non è ridondante: l'interpolazione lascia un residuo di frazioni di grado, sufficiente a mantenere il
-comando visibile subito dopo averlo premuto, con l'effetto sconcertante di un pulsante che non sembra avere avuto effetto.
+L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (attenuazione), e
+al termine della quale la rotazione viene impostata esattamente a zero.
 
 \subsection{Algoritmo di clustering dei marker}\label{subsec:impl-clustering}
 
-Il clustering è la parte del modulo che ha richiesto più ragionamento, ed è anche quella che, come anticipato al
-paragrafo \ref{subsec:scelta-flutter}, non avrei dovuto scrivere se l'estensione dedicata della libreria cartografica
-fosse stata utilizzabile.
-Il problema che risolve è concreto: i centri dermatologici si concentrano nelle aree urbane, e nella zona di Milano o
-di Roma decine di marker finiscono a pochi punti di distanza l'uno dall'altro, sovrapponendosi fino a rendere impossibile
-sia contarli sia selezionarne uno.
+La funzionalità di clustering è stato riscritta in modo nativo, come definito dal paragrafo \ref{subsec:scelta-flutter}, a causa di problemi di
+compatibilità tra le versioni.
+Questo serve quando i centri dermatologici si concentrano, per esempio, nelle aree urbane, come nella zona di Milano o
+di Roma dove decine di marker finiscono a pochi punti di distanza l'uno dall'altro, sovrapponendosi fino a rendere impossibile
+sia contarli e sia selezionarli.
 
-L'approccio adottato è il clustering a griglia geografica.
-Lo spazio delle coordinate viene suddiviso in celle quadrate in gradi, ogni centro visibile viene assegnato alla cella che lo
+L'approccio adottato è il \textit{grid-based clustering} (clustering basato a griglia).
+Lo spazio delle coordinate viene suddiviso in celle quadrate, ogni centro visibile viene assegnato alla cella che lo
 contiene, e ogni cella non vuota produce un clustering collocato nel baricentro dei propri membri.
-Le celle con un solo membro danno luogo a un marker ordinario, quelle con più membri a una bolla che ne riporta il numero.
+Le celle con un solo membro danno luogo a un normale marker, quelle con più membri a un cluster (una bolla) che ne riporta il numero.
 
-L'alternativa canonica sarebbe il clustering per distanza, in cui si scorre l'elenco e ogni punto viene aggregato al primo
-clustering entro una soglia.
-Ha due difetti che nel nostro caso pesano.
-Il primo è il costo, quadratico nel numero di punti perchè ogni punto va confrontato con ogni clustering già formato.
-Il secondo, meno evidente e più dannoso, è che il risultato dipende dall'ordine in cui i punti vengono esaminati: se quell'ordine
-cambia fra due ricalcoli, gli stessi centri producono cluster diversi e l'utente vede le bolle riorganizzarsi senza avere fatto nulla.
-La griglia non ha nessuno dei due difetti, perchè l'assegnazione di un punto dipende soltanto dalle sue coordinate.
-
-Il lato della cella deve dipendere dallo zoom, perchè la sovrapposizione è un fenomeno che avviene sullo schermo e non sul territorio:
-due centri distanti dieci chilometri si sovrappongono in una vista regionale e sono ben separati in una vista urbana.
+La dimensione della cella dipende dallo zoom, perchè la sovrapposizione è un fenomeno che avviene sullo schermo e non sul territorio:
+due centri distanti dieci chilometri si sovrappongono in una vista più ampia ma sono ben separati in una vista più vicina.
 La formula impiegata è
 \begin{equation}
 c(z) = \frac{84}{2^{z}}
 \label{eq:cella}
 \end{equation}
-dove $z$ è il livello di zoom corrente e $c(z)$ il lato della cella in gradi.
+dove $z$ è il livello di zoom corrente e $c(z)$ il lato della cella in gradi (formula del baricentro).
 La struttura della formula segue direttamente la relazione esponenziale dello schema slippy map richiamata al
 paragrafo \ref{sec:piattaforme-cartografiche}: se ogni incremento unitario dello zoom raddoppia il numero di tile per
-lato, il lato della cella deve dimezzarsi allo stesso ritmo perchè il suo effetto visivo resti invariato.
+lato, il lato della cella deve dimezzarsi allo stesso modo perchè il suo effetto visivo resti invariato.
 
-La costante al numeratore, fissata per tentativi successivi, a prima vista può sembrare arbitraria.
-Il suo significato si chiarisce traducendo il lato della cella dai gradi ai punti dello schermo.
-Nella proiezione di Web Mercator la larghezza del mondo al livello $z$ misura $256 \cdot 2^{z}$ punti per $360$ gradi di longitudine,
-e dunque il lato della cella in punti vale
-\begin{equation}
-w(z) = \frac{84}{2^{z}} \cdot \frac{256 \cdot 2^{z}}{360} = \frac{84 \cdot 256}{360} \approx 59{,}7 \ \text{punti}.
-\label{eq:cella-px}
-\end{equation}
+%La costante al numeratore, fissata per tentativi successivi, a prima vista può sembrare arbitraria.
+%Il suo significato si chiarisce traducendo il lato della cella dai gradi ai punti dello schermo.
+%Nella proiezione di Web Mercator la larghezza del mondo al livello $z$ misura $256 \cdot 2^{z}$ punti per $360$ gradi di longitudine,
+%e dunque il lato della cella in punti vale
+%\begin{equation}
+%w(z) = \frac{84}{2^{z}} \cdot \frac{256 \cdot 2^{z}}{360} = \frac{84 \cdot 256}{360} \approx 59{,}7 \ \text{punti}.
+%\label{eq:cella-px}
+%\end{equation}
 
-I fattori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
-è questa la proprietà che rende ragionevole la formula: la cella non è una distanza geografica ma una distanza sullo schermo, di
-poco meno di sessanta punti, cioè circa un quarto del lato di un tile. La costante $84$ non è quindi un valore empirico privo di
-senso, ma il numero di gradi che a ogni zoom corrisponde a quella distanza sullo schermo; il fatto di averla trovata per tentativi,
-e solo in seguito di averne ricostruito il significato, è una circostanza che vale riportare per come è andata.
+Gli errori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
+È questa la proprietà per cui si rende necessaria la formula; la cella non è una distanza geografica ma una distanza sullo schermo, di
+poco meno di circa sessanta punti, cioè circa un quarto del lato di un tile.
+La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero di gradi che a ogni zoom corrisponde a
+quella distanza sullo schermo.
 
-La verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
-La scala della latitudine in Mercatore cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
+L'asse verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
+La scala della latitudine in \textit{Mercator} cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
 in punti vale $w(z)/\cos\varphi$: alle latitudini italiane, comprese fra circa trentasei e quarantasette gradi, si ottengono valori fra
 settantaquattro e ottantotto punti.
 Le celle sono dunque quadrate in gradi ma leggermente più alte che larghe sullo schermo, con una distorsione che cresce verso nord.
@@ -379,15 +338,15 @@ La tabella \ref{tab:celle} riporta i valori a diversi livelli di zoom.
 \bottomrule
 \end{tabular}
 \caption{Dimensione della cella di clustering ai vari livelli di zoom. Le distanze in metri e l'altezza in punti sono calcolate
-alla latitudine di 45 gradi.}
+alla latitudine di 45° gradi.}
 \label{tab:celle}
 \end{table}
 
-La colonna delle larghezze in punti, costante lungo tutta la tabella, è la verifica numerica dell'equazione \ref{eq:cella-px}:
-al variare dello zoom cambia radicalmente l'estensione geografica della cella, da centoquarantasei chilometri a trentasei metri,
-mentre la sua dimensione percepita resta la stessa.
+%La colonna delle larghezze in punti, costante lungo tutta la tabella, è la verifica numerica dell'equazione \ref{eq:cella-px}:
+%al variare dello zoom cambia radicalmente l'estensione geografica della cella, da centoquarantasei chilometri a trentasei metri,
+%mentre la sua dimensione percepita resta la stessa.
 
-Il listato \ref{lst:clustering} riporta la costruzione dei cluster.
+La codice \ref{lst:clustering} riporta la costruzione dei cluster.
 L'assegnazione alla cella avviene dividendo le coordinate per il lato e troncando all'intero inferiore; le celle sono conservate
 in una struttura associativa a due livelli, indicizzata prima per colonna e poi per riga, e ogni cella non vuota produce un
 clustering nel baricentro dei propri membri.
@@ -422,47 +381,45 @@ List<_Cluster> _buildClusters(List<dynamic> centers, double zoom) {
   return clusters;
 }
 \end{minted}
-\caption{Costruzione dei cluster per griglia geografica dipendente dallo zoom.}
+\caption{Costruzione dei grid-based cluster dipendente dallo zoom.}
 \label{lst:clustering}
 \end{listing}
 
-Il costo dell'algoritmo è lineare nel numero di centri esaminati, perchè ciascuno viene collocato nella propria cella con un
+Il costo dell'algoritmo è lineare per il numero di centri esaminati, perchè ciascuno viene collocato nella propria cella con un
 numero costante di operazioni e nessun punto viene confrontato con nessun altro.
-Il numero di centri esaminati, del resto, non è quello dell'intero elenco ma quello dei soli centri già selezionati per viewport
-secondo il paragrafo \ref{subsec:impl-marker}: i due meccanismi si compongono, e il clustering lavora su un insieme già ridotto.
 
-Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perchè non è evidente dal codice.
-La griglia è ancorata all'origine delle coordinate, cioè all'intersezione fra equatore e meridiano fondamentale, e non all'angolo
-dell'area visibile.
-Ne segue che la cella di appartenenza di un centro dipende soltanto dalle sue coordinate e dallo zoom, e non da dove l'utente
-stia guardando: spostando la viewport senza modificare l'ingrandimento, i cluster restano identici e si limitano a entrare e
-uscire dallo schermo.
-Se la griglia fosse ancorata alla vista, ogni spostamento ne modificherebbe l'allineamento e le bolle si ricomporrebbero
-continuamente durante lo scorrimento.
+%Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perchè non è evidente dal codice.
+%La griglia è ancorata all'origine delle coordinate, cioè all'intersezione fra equatore e meridiano fondamentale, e non all'angolo
+%dell'area visibile.
+%Ne segue che la cella di appartenenza di un centro dipende soltanto dalle sue coordinate e dallo zoom, e non da dove l'utente
+%stia guardando: spostando la viewport senza modificare l'ingrandimento, i cluster restano identici e si limitano a entrare e
+%uscire dallo schermo.
+%Se la griglia fosse ancorata alla vista, ogni spostamento ne modificherebbe l'allineamento e le bolle si ricomporrebbero
+%continuamente durante lo scorrimento.
 
-La figura \ref{fig:clustering} riassume il principio con un esempio ridotto, dove le coordinate sono state riportate in unità di
+La figura \ref{fig:clustering} riassume il principio con un breve esempio, dove le coordinate sono state riportate in unità di
 cella per rendere la lettura indipendente dal livello di zoom.
 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[font=\footnotesize]
-    % Griglia di celle ancorata all'origine
+
     \draw[cellgrid] (0,0) grid (3,3);
     \draw[black!70, thick] (0,0) rectangle (3,3);
     \node[below=2pt, font=\scriptsize] at (0,0) {$x_{0}$, $y_{0}$};
-    % Cella con un solo membro: marker ordinario
+
     \fill[pin] (1.4,0.35) circle (3pt);
-    % Cella con due membri: bolla numerata nel baricentro
+
     \fill[pin] (0.3,0.25) circle (3pt);
     \fill[pin] (0.6,0.75) circle (3pt);
     \node[bubble, minimum size=0.55cm] at (0.45,0.5) {2};
-    % Cella con tre membri: bolla numerata nel baricentro
+
     \fill[pin] (2.25,2.15) circle (3pt);
     \fill[pin] (2.65,2.35) circle (3pt);
     \fill[pin] (2.35,2.85) circle (3pt);
-    % Baricentro
+
     \node[bubble, minimum size=0.55cm] at (2.42,2.45) {3};
-    % Cella vuota lungo il confine inferiore
+
     \fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
     \node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
     \node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: marker ordinario};
@@ -475,20 +432,19 @@ cella per rendere la lettura indipendente dal livello di zoom.
   \label{fig:clustering}
 \end{figure}
 
-L'approccio ha un limite strutturale, che nessuna taratura elimina.
-Due centri molto vicini ma situati su lati opposti del confine fra due celle non vengono clusterizzati, e compaiono come due
-marker distinti a breve distanza; il clustering per distanza, con tutti i suoi difetti, non ha questo problema.
-Ho considerato accettabile l'inconveniente per due ragioni: si manifesta su una frazione ridotta delle configurazioni possibili, e produce
-comunque una scena leggibile: nel peggiore dei casi si vedono due bolle dove una sarebbe bastata.
-La stabilità del risultato mi è sembrata un requisito più importante della completezza dell'aggregazione.
+%L'approccio ha un limite strutturale, che nessuna taratura elimina.
+%Due centri molto vicini ma situati su lati opposti del confine fra due celle non vengono clusterizzati, e compaiono come due
+%marker distinti a breve distanza; il clustering per distanza, con tutti i suoi difetti, non ha questo problema.
+%Ho considerato accettabile l'inconveniente per due ragioni: si manifesta su una frazione ridotta delle configurazioni possibili, e produce
+%comunque una scena leggibile: nel peggiore dei casi si vedono due bolle dove una sarebbe bastata.
+%La stabilità del risultato mi è sembrata un requisito più importante della completezza dell'aggregazione.
 
-La selezione di una bolla provoca un avvicinamento di due livelli di zoom rispetto a quello corrente, con un limite superiore al diciottesimo livello.
-Il valore risponde alla richiesta del requisito RF-10, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
+La selezione di una bolla, per esempio tramite tocco, provoca un avvicinamento di due livelli di zoom, il limite massimo è il diciottesimo livello.
+Il valore rispetta il requisito RF-10, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
 Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di
-partenza in un massimo di sedici celle nuove: la scomposizione è garantita a meno del caso in cui i centri siano effettivamente coincidenti,
-situazione che nei dati reali si presenta quando la stessa struttura compare due volte con coordinate identiche.
-Un solo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
-bolla; tre avrebbero fatto perdere il contesto circostante a ogni selezione.
+partenza in un massimo di sedici nuove celle.
+Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
+bolla; tre avrebbero fatto perdere il contesto circostante.
 
 \section{Localizzazione e Gestione dei Permessi}\label{sec:impl-localizzazione}
 
