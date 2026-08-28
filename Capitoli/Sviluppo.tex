@@ -39,9 +39,9 @@ La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App,
 
 Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
 condivisione, fissata a una versione esatta.
-Questo perchè quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
-diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
-innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
+%Questo perchè quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
+%diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
+%innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
 
 Sul fronte del supporto multipiattaforma, sia per Android che per iOS, l'App richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
 Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
@@ -91,20 +91,20 @@ Due particolarità di questa seconda fonte hanno richiesto delle correzioni.
 La prima è che il servizio nega la risposta alle richieste che non dichiarano un'intestazione di identificazione compatibile con
 quella di un normale browser; la richiesta la dichiara quindi esplicitamente.
 La seconda è che il \textit{body} della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il \textit{decoder} non rimuove e che,
-rimanendo come primo carattere della stringa, render l'intero documento non interpretabile.
+rimanendo come primo carattere della stringa, rende l'intero documento non interpretabile.
 La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
 e rimozione del BOM iniziale quando presente.
 
 Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
 si ferma ma passa in \textit{fallback} sull'altra fonte.
 Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
-Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
-il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
+%Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
+%il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
 
 Ogni richiesta ha un \textit{timeout} di quarantacinque secondi, come previsto dal requisito RNF-08.
-Il valore è volutamente alto: le due fonti sono servizi pubblici gratuiti, con tempi di risposta potenzialmente lunghi,
-e un limite minore avrebbe trasformato una risposta lenta in un errore, facendo ricorrere l'applicazione sulla cache quando
-l'aggiornamento sarebbe arrivato pochi secondi dopo.
+%Il valore è volutamente alto: le due fonti sono servizi pubblici gratuiti, con tempi di risposta potenzialmente lunghi,
+%e un limite minore avrebbe trasformato una risposta lenta in un errore, facendo ricorrere l'applicazione sulla cache quando
+%l'aggiornamento sarebbe arrivato pochi secondi dopo.
 
 Un ultimo accorgimento riguarda il precaricamento.
 Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvia in \textit{background} il recupero dell'altra, senza
@@ -171,12 +171,12 @@ Il secondo punto riguarda i contatti, come email e numeri di telefono, dalla fon
 che non li espone in campi propri ma li lascia dentro un frammento di codice HTML.
 Il recupero avviene in due passaggi: rimozione dei \textit{marker} dal testo e relativa ricerca dei recapiti tramite \textit{regex} (espressioni regolari).
 
-Per cercare e riconoscere nel testo i numeri di telefono, sono necessarie ulteriori operazioni e filtri.
-Una \textit{regex} sufficientemente aperta da accettare tutte le forme in cui un recapito telefonico viene scritto nei dati ricevuti,
-con spazi, punti, barre e prefissi fra parentesi o meno, e anche abbastanza aperta per riconoscere come numero il caso particolare in cui
-la parte iniziale di un indirizzo di posta elettronica che cominci con delle cifre.
-Il filtro scarta perciò le corrispondenze che contengono la chiocciola (@) e quelle con meno di cinque cifre complessive,
-che nella pratica sono frammenti di codice, email, e comunque non dei recapiti validi.
+%Per cercare e riconoscere nel testo i numeri di telefono, sono necessarie ulteriori operazioni e filtri.
+%Una \textit{regex} sufficientemente aperta da accettare tutte le forme in cui un recapito telefonico viene scritto nei dati ricevuti,
+%con spazi, punti, barre e prefissi fra parentesi o meno, e anche abbastanza aperta per riconoscere come numero il caso particolare in cui
+%la parte iniziale di un indirizzo di posta elettronica che cominci con delle cifre.
+%Il filtro scarta perciò le corrispondenze che contengono la chiocciola (@) e quelle con meno di cinque cifre complessive,
+%che nella pratica sono frammenti di codice, email, e comunque non dei recapiti validi.
 
 Il terzo punto riguarda le coordinate.
 Alcuni record riportano valori con più di un solo separatore decimale, come conseguenza di un errore di trascrizione della fonte.
@@ -209,11 +209,11 @@ dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inuti
 Restituire un valore nullo invece obbliga ogni chiamante a, nel nostro caso, ignorare il record.
 È l'applicazione pratica del requisito RF-04.
 
-Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
-il clustering e il calcolo delle distanze la richiamano ciascuno per conto proprio.
-Su elenchi nell'ordine delle centinaia di elementi il costo computazionale non è percepibile e non ho ritenuto necessario introdurre una
-memorizzazione dei risultati; tuttavia su elenchi di ordine superiore sarebbe il primo punto da rivedere, specialmente nella struttura dei dati,
-di cui viene discussa in \ref{subsec:modello-centri}.
+%Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
+%il clustering e il calcolo delle distanze la richiamano ciascuno per conto proprio.
+%Su elenchi nell'ordine delle centinaia di elementi il costo computazionale non è percepibile e non ho ritenuto necessario introdurre una
+%memorizzazione dei risultati; tuttavia su elenchi di ordine superiore sarebbe il primo punto da rivedere, specialmente nella struttura dei dati,
+%di cui viene discussa in \ref{subsec:modello-centri}.
 
 \subsection{Salvataggio sul Dispositivo}\label{subsec:impl-persistenza}
 
@@ -229,7 +229,8 @@ Il \textit{version tag} nella chiave dei centri personalizzati è necessario per
 L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
 dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
 sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
-È lo stesso ragionamento che si applica alla migrazione di uno schema di database (che ho anche trattato in un tirocinio esterno),
+È lo stesso ragionamento che si applica alla migrazione di uno schema di database,
+%(che ho anche trattato in un tirocinio esterno),
 ridotto alla scala dell'App.
 
 All'avvio vengono eseguite diverse operazioni come sono definite in \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
@@ -357,9 +358,9 @@ La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero 
 quella distanza sullo schermo.
 
 L'asse verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
-La scala della latitudine in \textit{Mercator} cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
-in punti vale $w(z)/\cos\varphi$: alle latitudini italiane, comprese fra circa trentasei e quarantasette gradi, si ottengono valori fra
-settantaquattro e ottantotto punti.
+%La scala della latitudine in \textit{Mercator} cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
+%in punti vale $w(z)/\cos\varphi$: alle latitudini italiane, comprese fra circa trentasei e quarantasette gradi, si ottengono valori fra
+%settantaquattro e ottantotto punti.
 Le celle sono dunque quadrate in gradi ma leggermente più alte che larghe sullo schermo, con una distorsione che cresce verso nord.
 La tabella \ref{tab:celle} riporta i valori a diversi livelli di zoom.
 
@@ -387,7 +388,7 @@ alla latitudine di 45° gradi.}
 %al variare dello zoom cambia radicalmente l'estensione geografica della cella, da centoquarantasei chilometri a trentasei metri,
 %mentre la sua dimensione percepita resta la stessa.
 
-La codice \ref{lst:clustering} riporta la costruzione dei cluster.
+Il codice \ref{lst:clustering} riporta la costruzione dei cluster.
 L'assegnazione alla cella avviene dividendo le coordinate per il lato e troncando all'intero inferiore; le celle sono conservate
 in una struttura associativa a due livelli, indicizzata prima per colonna e poi per riga, e ogni cella non vuota produce un
 clustering nel baricentro dei propri membri.
@@ -577,21 +578,21 @@ dipende dal numero di pause invece che dal numero di caratteri.
 Il valore di mezzo secondo è il doppio di quello impiegato per il ricalcolo dei marker descritto al paragrafo \ref{subsec:impl-marker},
 e la differenza è voluta: nel primo caso si tratta di rispettare un limite d'uso esterno, nel secondo soltanto di non sprecare calcolo locale.
 
-Questo accorgimento riduce il numero di richieste ma non garantisce formalmente il limite di frequenza.
-Una digitazione a scatti, con pause di poco superiori al mezzo secondo, produce una richiesta per ciascuna pausa e può
-avvicinarsi alla soglia; una garanzia effettiva richiederebbe una coda con temporizzazione propria, che regolasse le partenze
-invece di limitarsi a rinviarle.
-Manca inoltre la conservazione dei risultati suggerita dalla politica: interrogazioni ripetute con lo stesso testo, che si verificano
-quando l'utente cancella e riscrive la stessa località, vengono inoltrate di nuovo al servizio invece di essere soddisfatte in locale.
-Sono due debolezze note e non risolte, ridimensionate soltanto dal fatto che si tratta di un'applicazione dimostrativa con un unico
-utilizzatore.
+%Questo accorgimento riduce il numero di richieste ma non garantisce formalmente il limite di frequenza.
+%Una digitazione a scatti, con pause di poco superiori al mezzo secondo, produce una richiesta per ciascuna pausa e può
+%avvicinarsi alla soglia; una garanzia effettiva richiederebbe una coda con temporizzazione propria, che regolasse le partenze
+%invece di limitarsi a rinviarle.
+%Manca inoltre la conservazione dei risultati suggerita dalla politica: interrogazioni ripetute con lo stesso testo, che si verificano
+%quando l'utente cancella e riscrive la stessa località, vengono inoltrate di nuovo al servizio invece di essere soddisfatte in locale.
+%Sono due debolezze note e non risolte, ridimensionate soltanto dal fatto che si tratta di un'applicazione dimostrativa con un unico
+%utilizzatore.
 
 Sul piano dell'interfaccia la ricerca ha imposto la soluzione del problema di sovrapposizione descritto al paragrafo \ref{subsec:design-mappa-centri}.
-La condizione che nasconde i comandi della mappa verifica tre fatti indipendenti, cioè la presenza della tastiera, la presenza
-di suggerimenti aperti e il possesso del fuoco da parte del campo di ricerca; la scomparsa avviene con uno scorrimento verso
-destra accompagnato da una dissolvenza, e nel frattempo i comandi vengono resi insensibili al tocco.
-Quest'ultimo dettaglio non è superfluo: un elemento reso trasparente resta altrimenti capace di intercettare i tocchi, e
-l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
+%La condizione che nasconde i comandi della mappa verifica tre fatti indipendenti, cioè la presenza della tastiera, la presenza
+%di suggerimenti aperti e il possesso del fuoco da parte del campo di ricerca; la scomparsa avviene con uno scorrimento verso
+%destra accompagnato da una dissolvenza, e nel frattempo i comandi vengono resi insensibili al tocco.
+Mentre i comandi sono nascosti vengono anche resi insensibili al tocco: un elemento reso trasparente resta altrimenti capace di
+intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
 
 \section{Filtri e Ricerca per Prossimità}\label{sec:impl-filtri}
 
@@ -617,46 +618,46 @@ Oltre i dieci chilometri l'arrotondamento è al chilometro intero, perchè i dec
 chilometri suggerirebbero una precisione che il dato non ha, trattandosi comunque di una distanza in linea d'aria e non
 di un percorso stradale.
 
-La figura \ref{fig:scaglioni-distanza} rappresenta i tre scaglioni come fasce adiacenti su un asse, associate ciascuna
-all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
+%La figura \ref{fig:scaglioni-distanza} rappresenta i tre scaglioni come fasce adiacenti su un asse, associate ciascuna
+%all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\footnotesize, xscale=0.9, yscale=0.84, transform shape]
-\draw[black!70, thick, -{Latex[length=2mm]}] (-0.3, 0) -- (12.6, 0);
-\foreach \x/\lab in {0/{0}, 1/{1 km}, 10/{10 km}} {
-  \draw[black!70, thick] (\x, -0.10) -- (\x, 0.10);
-  \node[below=4pt, font=\scriptsize] at (\x, 0) {\lab};
-}
-\foreach \x in {0.25, 0.5, 0.75} {
-  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
-}
-\foreach \x in {2, 3, 4, 5, 6, 7, 8, 9} {
-  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
-}
-\foreach \x in {11, 12} {
-  \draw[black!55, thin] (\x, -0.06) -- (12, 0.06);
-}
+%\begin{figure}[H]
+%\centering
+%\begin{tikzpicture}[font=\footnotesize, xscale=0.9, yscale=0.84, transform shape]
+%\draw[black!70, thick, -{Latex[length=2mm]}] (-0.3, 0) -- (12.6, 0);
+%\foreach \x/\lab in {0/{0}, 1/{1 km}, 10/{10 km}} {
+%  \draw[black!70, thick] (\x, -0.10) -- (\x, 0.10);
+%  \node[below=4pt, font=\scriptsize] at (\x, 0) {\lab};
+%}
+%\foreach \x in {0.25, 0.5, 0.75} {
+%  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+%}
+%\foreach \x in {2, 3, 4, 5, 6, 7, 8, 9} {
+%  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+%}
+%\foreach \x in {11, 12} {
+%  \draw[black!55, thin] (\x, -0.06) -- (12, 0.06);
+%}
 
-\fill[black!8] (0, 0.25) rectangle (1, 1.8);
-\draw[black!55, thin] (0, 0.25) rectangle (1, 1.8);
-\node[font=\scriptsize\bfseries, align=center] at (0.5, 1.4) {metri};
+%\fill[black!8] (0, 0.25) rectangle (1, 1.8);
+%\draw[black!55, thin] (0, 0.25) rectangle (1, 1.8);
+%\node[font=\scriptsize\bfseries, align=center] at (0.5, 1.4) {metri};
 
-\fill[black!5] (1, 0.25) rectangle (10, 1.8);
-\draw[black!55, thin] (1, 0.25) rectangle (10, 1.8);
-\node[font=\scriptsize\bfseries, align=center] at (5.5, 1.4) {chilometri con un decimale};
+%\fill[black!5] (1, 0.25) rectangle (10, 1.8);
+%\draw[black!55, thin] (1, 0.25) rectangle (10, 1.8);
+%\node[font=\scriptsize\bfseries, align=center] at (5.5, 1.4) {chilometri con un decimale};
 
-\fill[black!10] (10, 0.25) rectangle (12, 1.8);
-\draw[black!55, thin] (10, 0.25) rectangle (12, 1.8);
-\node[font=\scriptsize\bfseries, align=center] at (11, 1.4) {chilometri};
+%\fill[black!10] (10, 0.25) rectangle (12, 1.8);
+%\draw[black!55, thin] (10, 0.25) rectangle (12, 1.8);
+%\node[font=\scriptsize\bfseries, align=center] at (11, 1.4) {chilometri};
 
-\node[font=\scriptsize, align=center, text width=2.4cm] at (0.5, -1.3) {andare a piedi};
-\node[font=\scriptsize, align=center, text width=2.6cm] at (5.5, -1.3) {spostarsi in città};
-\node[font=\scriptsize, align=center, text width=2.4cm] at (11, -1.3) {spostarsi fra\\ comuni};
-\end{tikzpicture}
-\caption{Scaglioni della distanza, con l'unità di misura e l'azione tipica associata a ciascuno.}
-\label{fig:scaglioni-distanza}
-\end{figure}
+%\node[font=\scriptsize, align=center, text width=2.4cm] at (0.5, -1.3) {andare a piedi};
+%\node[font=\scriptsize, align=center, text width=2.6cm] at (5.5, -1.3) {spostarsi in città};
+%\node[font=\scriptsize, align=center, text width=2.4cm] at (11, -1.3) {spostarsi fra\\ comuni};
+%\end{tikzpicture}
+%\caption{Scaglioni della distanza, con l'unità di misura e l'azione tipica associata a ciascuno.}
+%\label{fig:scaglioni-distanza}
+%\end{figure}
 
 Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
 Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
@@ -683,7 +684,7 @@ sulla distanza è valutato nello stesso attraversamento; i centri personalizzati
 filtrati per raggio soltanto nell'elenco dei centri vicini.
 Ne segue una differenza di comportamento che va registrata: con un filtro per raggio attivo, un centro personalizzato fuori dal
 raggio scompare dall'elenco ma resta disegnato sulla mappa.
-è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
+%è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
 
 \subsection{Individuazione del Centro più Vicino}\label{subsec:impl-piu-vicino}
 
@@ -770,71 +771,71 @@ per trentanove, che altrimenti verrebbe mutilato.
 Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
 rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
 
-La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, e rende
-visibile il punto in cui il valore vuoto imbocca un percorso separato che non applica alcun rifiuto di campo.
+%La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, e rende
+%visibile il punto in cui il valore vuoto imbocca un percorso separato che non applica alcun rifiuto di campo.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\footnotesize, scale=0.86, transform shape,
-  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
-             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
-  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
-              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
-              minimum height=0.7cm},
-  ok/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!15,
-             align=center, font=\scriptsize\bfseries, inner sep=6pt, minimum height=0.9cm},
-  flw/.style={-{Latex[length=2mm]}, thick}
-]
-% Ingresso
-\node[nd] (in) at (0, 5.4) {Stringa grezza\\ dal campo di input};
+%\begin{figure}[H]
+%\centering
+%\begin{tikzpicture}[font=\footnotesize, scale=0.86, transform shape,
+%  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+%             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+%  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+%              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
+%              minimum height=0.7cm},
+%  ok/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!15,
+%             align=center, font=\scriptsize\bfseries, inner sep=6pt, minimum height=0.9cm},
+%  flw/.style={-{Latex[length=2mm]}, thick}
+%]
+%% Ingresso
+%\node[nd] (in) at (0, 5.4) {Stringa grezza\\ dal campo di input};
 
-% Passo 1
-\node[nd, fill=black!5] (p1) at (0, 3.7) {Passo 1.\\ Rimozione dei caratteri non numerici};
+%% Passo 1
+%\node[nd, fill=black!5] (p1) at (0, 3.7) {Passo 1.\\ Rimozione dei caratteri non numerici};
 
-% Bivio campo vuoto
-\node[dcd] (empty) at (0, 1.9) {stringa vuota?};
-\node[ok] (okEmpty) at (5.2, 1.9) {Esito positivo\\ (campo opzionale)};
+%% Bivio campo vuoto
+%\node[dcd] (empty) at (0, 1.9) {stringa vuota?};
+%\node[ok] (okEmpty) at (5.2, 1.9) {Esito positivo\\ (campo opzionale)};
 
-% Passo 2
-\node[nd, fill=black!5] (p2) at (0, 0.1) {Passo 2.\\ Rimozione del prefisso\\ internazionale, se presente};
+%% Passo 2
+%\node[nd, fill=black!5] (p2) at (0, 0.1) {Passo 2.\\ Rimozione del prefisso\\ internazionale, se presente};
 
-% Passo 3
-\node[nd, fill=black!5] (p3) at (0, -1.7) {Passo 3.\\ Verifica della prima cifra\\ e del numero di cifre};
+%% Passo 3
+%\node[nd, fill=black!5] (p3) at (0, -1.7) {Passo 3.\\ Verifica della prima cifra\\ e del numero di cifre};
 
-% Esiti
-\node[dcd] (d1) at (0, -3.3) {cifre e prefisso\\ coerenti?};
-\node[ok, fill=black!10] (okYes) at (-3.2, -4.8) {Esito positivo};
-\node[ok, fill=black!20] (errNo) at (3.2, -4.8) {Segnalazione errore};
+%% Esiti
+%\node[dcd] (d1) at (0, -3.3) {cifre e prefisso\\ coerenti?};
+%\node[ok, fill=black!10] (okYes) at (-3.2, -4.8) {Esito positivo};
+%\node[ok, fill=black!20] (errNo) at (3.2, -4.8) {Segnalazione errore};
 
-% Frecce
-\draw[flw] (in) -- (p1);
-\draw[flw] (p1) -- (empty);
-\draw[flw] (empty.east) -- node[midway, above, font=\scriptsize] {sì} (okEmpty.west);
-\draw[flw] (empty.south) -- node[midway, right=2pt, font=\scriptsize] {no} (p2.north);
-\draw[flw] (p2) -- (p3);
-\draw[flw] (p3) -- (d1);
-\draw[flw] (d1.west) -- node[midway, above, font=\scriptsize] {sì} (okYes.north);
-\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (errNo.north);
-\end{tikzpicture}
-\caption{Validazione del numero di telefono.}
-\label{fig:validazione-telefono}
-\end{figure}
+%% Frecce
+%\draw[flw] (in) -- (p1);
+%\draw[flw] (p1) -- (empty);
+%\draw[flw] (empty.east) -- node[midway, above, font=\scriptsize] {sì} (okEmpty.west);
+%\draw[flw] (empty.south) -- node[midway, right=2pt, font=\scriptsize] {no} (p2.north);
+%\draw[flw] (p2) -- (p3);
+%\draw[flw] (p3) -- (d1);
+%\draw[flw] (d1.west) -- node[midway, above, font=\scriptsize] {sì} (okYes.north);
+%\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (errNo.north);
+%\end{tikzpicture}
+%\caption{Validazione del numero di telefono.}
+%\label{fig:validazione-telefono}
+%\end{figure}
 
 Un valore vuoto restituisce esito positivo, e non è una dimenticanza: il telefono è opzionale, ed è la verifica di secondo
 livello a stabilire che almeno un contatto sia presente.
 Se il validatore di campo rifiutasse il vuoto, un centro con la sola posta elettronica diventerebbe impossibile da salvare.
 
-L'intervallo ammesso fra sei e undici cifre è volutamente ampio, e comprende numerazioni che nella pratica non appartengono a
-un centro sanitario.
-La scelta risponde a un criterio di prudenza: un controllo troppo severo su una numerazione che conosce molte eccezioni rischia
-di rifiutare un recapito valido, e il costo di quel rifiuto, cioè un dato corretto che l'utente non riesce a inserire, è superiore
-al costo di accettare una cifra in più.
+%L'intervallo ammesso fra sei e undici cifre è volutamente ampio, e comprende numerazioni che nella pratica non appartengono a
+%un centro sanitario.
+%La scelta risponde a un criterio di prudenza: un controllo troppo severo su una numerazione che conosce molte eccezioni rischia
+%di rifiutare un recapito valido, e il costo di quel rifiuto, cioè un dato corretto che l'utente non riesce a inserire, è superiore
+%al costo di accettare una cifra in più.
 
 Ogni centro riceve alla creazione un identificatore ricavato dall'istante di creazione espresso in microsecondi, e quell'identificatore non cambia più.
 La modifica di un centro esistente non ne genera uno nuovo ma riscrive la voce con lo stesso identificatore, che è la
 chiave con cui l'aggiornamento distingue la sostituzione dall'inserimento.
-I centri salvati a partire da una voce dell'elenco pubblico portano un identificatore con un prefisso distinto, il che
-permette di riconoscerne l'origine in una eventuale versione futura, quando servisse per esempio riallinearli al dato remoto.
+%I centri salvati a partire da una voce dell'elenco pubblico portano un identificatore con un prefisso distinto, il che
+%permette di riconoscerne l'origine in una eventuale versione futura, quando servisse per esempio riallinearli al dato remoto.
 
 \section{Integrazione con i Servizi del Dispositivo}\label{sec:impl-integrazione}
 
@@ -876,15 +877,15 @@ che ha un costo.
 I campi dei dati di origine, però, contengono spesso più recapiti nello stesso campo, ed è necessario isolarne uno; viene
 preso il primo, separando la stringa sui caratteri che nei dati fungono da separatore.
 
-Su questo punto c'è un difetto da segnalare, emerso durante la stesura del capitolo e non prima.
-La composizione dei recapiti estratti dalla sorgente li unisce con un trattino, e la separazione in lettura divide di conseguenza
-anche sul trattino; ne segue che un numero singolo che contenga un trattino al proprio interno, forma di scrittura tutt'altro
-che rara come in \texttt{02-1234567}, viene troncato alla parte precedente il trattino, e il programma telefonico si apre con le
-sole cifre iniziali.
-Il difetto è circoscritto ai recapiti scritti in quella forma e non provoca alcuna chiamata errata, perchè l'utente vede il numero
-incompleto prima di confermare, ma resta un errore effettivo.
-La correzione consiste nel separare su una sequenza più specifica, comprensiva degli spazi che accompagnano il trattino di unione,
-oppure nell'adottare in composizione un separatore che non possa comparire dentro un numero.
+%Su questo punto c'è un difetto da segnalare, emerso durante la stesura del capitolo e non prima.
+%La composizione dei recapiti estratti dalla sorgente li unisce con un trattino, e la separazione in lettura divide di conseguenza
+%anche sul trattino; ne segue che un numero singolo che contenga un trattino al proprio interno, forma di scrittura tutt'altro
+%che rara come in \texttt{02-1234567}, viene troncato alla parte precedente il trattino, e il programma telefonico si apre con le
+%sole cifre iniziali.
+%Il difetto è circoscritto ai recapiti scritti in quella forma e non provoca alcuna chiamata errata, perchè l'utente vede il numero
+%incompleto prima di confermare, ma resta un errore effettivo.
+%La correzione consiste nel separare su una sequenza più specifica, comprensiva degli spazi che accompagnano il trattino di unione,
+%oppure nell'adottare in composizione un separatore che non possa comparire dentro un numero.
 
 La condivisione compone un testo con la denominazione, l'indirizzo, il recapito telefonico quando presente e un collegamento
 alla posizione sulla mappa, e lo consegna al pannello di condivisione del sistema.
