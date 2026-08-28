@@ -115,33 +115,34 @@ L'eventuale errore del precaricamento viene ignorato, perchè riguarda dati che 
 
 \subsection{Normalizzazione dei Record}\label{subsec:impl-normalizzazione}
 
-La normalizzazione ha tre compiti distinti: ricondurre a un nome unico i campi che le due fonti chiamano in modo diverso,
-recuperare le informazioni che una delle due non espone in forma strutturata, e riconoscere i record inutilizzabili scartandoli
-senza interrompere l'elaborazione degli altri, come impone il requisito RNF-09.
+La normalizzazione ha tre compiti distinti:
+\begin{enumerate}
+  \item Ricondurre a un nome unico i campi che le due fonti ritornano in formati diversi
+  \item Recuperare le informazioni, specialmente quando una delle due non le ritorna in forma strutturata
+  \item Riconoscere i record inutilizzabili scartandoli senza interrompere l'elaborazione degli altri, come da requisito RNF-09.
+\end{enumerate}
 
-Il primo compito si risolve con le catene di alias già discusse al paragrafo \ref{subsec:modello-centri}: la denominazione
-viene cercata in sequenza fra i nomi noti, la longitudine viene cercata sotto due chiavi diverse, e in entrambi i casi il primo
-valore presente vince.
+Il primo punto si risolve con le catene di \textit{alias} già discusse al paragrafo \ref{subsec:modello-centri},
+ove la denominazione viene quindi cercata in sequenza fra i nomi che già conosciamo, la longitudine viene cercata sotto
+due chiavi distinte, e in entrambi i casi il primo valore trovato vince sul secondo.
 
-Il secondo compito riguarda i contatti della sorgente della psoriasi, che non li espone in campi propri ma li lascia dentro il
-frammento di HTML della finestra informativa.
-Il recupero avviene in due passaggi: rimozione dei marcatori dal testo e successiva ricerca dei recapiti con espressioni regolari.
-La sequenza dei due passaggi non è indifferente, perchè cercare un numero direttamente nell'HTML significa raccogliere anche le cifre
-contenute negli attributi dei marcatori, per esempio nelle dimensioni di un'immagine o nei codici di colore.
+Il secondo punto riguarda i contatti, come email e numeri di telefono, dalla fonte dei centri per la psoriasi,
+che non li espone in campi propri ma li lascia dentro un frammento di codice HTML.
+Il recupero avviene in due passaggi: rimozione dei \textit{marker} dal testo e relativa ricerca dei recapiti tramite \textit{regex} (espressioni regolari).
 
-Sul riconoscimento dei numeri di telefono è stato necessario un filtro ulteriore, e la ragione è istruttiva.
-Un'espressione regolare abbastanza permissiva da accettare le molte forme in cui un recapito telefonico viene scritto nei dati reali,
-con spazi, punti, barre e prefissi fra parentesi, è anche abbastanza permissiva da riconoscere come numero la parte iniziale di
-un indirizzo di posta elettronica che cominci con delle cifre.
-Il filtro scarta perciò le corrispondenze che contengono il carattere di chiocciola e quelle con meno di cinque cifre complessive,
-che nella pratica sono frammenti di codice e non recapiti.
+Per cercare e riconoscere nel testo i numeri di telefono, sono necessarie ulteriori operazioni e filtri.
+Una \textit{regex} sufficientemente aperta da accettare tutte le forme in cui un recapito telefonico viene scritto nei dati ricevuti,
+con spazi, punti, barre e prefissi fra parentesi o meno, e anche abbastanza aperta per riconoscere come numero il caso particolare in cui
+la parte iniziale di un indirizzo di posta elettronica che cominci con delle cifre.
+Il filtro scarta perciò le corrispondenze che contengono la chiocciola (@) e quelle con meno di cinque cifre complessive,
+che nella pratica sono frammenti di codice, email, e comunque non dei recapiti validi.
 
-Il terzo compito riguarda le coordinate, ed è il punto in cui i dati reali si sono discostati di più da quanto atteso.
-Alcuni record riportano valori con più di un separatore decimale, come conseguenza di un errore di trascrizione a monte.
-La conversione ordinaria su un valore di questa forma fallisce restituendo un valore nullo, e il record verrebbe scartato pur
-contenendo un'informazione recuperabile: le cifre ci sono tutte, ed è la punteggiatura a essere in eccesso.
-La conversione adottata, riportata nel listato \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
-riportando la stringa a una forma interpretabile.
+Il terzo punto riguarda le coordinate.
+Alcuni record riportano valori con più di un solo separatore decimale, come conseguenza di un errore di trascrizione della fonte.
+La normale conversione su un valore di questa tipo fallisce restituendone uno nullo, e il record verrebbe scartato pur
+contenendo un'informazione che sarebbe in realtà recuperabile: le cifre ci sono tutte, ma è il formato a essere errato.
+La conversione, riportata in \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
+riportando la stringa a una forma corretta e interpretabile.
 
 \begin{listing}[H]
 \begin{minted}{dart}
@@ -156,35 +157,39 @@ double? _parseCoordinate(dynamic value) {
   return double.tryParse(s);
 }
 \end{minted}
-\caption{Conversione tollerante di una coordinata, con recupero dei valori che riportano più di un separatore decimale.}
+\caption{Conversione di una coordinata, con recupero dei valori che riportano più separatori decimali.}
 \label{lst:coordinate}
 \end{listing}
 
-La funzione restituisce un valore nullo, e non un valore predefinito, quando la conversione non è possibile.
-La distinzione conta: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro al largo del
-golfo di Guinea, dove comparirebbe come un marker perfettamente legittimo.
-Restituire l'assenza di valore obbliga invece ogni chiamante a decidere cosa fare, e la decisione presa in tutti i punti è
-la stessa: il record viene ignorato.
+La funzione restituisce un valore nullo quando la conversione non è possibile.
+Non è previsto un valore predefinito.
+Questo per un buon motivo: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro in una posizione totalmente errata,
+dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inutile.
+Restituire un valore nullo invece obbliga ogni chiamante a, nel nostro caso, ignorare il record.
 È l'applicazione pratica del requisito RF-04.
 
-Questa funzione viene chiamata più volte sullo stesso record in una singola operazione: la selezione dei visibili, il
-clustering e il calcolo delle distanze la richiamano ciascuno per proprio conto.
-Su elenchi dell'ordine delle centinaia di elementi il costo non è percepibile e non ho ritenuto necessario introdurre una
-memorizzazione dei risultati; su elenchi di ordine superiore sarebbe il primo punto da rivedere, e la sede naturale dell'intervento
-sarebbe proprio la classe di dominio la cui assenza è stata discussa al paragrafo \ref{subsec:modello-centri}.
+Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
+il clustering e il calcolo delle distanze la richiamano ciascuno per conto proprio.
+Su elenchi nell'ordine delle centinaia di elementi il costo computazionale non è percepibile e non ho ritenuto necessario introdurre una
+memorizzazione dei risultati; tuttavia su elenchi di ordine superiore sarebbe il primo punto da rivedere, specialmente nella struttura dei dati,
+di cui viene discussa in \ref{subsec:modello-centri}.
 
-\subsection{Conservazione sul Dispositivo}\label{subsec:impl-persistenza}
+\subsection{Salvataggio sul Dispositivo}\label{subsec:impl-persistenza}
 
-La conservazione impiega l'archivio di coppie chiave-valore fornito dalla piattaforma, che memorizza tipi elementari e
-che viene quindi usato per custodire i dati serializzati in JSON. Per i tre depositi descritti al paragrafo \ref{subsec:strategia-cache} le
-chiavi sono distinte: una per ciascuna patologia, ottenuta componendo un prefisso fisso con il nome della patologia, e una per
-i centri personalizzati, che porta un suffisso di versione.
+Il salvataggio locale impiega l'archivio di coppie chiave-valore fornito dalla piattaforma, che memorizza tipi elementari e
+che viene quindi usato per custodire i dati serializzati in formato JSON. Per i tre archivi \textit{cache} descritti al paragrafo \ref{subsec:strategia-cache} le
+chiavi sono distinte:
+\begin{enumerate}
+  \item Una per ciascuna patologia, ottenuta componendo un prefisso fisso con il nome della patologia
+  \item Una per i centri personalizzati, con un \textit{version tag} (tag o suffisso di versione)
+\end{enumerate}
 
-Il suffisso di versione nella chiave dei centri personalizzati è una precauzione deliberata.
-L'archivio contiene dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una versione futura
-dovesse cambiare la struttura del record in modo incompatibile, quel suffisso permette di leggere il vecchio contenuto
-sotto la chiave precedente e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la chiave attesa.
-è lo stesso ragionamento che si applica alla migrazione di uno schema di database, ridotto alla scala di questo modulo.
+Il \textit{version tag} nella chiave dei centri personalizzati è necessario per il seguente motivo.
+L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
+dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
+sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
+È lo stesso ragionamento che si applica alla migrazione di uno schema di database (che ho anche trattato in un tirocinio esterno),
+ridotto alla scala dell'App.
 
 L'ordine delle operazioni all'avvio realizza la politica descritta al paragrafo \ref{subsec:strategia-cache}.
 Vengono prima lette le voci conservate per entrambe le patologie e riportate nella mappa in memoria, quindi parte la richiesta di rete.
