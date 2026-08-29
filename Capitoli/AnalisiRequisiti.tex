@@ -5,18 +5,19 @@
 Il destinatario dell'applicazione è una sola figura, e conviene descriverla con precisione perché da lei dipendono quasi
 tutte le scelte di interfaccia.
 Si tratta di una persona, per esempio colui che è affetto da dermatite atopica o psoriasi, ma potrebbe anche essere un suo
-familiare, che deve individuare una struttura specialistica raggiungibile.
-Non ha competenze informatiche particolari, usa l'applicazione su uno smartphone e spesso in mobilità, quindi con una sola
-mano e in condizioni di attenzione parziale.
+familiare o un dottore, che deve individuare una struttura specialistica raggiungibile.
+Non ha competenze informatiche particolari, usa l'applicazione su uno smartphone e spesso con una sola mano.
 Non è necessariamente un operatore sanitario: non inserisce dati clinici e non ha bisogno di funzioni di refertazione.
 
-Da questo profilo derivano due conseguenze operative.
-La prima è che nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
-la risposta alla domanda \emph{dove è il centro più vicino} è un passaggio che riduce l'utilità dello strumento.
-La seconda è che i controlli devono essere collocati nella metà inferiore dello schermo, dove il pollice arriva senza cambiare presa.
+Da questo profilo derivano due conseguenze operative:
+\begin{enumerate}
+  \item La prima è che nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
+  la risposta alla domanda \emph{dove è il centro più vicino} è un passaggio che riduce l'utilità dello strumento.
+  \item La seconda è che i controlli devono essere collocati nella metà inferiore dello schermo, dov'è possibile arrivarci con il pollice.
+\end{enumerate}
 
-Accanto all'attore primario operano diversi sistemi esterni, che nella terminologia UML sono attori secondari: non hanno intenzioni,
-ma il sistema dipende da loro e deve prevedere il caso in cui non rispondano.
+Accanto all'attore primario operano diversi sistemi esterni, che nella terminologia UML (\textit{Unified Modeling Language}) sono attori secondari.
+Questi non hanno intenzioni, ma il sistema dipende da loro e deve prevedere il caso in cui non rispondano.
 
 \begin{table}[H]
 \centering
@@ -28,7 +29,7 @@ ma il sistema dipende da loro e deve prevedere il caso in cui non rispondano.
 Utente & primario & Consulta la mappa, applica i filtri, gestisce preferiti e centri propri, avvia le azioni di contatto
 e navigazione. \tabularnewline
 Servizio elenco centri & secondario & Fornisce l'elenco dei centri dermatologici tramite endpoint HTTP pubblici.
-Il sistema ne interroga due, uno principale e uno di riserva. \tabularnewline
+Il sistema ne interroga due, uno principale e uno di riserva secondario. \tabularnewline
 Servizio di geocodifica & secondario & Traduce il testo digitato dall'utente in coordinate geografiche. \tabularnewline
 Server dei tile & secondario & Fornisce le immagini cartografiche che compongono la mappa. \tabularnewline
 Sistema operativo & secondario & Espone la posizione del dispositivo e media la concessione del relativo permesso. \tabularnewline
@@ -41,9 +42,9 @@ Applicazioni esterne & secondario & Ricevono le richieste di navigazione, chiama
 
 \section{Requisiti Funzionali}\label{sec:requisiti-funzionali}
 
-I requisiti funzionali sono raccolti nella tabella \ref{tab:requisiti-funzionali}, clusterizzati per area.
-La colonna di priorità distingue i requisiti obbligatori, senza i quali l'applicazione non potrebbe svolgere il suo scopo, da quelli desiderabili,
-che migliorano l'esperienza ma la cui assenza non compromette il funzionamento.
+I requisiti funzionali sono raccolti nella tabella \ref{tab:requisiti-funzionali}, raggruppati per area.
+La colonna di priorità distingue i requisiti obbligatori, senza i quali l'applicazione non potrebbe svolgere il suo compito, da quelli desiderabili,
+che migliorano l'esperienza ma la cui assenza non ne compromette il funzionamento.
 
 \footnotesize
 \begin{longtable}{@{}P{1.4cm} P{9.1cm} P{2.3cm}@{}}
@@ -67,9 +68,9 @@ RF-02 & In caso di errore o di risposta non valida dal servizio principale, il s
 & Obbligatorio \tabularnewline
 RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione interna.
 & Obbligatorio \tabularnewline
-RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interrompere l'elaborazione dei restanti.
+RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interromperne l'elaborazione dei restanti.
 & Obbligatorio \tabularnewline
-RF-05 & Il sistema deve conservare l'ultimo elenco scaricato in una cache persistente e utilizzarla quando la rete non è disponibile.
+RF-05 & Il sistema deve conservare l'ultimo elenco scaricato in una cache persistente e utilizzarla quando la rete è assente.
 & Obbligatorio \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Visualizzazione cartografica}} \tabularnewline
@@ -79,9 +80,9 @@ RF-07 & Il sistema deve riportare l'attribuzione della sorgente cartografica in 
 & Obbligatorio \tabularnewline
 RF-08 & Ogni centro deve essere rappresentato da un marker posizionato sulle proprie coordinate.
 & Obbligatorio \tabularnewline
-RF-09 & marker geograficamente vicini devono essere clusterizzati in un unico indicatore che riporti il numero di centri contenuti.
+RF-09 & Marker geograficamente vicini devono essere \textit{clusterizzati} (raggruppati) in un unico indicatore che riporti il numero di centri contenuti.
 & Obbligatorio \tabularnewline
-RF-10 & La selezione di un clustering deve produrre un avvicinamento della vista che lo scomponga negli elementi che lo costituiscono.
+RF-10 & La selezione di un \textit{cluster} (gruppo) deve produrre un avvicinamento della vista che lo scomponga negli elementi che lo costituiscono.
 & Obbligatorio \tabularnewline
 RF-11 & Il sistema deve disegnare soltanto i marker compresi nell'area visibile, con un margine di tolleranza.
 & Desiderabile \tabularnewline
@@ -91,11 +92,11 @@ RF-12 & Il sistema deve richiedere il permesso di accesso alla posizione soltant
 & Obbligatorio \tabularnewline
 RF-13 & Il sistema deve centrare la vista sulla posizione dell'utente e indicarla con un simbolo distinto da quello dei centri.
 & Obbligatorio \tabularnewline
-RF-14 & In caso di permesso negato il sistema deve continuare a funzionare, ricadendo su una posizione iniziale predefinita.
+RF-14 & In caso di permesso negato il sistema deve continuare a funzionare, utilizzando una posizione iniziale predefinita.
 & Obbligatorio \tabularnewline
 RF-15 & Se il permesso è stato negato in modo permanente, il sistema deve offrire un collegamento alle impostazioni di sistema.
 & Desiderabile \tabularnewline
-RF-16 & Il sistema deve permettere la ricerca di una località o di un indirizzo tramite un campo di testo libero.
+RF-16 & Il sistema deve permettere la ricerca di una località o di un indirizzo tramite un campo di input testuale.
 & Obbligatorio \tabularnewline
 RF-17 & Durante la digitazione il sistema deve proporre suggerimenti, interrogando il servizio di geocodifica solo dopo una pausa nell'inserimento.
 & Obbligatorio \tabularnewline
@@ -117,13 +118,13 @@ RF-24 & Il sistema deve rappresentare graficamente sulla mappa il raggio di rice
 & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Centri personalizzati e preferiti}} \tabularnewline
-RF-25 & Il sistema deve permettere l'inserimento di un centro non presente nell'elenco remoto, indicandone denominazione, indirizzo,
+RF-25 & Il sistema deve permettere l'inserimento di un centro non presente nell'elenco, indicandone denominazione, indirizzo,
 città, contatti e patologie trattate.
 & Obbligatorio \tabularnewline
 RF-26 & La posizione del centro inserito deve essere acquisita dalla mappa, mediante pressione prolungata sul punto desiderato oppure
 assumendo il centro della viewport corrente, senza digitazione manuale delle coordinate.
 & Obbligatorio \tabularnewline
-RF-27 & Il sistema deve validare i dati inseriti prima del salvataggio, richiedendo denominazione, indirizzo e città non vuoti, almeno un
+RF-27 & Il sistema deve validare i dati inseriti prima del salvataggio, richiedendo nome, indirizzo e città, almeno un
 contatto tra telefono ed email, almeno una patologia, e verificando che il numero telefonico rispetti il formato nazionale e che l'indirizzo
 email sia sintatticamente corretto.
 & Obbligatorio \tabularnewline
@@ -131,11 +132,11 @@ RF-28 & Il sistema deve permettere la modifica e l'eliminazione dei centri inser
 & Obbligatorio \tabularnewline
 RF-29 & I centri personalizzati devono persistere tra un avvio e l'altro dell'applicazione ed essere distinguibili sulla mappa da quelli remoti.
 & Obbligatorio \tabularnewline
-RF-30 & Il sistema deve permettere di contrassegnare un centro come preferito e di consultare l'elenco dei preferiti.
+RF-30 & Il sistema deve permettere di aggiungere un centro ai preferiti e di poterne accedere all'elenco.
 & Obbligatorio \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Azioni sul centro selezionato}} \tabularnewline
-RF-31 & La selezione di un marker deve aprire una scheda con denominazione, indirizzo e contatti disponibili.
+RF-31 & La selezione di un marker deve aprire una scheda con nome, indirizzo e contatti disponibili.
 & Obbligatorio \tabularnewline
 RF-32 & Il sistema deve consentire di avviare la navigazione verso il centro delegandola a un'applicazione esterna.
 & Obbligatorio \tabularnewline
@@ -143,16 +144,14 @@ RF-33 & Il sistema deve permettere di scegliere il mezzo di trasporto per il cal
 & Desiderabile \tabularnewline
 RF-34 & Il sistema deve consentire di avviare una chiamata telefonica e di comporre un'email verso i contatti del centro, quando presenti.
 & Obbligatorio \tabularnewline
-RF-35 & Il sistema deve consentire la condivisione della scheda del centro tramite le applicazioni installate sul dispositivo.
+RF-35 & Il sistema deve consentire la condivisione della scheda del centro tramite applicazioni esterne.
 & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
-RF-36 & Il sistema deve fornire comandi di avvicinamento e allontanamento della vista alternativi al gesto a due dita.
+RF-36 & Il sistema deve fornire comandi di avvicinamento (\textit{zoom}) e allontanamento (\textit{unzoom}) della vista alternativi al gesto a due dita.
 & Desiderabile \tabularnewline
-RF-37 & Quando la mappa è ruotata, il sistema deve mostrare un indicatore di orientamento che ne consenta il ripristino verso il nord.
+RF-37 & Quando la mappa è ruotata, il sistema deve mostrare una bussola che ne consenta il ripristino verso il nord.
 & Desiderabile \tabularnewline
-RF-38 & Il sistema deve fornire un comando di ritorno immediato alla posizione dell'utente.
-& Obbligatorio \tabularnewline
 \caption{Requisiti funzionali del sistema.}
 \label{tab:requisiti-funzionali}
 \end{longtable}
@@ -378,8 +377,8 @@ questo stato la richiesta non può più essere ripresentata dall'applicazione.
 \newline 2d.
 Il servizio di localizzazione del dispositivo è disattivato: il sistema lo segnala e invita ad attivarlo.
 \newline 6a.
-Nessun centro rientra nel raggio: il sistema lo comunica e suggerisce di ampliarlo. \tabularnewline
-Requisiti & RF-12, RF-13, RF-14, RF-15, RF-19, RF-20, RF-21, RF-22, RF-23, RF-24, RF-38 \tabularnewline
+Nessun centro rientra nel raggio: il sistema lo comunica e suggerisce di effettuare nuovamente la ricerca in un raggio più ampio. \tabularnewline
+Requisiti & RF-12, RF-13, RF-14, RF-15, RF-19, RF-20, RF-21, RF-22, RF-23, RF-24 \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Scheda del caso d'uso UC-04.}
