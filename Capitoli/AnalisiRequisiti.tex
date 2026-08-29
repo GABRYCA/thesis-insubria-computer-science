@@ -62,9 +62,9 @@ che migliorano l'esperienza ma la cui assenza non ne compromette il funzionament
 \bottomrule
 \endlastfoot
 \multicolumn{3}{@{}l}{\textbf{Acquisizione e persistenza dei dati}} \tabularnewline
-RF-01 & Il sistema deve scaricare l'elenco dei centri dermatologici da un servizio remoto pubblico.
+RF-01 & Il sistema deve scaricare l'elenco dei centri dermatologici da un servizio pubblico da remoto.
 & Obbligatorio \tabularnewline
-RF-02 & In caso di errore o di risposta non valida dal servizio principale, il sistema deve interrogare automaticamente un endpoint di riserva.
+RF-02 & In caso di errore o di risposta non valida dal servizio principale, il sistema deve interrogare automaticamente un endpoint secondario.
 & Obbligatorio \tabularnewline
 RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione interna.
 & Obbligatorio \tabularnewline
@@ -132,7 +132,7 @@ RF-28 & Il sistema deve permettere la modifica e l'eliminazione dei centri inser
 & Obbligatorio \tabularnewline
 RF-29 & I centri personalizzati devono persistere tra un avvio e l'altro dell'applicazione ed essere distinguibili sulla mappa da quelli remoti.
 & Obbligatorio \tabularnewline
-RF-30 & Il sistema deve permettere di aggiungere un centro ai preferiti e di poterne accedere all'elenco.
+RF-30 & Il sistema deve permettere di aggiungere un centro ai preferiti e di poter accedere all'elenco.
 & Obbligatorio \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Azioni sul centro selezionato}} \tabularnewline
@@ -190,47 +190,44 @@ RNF-05 & Prestazioni & Lo spostamento e lo zoom della mappa devono risultare flu
 caricato in memoria. \tabularnewline
 RNF-06 & Prestazioni & Il ricalcolo dei cluster non deve essere eseguito a ogni fotogramma dell'interazione, ma solo al
 termine del gesto. \tabularnewline
-RNF-07 & Prestazioni & L'avvio dell'applicazione non deve attendere il completamento della richiesta di rete per mostrare
+RNF-07 & Prestazioni & L'avvio dell'applicazione non deve attendere il completamento delle richieste di rete per mostrare
 la mappa. \tabularnewline
-RNF-08 & Robustezza & Ogni richiesta di rete deve avere un limite di attesa oltre il quale viene abbandonata, per non lasciare
-l'interfaccia in attesa indefinita. \tabularnewline
+RNF-08 & Robustezza & Ogni richiesta di rete deve avere un \textit{timeout} oltre il quale viene scartata, per non bloccare l'interfaccia. \tabularnewline
 RNF-09 & Robustezza & Un record malformato proveniente dal servizio remoto non deve impedire il caricamento dei record corretti. \tabularnewline
-RNF-10 & Robustezza & In assenza di connessione il sistema deve restare utilizzabile sui dati già acquisiti, segnalando
+RNF-10 & Robustezza & In assenza di connessione il sistema deve restare utilizzabile con i dati già acquisiti, segnalando
 all'utente la condizione. \tabularnewline
 RNF-11 & Robustezza & Un errore di lettura della cache locale non deve impedire l'avvio dell'applicazione. \tabularnewline
 RNF-12 & Conformità & L'attribuzione dei dati cartografici deve essere sempre visibile, come previsto dalla licenza della
 sorgente. \tabularnewline
 RNF-13 & Conformità & Le richieste ai servizi pubblici devono identificare l'applicazione e rispettare i limiti di frequenza
 dichiarati nelle rispettive policy. \tabularnewline
-RNF-14 & Riservatezza & La posizione dell'utente deve essere impiegata soltanto in locale, per il centraggio della mappa e per il
+RNF-14 & Riservatezza & La posizione dell'utente deve essere impiegata per il centraggio della mappa e per il
 calcolo delle distanze, e non deve essere trasmessa ad alcun servizio. \tabularnewline
 RNF-15 & Riservatezza & Il sistema non deve richiedere registrazione, credenziali o dati personali identificativi. \tabularnewline
 RNF-16 & Portabilità & L'applicazione deve essere realizzata con un'unica base di codice per Android e iOS, dichiarando su entrambe
 le piattaforme i permessi necessari. \tabularnewline
 RNF-17 & Manutenibilità & Il modello dei dati interno deve essere indipendente dallo schema delle sorgenti remote, così da consentire
 la sostituzione di un endpoint senza modifiche all'interfaccia. \tabularnewline
-RNF-18 & Manutenibilità & La logica di serializzazione e la logica di calcolo delle distanze devono essere verificabili
-con test automatici eseguibili senza dispositivo. \tabularnewline
 \caption{Requisiti non funzionali del sistema.}
 \label{tab:requisiti-non-funzionali}
 \end{longtable}
 \normalsize
 
-I requisiti di usabilità sono importanti, come definito nei paragrafi successivi.
+I requisiti di usabilità sono definiti nei paragrafi successivi.
 La norma ISO 9241 definisce l'usabilità come il grado in cui un sistema permette a determinati utenti di raggiungere obiettivi
-specifici con efficacia, efficienza e soddisfazione in un contesto d'uso determinato \cite{iso9241}, e in questo caso il contesto
-d'uso, cioè una persona in movimento che cerca una struttura sanitaria, è parte integrante della specifica.
-Le classiche linee guida di valutazione dell'interfaccia \cite{nielsenUsability} hanno guidato in particolare i requisiti
-RNF-03 e RNF-04: la visibilità dello stato del sistema e l'uso di un linguaggio comprensibile all'utente sono due dei dieci criteri,
-e sono anche i due punti su cui un'applicazione che dipende dalla rete sbaglia più facilmente.
+specifici con efficacia, efficienza e soddisfazione in un determinato contesto d'uso \cite{iso9241}, e in questo caso il contesto
+d'uso, cioè una persona che cerca una struttura sanitaria, è parte integrante della specifica.
+%Le classiche linee guida di valutazione dell'interfaccia \cite{nielsenUsability} hanno guidato in particolare i requisiti
+%RNF-03 e RNF-04: la visibilità dello stato del sistema e l'uso di un linguaggio comprensibile all'utente sono due dei dieci criteri,
+%e sono anche i due punti su cui un'applicazione che dipende dalla rete sbaglia più facilmente.
 
 \section{Casi d'Uso}\label{sec:casi-duso}
 
-Il diagramma di figura \ref{fig:casi-uso} raccoglie le interazioni principali.
+Il diagramma della figura \ref{fig:casi-uso} raccoglie le interazioni principali.
 L'utente compare a sinistra, i casi d'uso sono racchiusi nel confine del sistema, e i servizi esterni sono collegati con
-linee tratteggiate ai soli casi d'uso che li coinvolgono: la resa cartografica e l'acquisizione dell'elenco dipendono da
+linee tratteggiate ai soli casi d'uso che li coinvolgono: la cartina geografica e l'acquisizione dell'elenco dipendono da
 servizi remoti, la ricerca per indirizzo dalla geocodifica, la ricerca dei centri vicini dal sistema operativo, mentre
-indicazioni e contatti delegano ad applicazioni installate sul dispositivo.
+indicazioni e contatti delegano il compito ad applicazioni installate sul dispositivo.
 
 \begin{figure}[H]
 \centering
@@ -277,10 +274,10 @@ indicazioni e contatti delegano ad applicazioni installate sul dispositivo.
 
 I casi d'uso sono numerati da UC-01 a UC-08 seguendo l'ordine con cui compaiono nel diagramma, dall'alto verso il basso.
 Le schede che seguono ne mostrano nel dettaglio sei: sono esclusi il filtro per patologia e la gestione dei preferiti,
-il cui svolgimento si riduce all'attivazione di un comando e al conseguente aggiornamento della vista,
+il cui svolgimento si riduce all'attivazione di un comando e all'aggiornamento della \textit{View} (vista),
 senza diramazioni particolari.
-Per gli altri la sequenza di interazione non è immediata, oppure il comportamento in caso di errore conviene definirlo per iscritto.
-L'ultima riga di ogni scheda richiama i requisiti funzionali corrispondenti, così da rendere verificabile la copertura della specifica.
+%Per gli altri la sequenza di interazione non è immediata, oppure il comportamento in caso di errore conviene definirlo per iscritto.
+L'ultima riga di ogni scheda richiama i requisiti funzionali corrispondenti.%, così da rendere verificabile la copertura della specifica.
 
 \begin{table}[H]
 \footnotesize
@@ -291,7 +288,7 @@ L'ultima riga di ogni scheda richiama i requisiti funzionali corrispondenti, cos
 Attore primario & Utente \tabularnewline
 Attori secondari & Servizio elenco centri, server dei tile \tabularnewline
 Precondizioni & L'applicazione è stata avviata.
-Nessun permesso è necessario. \tabularnewline
+Nessun permesso necessario. \tabularnewline
 Postcondizioni & La mappa mostra i centri disponibili nell'area visibile. \tabularnewline
 Scenario principale & 1.
 L'utente apre l'applicazione.
@@ -301,11 +298,11 @@ L'utente apre l'applicazione.
 \newline 5. L'utente sposta la viewport oppure ne modifica lo zoom.
 \newline 6. Il sistema ricalcola selezione e cluster al termine del gesto e aggiorna il disegno. \tabularnewline
 Scenari alternativi & 3a.
-Il servizio principale non risponde oppure restituisce dati non validi: il sistema interroga la sorgente alternativa e prosegue dal passo 4.
+Il servizio principale non risponde oppure restituisce dati invalidi: il sistema interroga la fonte alternativa e prosegue dal passo 4.
 \newline 3b.
-Nessuna sorgente è raggiungibile ma la cache contiene dati: il sistema resta sui dati in cache e segnala che l'elenco potrebbe non essere aggiornato.
+Nessuna fonte è raggiungibile ma la cache contiene dati: il sistema resta sui dati in cache e segnala che l'elenco potrebbe non essere aggiornato.
 \newline 3c.
-Nessuna sorgente è raggiungibile e la cache è vuota: il sistema segnala l'assenza di dati e offre un comando per ritentare.
+Nessuna fonte è raggiungibile e la cache è vuota: il sistema segnala l'assenza di dati e offre un comando per ritentare.
 \newline 4a.
 Alcuni record sono privi di coordinate valide: il sistema li scarta e disegna i rimanenti. \tabularnewline
 Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09, RF-10, RF-11 \tabularnewline
@@ -332,14 +329,14 @@ L'utente tocca il campo di ricerca e digita un indirizzo oppure il nome di una l
 \newline 4. L'utente seleziona un risultato.
 \newline 5. Il sistema chiude l'elenco, sposta la vista sulle coordinate corrispondenti e ricalcola i marker visibili. \tabularnewline
 Scenari alternativi & 2a.
-L'utente continua a digitare prima della scadenza della pausa: il sistema annulla l'interrogazione pendente e ne pianifica
+L'utente continua a digitare prima della scadenza dell'attesa: il sistema annulla l'interrogazione in corso e ne pianifica
 una nuova, in modo da non inviare una richiesta per ogni carattere.
 \newline 3a.
-Il servizio non restituisce alcun risultato: il sistema segnala l'esito negativo e lascia il testo inserito, senza spostare la vista.
+Il servizio non restituisce alcun risultato: il sistema segnala esito e lascia il testo inserito.
 \newline 3b.
 Il servizio non è raggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
 \newline 4a.
-L'utente abbandona la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
+L'utente annulla la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
 Requisiti & RF-16, RF-17, RF-18 \tabularnewline
 \bottomrule
 \end{tabularx}
