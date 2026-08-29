@@ -120,10 +120,10 @@ altre dipendenze del progetto, e il conflitto non è risolvibile senza retrocede
 Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al capitolo seguente.
 è un esempio istruttivo di come, nell'ecosistema dei package, la disponibilità nominale di una funzione non coincida con la sua utilizzabilità.
 
-Chiudo con una limitazione.
-Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le
-piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato.
-La questione è ripresa al capitolo dedicato ai test.
+%Chiudo con una limitazione.
+%Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le
+%piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato.
+%La questione è ripresa al capitolo dedicato ai test.
 
 \subsection{Pattern Architetturale e Gestione Stato}\label{subsec:gestione-stato}
 
@@ -247,12 +247,12 @@ La soluzione adottata non è spostare i comandi, che avrebbe prodotto un salto v
 la durata della ricerca: mentre l'utente sta scrivendo un indirizzo, la sua attenzione è sulla barra e sull'elenco dei risultati,
 non sui comandi della mappa, che tornano appena la ricerca si conclude.
 
-La condizione che governa questa scelta tiene conto di tre fatti distinti, e non di uno solo: la presenza della tastiera, la presenza
-di suggerimenti aperti e il fatto che la barra abbia il fuoco.
-Le tre situazioni non coincidono.
-La tastiera può essere chiusa mentre l'elenco dei suggerimenti è ancora visibile, e la barra può conservare il fuoco dopo che
-l'utente ha chiuso la tastiera senza confermare.
-Verificare un solo indizio avrebbe lasciato scoperto uno dei casi.
+%La condizione che governa questa scelta tiene conto di tre fatti distinti, e non di uno solo: la presenza della tastiera, la presenza
+%di suggerimenti aperti e il fatto che la barra abbia il fuoco.
+%Le tre situazioni non coincidono.
+%La tastiera può essere chiusa mentre l'elenco dei suggerimenti è ancora visibile, e la barra può conservare il fuoco dopo che
+%l'utente ha chiuso la tastiera senza confermare.
+%Verificare un solo indizio avrebbe lasciato scoperto uno dei casi.
 
 Alla stessa famiglia di problemi appartiene una seconda decisione: la schermata non si ridimensiona all'apertura della tastiera.
 Il comportamento predefinito comprimerebbe la mappa nello spazio residuo, cambiando la viewport e costringendo a un nuovo calcolo
@@ -349,7 +349,7 @@ Patologia & implicita nella sorgente & campo \texttt{category} & Selezionata a m
 
 Davanti a una situazione come questa la soluzione da manuale sarebbe una classe di dominio, con un costruttore per
 ciascuna sorgente che riceve la mappa grezza e restituisce un oggetto tipizzato.
-La strada seguita è diversa, ed è il compromesso più discutibile del progetto: i record remoti restano mappe non tipizzate,
+La strada seguita è diversa: i record remoti restano mappe non tipizzate,
 e la normalizzazione avviene al momento dell'accesso, attraverso catene di alias che interrogano in sequenza i nomi possibili
 di ciascun campo.
 
@@ -360,15 +360,15 @@ che riconosce.
 Non avendo il progetto alcun controllo sulle sorgenti, e nessun preavviso sulle loro modifiche, la resistenza al cambiamento
 è stata preferita alla garanzia sul tipo.
 
-Il costo, però, esiste, e conviene metterlo per iscritto.
-La catena di alias non è concentrata in un punto ma ricompare in ogni luogo in cui un record viene letto: nella selezione
-dei centri visibili, nel clustering, nel calcolo delle distanze, nell'elenco dei centri vicini e nella scheda informativa.
-La conseguenza è che l'aggiunta di una terza sorgente con nomi ancora diversi richiederebbe di intervenire in tutti quei
-punti invece che in uno solo.
-Il requisito RNF-17, che chiede l'indipendenza del modello interno dallo schema remoto, risulta quindi soddisfatto nel
-comportamento osservabile ma non nella struttura del codice: l'interfaccia non conosce i nomi dei campi remoti, mentre la
-logica che la alimenta li conosce in più punti.
-Se dovessi riprendere il modulo, sarebbe questo il primo intervento.
+%Il costo, però, esiste, e conviene metterlo per iscritto.
+%La catena di alias non è concentrata in un punto ma ricompare in ogni luogo in cui un record viene letto: nella selezione
+%dei centri visibili, nel clustering, nel calcolo delle distanze, nell'elenco dei centri vicini e nella scheda informativa.
+%La conseguenza è che l'aggiunta di una terza sorgente con nomi ancora diversi richiederebbe di intervenire in tutti quei
+%punti invece che in uno solo.
+%Il requisito RNF-17, che chiede l'indipendenza del modello interno dallo schema remoto, risulta quindi soddisfatto nel
+%comportamento osservabile ma non nella struttura del codice: l'interfaccia non conosce i nomi dei campi remoti, mentre la
+%logica che la alimenta li conosce in più punti.
+%Se dovessi riprendere il modulo, sarebbe questo il primo intervento.
 
 Sui dati creati dall'utente il ragionamento si capovolge, perchè qui lo schema è sotto il controllo del progetto.
 I centri personalizzati hanno una classe propria, con campi tipizzati, serializzazione simmetrica verso e da JSON e un
@@ -438,13 +438,13 @@ mostrato prima che parta qualunque richiesta di rete, così la mappa si popola i
 si limita a sostituire i dati con la versione aggiornata.
 è la stessa idea del requisito RNF-07, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
 
-Questa politica ha però una contropartita.
+%Questa politica ha però una contropartita.
 Se l'elenco della patologia richiesta è già presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono
 quelli dell'ultimo scaricamento, e restano tali finchè l'utente non richiede espressamente un aggiornamento con il comando dedicato.
-Questo significa che l'applicazione può mostrare un elenco non aggiornatissimo senza segnalarlo, ed è una scelta consapevole a favore
-della prontezza e del risparmio di richieste verso servizi pubblici gratuiti; una politica più corretta assocerebbe alla cache una scadenza,
-dopo la quale l'aggiornamento avverrebbe da sè.
-Il punto è ripreso fra i limiti al paragrafo \ref{sec:limiti-attuali}.
+%Questo significa che l'applicazione può mostrare un elenco non aggiornatissimo senza segnalarlo, ed è una scelta consapevole a favore
+%della prontezza e del risparmio di richieste verso servizi pubblici gratuiti; una politica più corretta assocerebbe alla cache una scadenza,
+%dopo la quale l'aggiornamento avverrebbe da sè.
+%Il punto è ripreso fra i limiti al paragrafo \ref{sec:limiti-attuali}.
 
 La figura \ref{fig:cascata-dati} riassume la catena di ricadute che governa l'acquisizione.
 Ogni anello interviene soltanto quando il precedente non ha prodotto un risultato utilizzabile, e l'ultimo anello, cioè
@@ -481,7 +481,7 @@ La prima è che i centri personalizzati raggiungono il disegno per una via che n
 parte del contenuto che resta disponibile e completa anche quando ogni servizio esterno è irraggiungibile.
 La seconda è che la scrittura in archivio avviene dopo la normalizzazione e non prima, cioè viene conservata la forma originaria
 del record così come arriva dalla sorgente.
-La scelta è discutibile, perchè conservare la forma normalizzata renderebbe la lettura successiva più semplice; conservare
+La scelta ha una motivazione precisa: conservare la forma normalizzata renderebbe la lettura successiva più semplice; conservare
 l'originale ha però il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione,
 che può cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
 

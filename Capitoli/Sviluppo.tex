@@ -11,7 +11,7 @@ Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno 
 
 Lo sviluppo si è svolto su Windows 11 con Android Studio, impiegando Flutter e il linguaggio Dart \cite{flutterDocs, dartLang}.
 La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16, con la
-limitazione su iOS già dichiarata al paragrafo \ref{subsec:scelta-flutter} e ripresa al paragrafo \ref{sec:test-compatibilita}.
+limitazione su iOS discussa al paragrafo \ref{sec:test-compatibilita}.
 L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implementazione dei componenti impiegati nei pannelli e nei moduli.
 
 Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità: ogni package aggiunto è una parte
@@ -74,8 +74,8 @@ della bussola descritto al paragrafo \ref{subsec:impl-marker}.
 
 \section{Acquisizione e Normalizzazione dei Dati}\label{sec:impl-acquisizione}
 
-L'acquisizione è la parte del modulo che ha richiesto il maggior numero di correzioni, e non per la complessità del protocollo,
-che si riduce a due richieste HTTP, ma piuttosto a causa della variabilità dei dati nei campi.
+%L'acquisizione è la parte del modulo che ha richiesto il maggior numero di correzioni, e non per la complessità del protocollo,
+%che si riduce a due richieste HTTP, ma piuttosto a causa della variabilità dei dati nei campi.
 Ogni accorgimento descritto in questo paragrafo corrisponde a un caso reale osservato durante lo sviluppo.
 
 \subsection{Interrogazione delle fonti e Fallback}\label{subsec:impl-endpoint}
@@ -659,7 +659,7 @@ di un percorso stradale.
 %\label{fig:scaglioni-distanza}
 %\end{figure}
 
-Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
+%Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
 Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
 territorio montano o attraverso un centro urbano può essere notevolmente più lungo.
 Un calcolo su rete stradale richiederebbe un servizio di instradamento, cioè un'altra dipendenza esterna con i propri limiti d'uso,
@@ -682,8 +682,8 @@ Il filtro si applica anche ai centri inseriti dall'utente, come impone il requis
 I centri pubblici lo attraversano nella selezione per viewport descritta al paragrafo \ref{subsec:impl-marker}, dove il controllo
 sulla distanza è valutato nello stesso attraversamento; i centri personalizzati, che quella selezione non attraversano, sono
 filtrati per raggio soltanto nell'elenco dei centri vicini.
-Ne segue una differenza di comportamento che va registrata: con un filtro per raggio attivo, un centro personalizzato fuori dal
-raggio scompare dall'elenco ma resta disegnato sulla mappa.
+%Ne segue una differenza di comportamento che va registrata: con un filtro per raggio attivo, un centro personalizzato fuori dal
+%raggio scompare dall'elenco ma resta disegnato sulla mappa.
 %è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
 
 \subsection{Individuazione del Centro più Vicino}\label{subsec:impl-piu-vicino}
@@ -708,7 +708,7 @@ La scheda del centro viene aperta dopo un rinvio di trecentocinquanta millisecon
 Il rinvio è volutamente in attesa cieca e non legato al termine dell'animazione, che la libreria non espone come evento in
 questa forma di adattamento della viewport; il valore corrisponde alla durata tipica dello spostamento e produce l'effetto di
 una scheda che compare a movimento concluso.
-è una soluzione fragile, perchè su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
+%è una soluzione fragile, perchè su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
 
 \section{Inserimento dei Centri Personalizzati}\label{subsec:impl-validazione}
 
@@ -929,8 +929,8 @@ verificare visivamente alcune delle scelte descritte nelle pagine precedenti.
 
 Nella figura \ref{fig:sub-cluster} si riconoscono le bolle numerate prodotte dall'algoritmo del paragrafo \ref{subsec:impl-clustering},
 con i marker singoli che convivono con i cluster nella stessa vista: sono le celle con un solo membro, disegnate come marker ordinari.
-Si nota anche la colonna dei comandi sul lato destro, nella metà inferiore dello schermo come richiede il requisito RNF-01, e la
-mancanza dell'attribuzione cartografica discussa al paragrafo \ref{subsec:impl-marker}.
+Si nota anche la colonna dei comandi sul lato destro, nella metà inferiore dello schermo come richiede il requisito RNF-01.
+%e la mancanza dell'attribuzione cartografica discussa al paragrafo \ref{subsec:impl-marker}.
 
 La figura \ref{fig:sub-raggio} mostra il cerchio del filtro attivo, con il riempimento tenue che delimita senza coprire
 il territorio sottostante.

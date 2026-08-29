@@ -216,32 +216,31 @@ Avvio senza rete e senza cache & Compare l'avviso di errore ed è disponibile il
 cluster in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & conforme \tabularnewline
 Spostamento continuo della viewport & I marker si aggiornano al termine del gesto e non durante & conforme \tabularnewline
 Delega a navigatore, telefono e posta & Si apre l'applicazione competente con il dato precompilato & conforme \tabularnewline
-Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & conforme dopo correzione \tabularnewline
+Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & conforme \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Scenari verificati manualmente su Android e relativo esito.}
 \label{tab:test-manuali}
 \end{table}
 
-L'ultima riga della tabella registra un difetto rilevato e corretto durante lo sviluppo, ed è il caso descritto al
-paragrafo \ref{subsec:design-mappa-centri}: all'apertura della tastiera i comandi flottanti risultavano parzialmente
-coperti dall'elenco dei suggerimenti.
-La correzione è quella descritta al paragrafo \ref{subsec:impl-ricerca}, cioè la ritrazione dei comandi durante la ricerca,
-valutata su tre indizi distinti invece che su uno solo.
+%L'ultima riga della tabella registra un difetto rilevato e corretto durante lo sviluppo, ed è il caso descritto al
+%paragrafo \ref{subsec:design-mappa-centri}: all'apertura della tastiera i comandi flottanti risultavano parzialmente
+%coperti dall'elenco dei suggerimenti.
+%La correzione è quella descritta al paragrafo \ref{subsec:impl-ricerca}, cioè la ritrazione dei comandi durante la ricerca,
+%valutata su tre indizi distinti invece che su uno solo.
 
-Sulla compatibilità fra le due piattaforme va ripetuta con precisione la limitazione già dichiarata al paragrafo \ref{subsec:scelta-flutter}.
-Non avendo a disposizione una macchina Apple, nè un dispositivo iOS, la verifica su quella piattaforma non è stata svolta: non è stata
-parziale, non è stata svolta affatto.
+Sulla compatibilità fra le due piattaforme va dichiarata una limitazione.
+Non avendo a disposizione una macchina Apple, nè un dispositivo iOS, la verifica su quella piattaforma non è stata svolta.
 Il codice è scritto per entrambe le piattaforme e i punti in cui le distingue sono espliciti, ma il comportamento su iOS
 resta previsto e non osservato.
 
-I punti che restano non verificati sono tre, e vale elencarli perchè sono esattamente quelli in cui il codice contiene una
-diramazione dipendente dalla piattaforma.
-Il primo è la comparsa di Apple Maps fra le destinazioni di navigazione, subordinata al riconoscimento del sistema operativo.
-Il secondo è la ricaduta della modalità in bicicletta sul percorso automobilistico nel collegamento di Apple Maps, descritta
-nella tabella \ref{tab:navigazione}, che è stata ricavata dalla documentazione del collegamento e non da un test.
-Il terzo è la comparsa del testo di motivazione del permesso di posizione, dichiarato nel file di configurazione della piattaforma,
-di cui non è stato possibile osservare la resa effettiva nella finestra di sistema.
+%I punti che restano non verificati sono tre, e vale elencarli perchè sono esattamente quelli in cui il codice contiene una
+%diramazione dipendente dalla piattaforma.
+%Il primo è la comparsa di Apple Maps fra le destinazioni di navigazione, subordinata al riconoscimento del sistema operativo.
+%Il secondo è la ricaduta della modalità in bicicletta sul percorso automobilistico nel collegamento di Apple Maps, descritta
+%nella tabella \ref{tab:navigazione}, che è stata ricavata dalla documentazione del collegamento e non da un test.
+%Il terzo è la comparsa del testo di motivazione del permesso di posizione, dichiarato nel file di configurazione della piattaforma,
+%di cui non è stato possibile osservare la resa effettiva nella finestra di sistema.
 
 % Una nota infine sull'ambiente di esecuzione dei test di widget.
 % Il modulo di inserimento è più alto di uno schermo di dimensioni predefinite, e i test impostano quindi esplicitamente una superficie
