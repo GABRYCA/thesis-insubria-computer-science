@@ -21,7 +21,7 @@ Entrambe le cose hanno conseguenze dirette sulla progettazione, discusse rispett
 paragrafo \ref{subsec:strategia-cache}.
 
 L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura \ref{fig:architettura}.
-La separazione non è imposta da un framework: è una disciplina adottata deliberatamente, perchè il modulo risiede in un singolo widget tree e,
+La separazione non è imposta da un framework: è una disciplina adottata deliberatamente, perché il modulo risiede in un singolo widget tree e,
 senza una convenzione esplicita, le responsabilità tenderebbero a mescolarsi.
 
 \begin{figure}[H]
@@ -78,11 +78,11 @@ risulta la più vicina, se un permesso di posizione va richiesto oppure se occor
 e se i dati immessi in un modulo sono accettabili.
 
 Il livello di accesso ai dati si occupa dell'acquisizione dalle sorgenti remote, della normalizzazione dei record e della loro conservazione.
-è l'unico livello che conosce la forma originaria dei dati, e questa è la ragione principale per cui è stato tenuto separato:
+È l'unico livello che conosce la forma originaria dei dati, e questa è la ragione principale per cui è stato tenuto separato:
 sopra di esso circolano soltanto record già resi omogenei.
 
 Anche il verso delle frecce della figura dice qualcosa.
-Gli scambi fra livelli sono bidirezionali perchè alle richieste discendenti corrispondono aggiornamenti ascendenti, mentre i
+Gli scambi fra livelli sono bidirezionali perché alle richieste discendenti corrispondono aggiornamenti ascendenti, mentre i
 collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita: l'applicazione interroga o delega, ma nessun sistema
 esterno la contatta di propria iniziativa.
 
@@ -106,10 +106,10 @@ Per un progetto di tesi, privo di budget e destinato a rimanere una dimostrazion
 e un ostacolo alla riproducibilità del lavoro da parte di chi lo esamina.
 
 La cartografia si appoggia quindi a OpenStreetMap attraverso una libreria che si limita a effettuare il rendering dei tile e
-a gestire la viewport, senza chiavi nè registrazioni.
+a gestire la viewport, senza chiavi né registrazioni.
 La contropartita è che tutto ciò che il servizio commerciale avrebbe fornito compreso nel prezzo va costruito: il clustering
 dei marker, la selezione di quelli effettivamente visibili e la ricerca per indirizzo.
-è per questo motivo che buona parte del capitolo seguente descrive algoritmi che, con una scelta iniziale diversa, non sarebbe
+È per questo motivo che buona parte del capitolo seguente descrive algoritmi che, con una scelta iniziale diversa, non sarebbe
 stato necessario sviluppare.
 
 Il costo si è manifestato anche in una forma meno prevedibile.
@@ -118,9 +118,9 @@ problema senza scrivere codice.
 In pratica quell'estensione richiede una versione della libreria di calcolo geografico incompatibile con quella imposta dalle
 altre dipendenze del progetto, e il conflitto non è risolvibile senza retrocedere l'intera catena di dipendenze.
 Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al capitolo seguente.
-è un esempio istruttivo di come, nell'ecosistema dei package, la disponibilità nominale di una funzione non coincida con la sua utilizzabilità.
+È un esempio istruttivo di come, nell'ecosistema dei package, la disponibilità sulla carta di una funzione non coincida con la sua utilizzabilità.
 
-%Chiudo con una limitazione.
+%Chiude con una limitazione.
 %Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le
 %piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato.
 %La questione è ripresa al capitolo dedicato ai test.
@@ -128,9 +128,9 @@ Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al c
 \subsection{Pattern Architetturale e Gestione Stato}\label{subsec:gestione-stato}
 
 Per la gestione dello stato non è stata adottata alcuna libreria dedicata.
-La decisione è deliberata e va giustificata, perchè va in direzione contraria alla pratica corrente.
+%La decisione è deliberata e va giustificata, perché va in direzione contraria alla pratica corrente.
 
-Il modulo mappa ha un solo consumatore dei propri dati e nessuna necessità di condividerli con parti distanti dell'widget tree.
+Il modulo mappa ha un solo consumatore dei propri dati e nessuna necessità di condividerli con parti distanti della UI (\textit{User Interface}).
 Introdurre un contenitore di stato esterno avrebbe aggiunto un livello di indirezione senza eliminare complessità: lo stato sarebbe
 stato spostato, non semplificato.
 Gli strumenti offerti dal framework, uno stato locale associato al widget e una notifica puntuale verso i soli elementi interessati,
@@ -186,9 +186,11 @@ Tutte le decisioni descritte in questa sezione derivano da questa considerazione
 
 \subsection{Flusso di Navigazione e Mappa dell'App}\label{subsec:flusso-navigazione}
 
-Il modulo occupa una schermata intera, raggiunta da una View precedente che gli trasmette due informazioni: la patologia di
+Il modulo occupa una schermata intera,
+%raggiunta da una vista precedente che gli trasmette
+basata su due informazioni: la patologia di
 interesse e, se già disponibile, la posizione dell'utente.
-Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe essere già stato concesso, e consente di
+Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe già essere stato concesso, e consente di
 aprire la mappa direttamente sulla zona utile invece che su una viewport predefinita.
 
 Da quel punto in avanti la navigazione si ferma.
@@ -201,13 +203,13 @@ Questa scelta ha un costo che vale dichiarare.
 I pannelli modali non si impilano: da un pannello non se ne apre un altro, e dove servirebbe una sequenza di due passi il
 primo pannello viene chiuso prima di aprire il secondo.
 Accade nel passaggio dalla scheda di una struttura personalizzata al modulo di modifica, e nella conferma di eliminazione.
-è un compromesso accettato consapevolmente, perchè l'alternativa avrebbe portato a pannelli sovrapposti con una gerarchia
+È un compromesso accettato consapevolmente, perché l'alternativa avrebbe portato a pannelli sovrapposti con una gerarchia
 di chiusura difficile da prevedere per l'utente.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[font=\footnotesize]
-\node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!4] (view) at (2,7.5) {View precedente};
+\node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!4] (view) at (2,7.5) {Vista precedente};
 \node[layer, minimum width=3.8cm, minimum height=0.9cm, fill=black!8] (mappa) at (2,6.0) {Schermata mappa};
 \draw[flow] (2,7.05) -- (2,6.45);
 \node[anchor=west, font=\scriptsize, align=left, text width=3.3cm] at (4.05,6.7) {patologia selezionata, posizione se disponibile};
@@ -238,7 +240,7 @@ La schermata è costruita per sovrapposizione: la mappa occupa tutto lo spazio d
 senza sottrarle superficie.
 La scelta può sembrare ovvia, ma l'alternativa, cioè riservare ai comandi una fascia propria in alto o in basso, avrebbe
 ridotto la porzione di territorio visibile proprio sui dispositivi dove è già più scarsa.
-Poichè la mappa è il contenuto, si è preferito che i comandi le rubassero soltanto qualche decina di punti in trasparenza.
+%Poiché la mappa è il contenuto, si è preferito che i comandi le sottraessero soltanto qualche decina di punti in trasparenza.
 
 La sovrapposizione introduce però un problema che sui banchi di prova non si vede e che compare al primo uso reale: quando
 l'utente tocca la barra di ricerca, la tastiera di sistema sale dal basso e il sistema di suggerimenti apre un elenco sotto la barra.
@@ -290,7 +292,7 @@ motivo di distinguere.
 I centri pubblici vengono richiesti al servizio remoto già selezionati per patologia, e conservati separatamente per
 ciascuna: quando l'utente cambia patologia non viene applicato alcun filtro, viene semplicemente sostituito l'insieme di partenza.
 I centri personalizzati, al contrario, risiedono in un unico archivio locale e portano con sè l'elenco delle patologie a
-cui si riferiscono, perchè una struttura inserita a mano può legittimamente trattarne entrambe; per questi il filtro è valutato
+cui si riferiscono, perché una struttura inserita a mano può legittimamente trattarne entrambe; per questi il filtro è valutato
 al momento del disegno.
 
 L'asimmetria è voluta.
@@ -316,9 +318,8 @@ per essere consumate insieme, e nessuna delle due è stata pensata per questa ap
 
 \subsection{Rappresentazione e Normalizzazione}\label{subsec:modello-centri}
 
-Le sorgenti differiscono su tre piani, e conviene distinguerli perchè richiedono risposte diverse.
-Differiscono nella forma della risposta, perchè una restituisce un oggetto con i record annidati sotto una chiave mentre
-l'altra restituisce direttamente un elenco.
+Le sorgenti differiscono su tre piani, nello specifico differiscono nella forma della risposta, perché una restituisce
+un oggetto con i record annidati sotto una chiave mentre l'altra restituisce direttamente un elenco.
 Differiscono nei nomi dei campi, per cui la stessa informazione si chiama in un caso in un modo e nell'altro in un altro.
 Differiscono, infine, nel grado di strutturazione: una espone i contatti in campi dedicati, l'altra li annega in un frammento
 di HTML destinato a essere mostrato in una finestra informativa, dal quale vanno estratti.
@@ -370,11 +371,11 @@ Non avendo il progetto alcun controllo sulle sorgenti, e nessun preavviso sulle 
 %logica che la alimenta li conosce in più punti.
 %Se dovessi riprendere il modulo, sarebbe questo il primo intervento.
 
-Sui dati creati dall'utente il ragionamento si capovolge, perchè qui lo schema è sotto il controllo del progetto.
+%Sui dati creati dall'utente il ragionamento si capovolge, perché qui lo schema è sotto il controllo del progetto.
 I centri personalizzati hanno una classe propria, con campi tipizzati, serializzazione simmetrica verso e da JSON e un
 metodo di copia con modifica che conserva l'identificatore.
-La differenza di trattamento fra i due casi non è una incoerenza: dove lo schema è imposto da altri conviene essere permissivi,
-dove lo schema è nostro conviene essere rigorosi, perchè è l'unico modo di accorgersi di un errore prima che finisca nell'archivio.
+%La differenza di trattamento fra i due casi non è una incoerenza: dove lo schema è imposto da altri conviene essere permissivi,
+%dove lo schema è nostro conviene essere rigorosi, perché è l'unico modo di accorgersi di un errore prima che finisca nell'archivio.
 
 \begin{table}[H]
 \footnotesize
@@ -396,20 +397,24 @@ Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le
 \label{tab:modello-custom}
 \end{table}
 
-Due righe di questa tabella vanno spiegate, perchè sono decisioni e non conseguenze automatiche.
-La prima è la riduzione delle stringhe vuote ad assenza di valore: senza di essa un campo lasciato in bianco produrrebbe una
-stringa vuota, e la scheda del centro mostrerebbe un comando di chiamata verso un numero inesistente.
-Ricondurre il vuoto all'assenza permette di decidere una sola volta, in lettura, quali comandi abbiano senso.
+%Nel dettaglio, riferendoci a due righe della tabella:
+%\begin{enumerate}
+%    \item La prima è cosa succede alle stringhe vuote in caso di assenza del valore: senza di essa un campo lasciato in bianco produrrebbe una
+%    stringa vuota, e la scheda del centro mostrerebbe un comando di chiamata verso un numero inesistente.
+%    \item Uno spazio vuoto è più intuitivo.
+%\end{enumerate}
+
+
 
 La seconda è l'assegnazione di entrambe le patologie quando il campo manca.
 Il caso si presenta soltanto leggendo un archivio scritto da una versione precedente, che quel campo non prevedeva.
-Fra le due possibilità, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, ho scelto la
+Fra le due possibilità, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, è stata scelta la
 seconda: un centro inserito dall'utente e poi diventato invisibile sarebbe percepito come una perdita di dati, mentre un
 centro che compare una volta di troppo è al più una imprecisione visibile, e correggibile in due tocchi.
 
 C'è infine un punto in cui i due modelli non si incontrano.
 Per i centri remoti la patologia non è un attributo del record ma una proprietà dell'insieme da cui il record proviene,
-poichè la selezione avviene a monte, all'atto della richiesta; per i centri personalizzati è invece un attributo esplicito e
+poiché la selezione avviene a monte, all'atto della richiesta; per i centri personalizzati è invece un attributo esplicito e
 multivalore.
 È la stessa asimmetria osservata al paragrafo \ref{subsec:design-mappa-centri}, vista dal lato dei dati: due meccanismi
 diversi che convergono sullo stesso effetto per l'utente, cioè vedere sulla mappa soltanto i centri pertinenti alla patologia scelta.
@@ -429,21 +434,21 @@ Il terzo è l'archivio dei centri personalizzati, che non è una cache ma la sor
 viene mai invalidato.
 
 La distinzione fra il secondo e il terzo deposito è importante e non è soltanto terminologica.
-Una cache può essere cancellata senza perdita di informazione, perchè il dato originale sta altrove; un archivio primario, no.
+Una cache può essere cancellata senza perdita di informazione, perché il dato originale sta altrove; un archivio primario, no.
 Per questo i due usano chiavi separate e non vengono mai scritti dalla stessa procedura, così che un aggiornamento dell'elenco
 remoto non possa in nessun caso sovrascrivere ciò che l'utente ha inserito a mano.
 
 Sul deposito persistente è stata adottata una politica che privilegia la reattività: all'avvio l'elenco conservato viene letto e
 mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
 si limita a sostituire i dati con la versione aggiornata.
-è la stessa idea del requisito RNF-07, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
+È la stessa idea del requisito RNF-07, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
 
 %Questa politica ha però una contropartita.
 Se l'elenco della patologia richiesta è già presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono
-quelli dell'ultimo scaricamento, e restano tali finchè l'utente non richiede espressamente un aggiornamento con il comando dedicato.
+quelli dell'ultimo scaricamento, e restano tali finché l'utente non richiede espressamente un aggiornamento con il comando dedicato.
 %Questo significa che l'applicazione può mostrare un elenco non aggiornatissimo senza segnalarlo, ed è una scelta consapevole a favore
 %della prontezza e del risparmio di richieste verso servizi pubblici gratuiti; una politica più corretta assocerebbe alla cache una scadenza,
-%dopo la quale l'aggiornamento avverrebbe da sè.
+%dopo la quale l'aggiornamento avverrebbe da sé.
 %Il punto è ripreso fra i limiti al paragrafo \ref{sec:limiti-attuali}.
 
 La figura \ref{fig:cascata-dati} riassume la catena di ricadute che governa l'acquisizione.
@@ -491,5 +496,5 @@ contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cio
 Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto
 invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito
 ricostruisce l'archivio.
-La verifica di questo comportamento è fra i casi di test descritti al paragrafo \ref{sec:test-unitari}, perchè è esattamente
+La verifica di questo comportamento è fra i casi di test descritti al paragrafo \ref{sec:test-unitari}, perché è esattamente
 il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza un test automatico, resterebbe non verificato.

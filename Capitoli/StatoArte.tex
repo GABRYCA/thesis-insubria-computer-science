@@ -14,6 +14,24 @@ Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e pruri
 La psoriasi ha un profilo immunologico differente, dominato dall'asse interleuchina-23 e dei linfociti T helper 17, si presenta
 con placche eritematose a desquamazione argentea e, in una quota rilevante di pazienti, si accompagna a manifestazioni articolari
 e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
+%Le differenze principali, riassunte nella tabella \ref{tab:patologie}, giustificano elenchi di strutture separati.
+
+%\begin{table}[H]
+%\centering
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.3cm} L L@{}}
+%\toprule
+% & \textbf{Dermatite atopica} & \textbf{Psoriasi} \tabularnewline
+%\midrule
+%Meccanismo immunitario & Risposta di tipo 2, associata a un difetto della barriera cutanea & Asse dell'interleuchina-23 e linfociti T helper 17 \tabularnewline
+%Esordio tipico & Infanzia & Più frequente in età adulta \tabularnewline
+%Manifestazione cutanea & Lesioni eczematose con prurito intenso & Placche eritematose a desquamazione argentea \tabularnewline
+%Segni associati & andamento fortemente stagionale & interessamento articolare, comorbilità metaboliche e cardiovascolari \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Caratteristiche principali delle due patologie: meccanismi distinti corrispondono a percorsi di cura distinti.}
+%\label{tab:patologie}
+%\end{table}
 
 La conseguenza organizzativa è che le due patologie non vengono seguite necessariamente dalle stesse strutture.
 Alcuni ambulatori sono dedicati a una sola delle due, altri a entrambe, e la specializzazione si riflette sui farmaci disponibili
@@ -75,11 +93,31 @@ Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo 
 Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli
 remoti nella stessa mappa e negli stessi filtri.
 
+%\begin{table}[H]
+%\centering
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}L c c c@{}}
+%\toprule
+%\textbf{Capacità} & \textbf{Dermatopia} & \textbf{Vicini di Pelle} & \textbf{App realizzata} \tabularnewline
+%\midrule
+%Ricerca per prossimità e distanza & no & no & sì \tabularnewline
+%Uso della posizione del dispositivo & no & no & sì \tabularnewline
+%Visualizzazione su mappa interattiva & no & sì & sì \tabularnewline
+%Ordinamento per distanza & no & no & sì \tabularnewline
+%Funzionamento offline & no & no & sì \tabularnewline
+%Contributo dell'utente (centri propri) & no & no & sì \tabularnewline
+%Azioni dirette (chiamata, navigazione) & no & no & sì \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Confronto fra gli strumenti esistenti e l'applicazione realizzata rispetto alle capacità individuate dall'analisi.}
+%\label{tab:limiti-strumenti}
+%\end{table}
+
 \section{Piattaforme Cartografiche per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
 
 La scelta del provider cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
 di scrivere l'applicazione.
-Ho valutato tre alternative.
+Sono state valutate tre alternative.
 
 La prima è Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
 Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
@@ -92,8 +130,8 @@ La qualità dello stile è notevole, ma restano la dipendenza da un provider com
 
 La terza è OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
 l'attribuzione \cite{osmCopyright}.
-In Flutter il compito è affidato a \texttt{flutter\_map}, un package della \textit{community} che effettua il rendering dei \textit{tile layer}
-senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
+In Flutter il compito è affidato a \texttt{flutter\_map}, un package mantenuto dalla \textit{community} che effettua il rendering dei \textit{tile layer}
+(i tasselli quadrati che compongono la mappa) senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
 Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
 può essere sostituita modificando un URL.
 

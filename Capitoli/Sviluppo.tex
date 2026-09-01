@@ -2,7 +2,7 @@
 
 Questo capitolo ripercorre la realizzazione dell'App.
 L'ordine segue il percorso dei dati, prima l'ambiente e i package, poi l'acquisizione dalle fonti remote e la loro
-successiva normalizzazione, quindi il \textit{caching} sul dispositivo, la resa sulla mappa con il
+successiva normalizzazione, quindi la memorizzazione in \textit{cache} sul dispositivo, la resa sulla mappa con il
 clustering dei marker, la localizzazione, la ricerca, i filtri, i centri personalizzati inseriti dall'utente e infine
 la delega ai servizi del dispositivo.
 Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno illustrate prima le ragioni e poi il meccanismo.
@@ -16,7 +16,7 @@ L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implement
 
 Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità: ogni package aggiunto è una parte
 che può causare errori a un aggiornamento e un vincolo sulle versioni degli altri sull'intero progetto.
-La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App, con la funzione.
+La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'app, con la funzione.
 
 \begin{table}[H]
 \footnotesize
@@ -39,11 +39,11 @@ La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App,
 
 Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
 condivisione, fissata a una versione esatta.
-%Questo perchè quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
+%Questo perché quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
 %diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
 %innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
 
-Sul fronte del supporto multipiattaforma, sia per Android che per iOS, l'App richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
+Sul fronte del supporto multipiattaforma, sia per Android sia per iOS, l'app richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
 Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
 degli schemi di collegamento che l'applicazione intende interrogare, introdotta nelle ultime versioni del sistema, senza la quale
 la verifica della disponibilità di un'applicazione esterna (per esempio, Google Maps) fallirebbe anche quando l'applicazione è installata.
@@ -84,19 +84,19 @@ Le due patologie sono servite da due fonti indipendenti.
 Quella per la dermatite atopica espone un servizio che restituisce un oggetto con \textit{record} annidati raggruppati da una chiave, e non
 richiede alcun criterio particolare.
 Quella per la psoriasi è esposta da un sistema CMS (\textit{Content Management System}), che restituisce l'insieme completo dei marker per una
-mappa, dai quali occorre selezionare la categoria di interesse: la stessa mappa ospita infatti sia i centri per la psoriasi sia
-quelli per la dermatite atopica, distinti da un campo di categoria che può contenerne più di una separate da virgola.
+mappa, dai quali occorre selezionare la categoria di interesse: la stessa mappa ospita sia i centri per la psoriasi sia
+quelli per la dermatite atopica, distinti da un campo di categoria che può contenerne più di uno, separati da virgola.
 
 Due particolarità di questa seconda fonte hanno richiesto delle correzioni.
 La prima è che il servizio nega la risposta alle richieste che non dichiarano un'intestazione di identificazione compatibile con
 quella di un normale browser; la richiesta la dichiara quindi esplicitamente.
-La seconda è che il \textit{body} della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il \textit{decoder} non rimuove e che,
+La seconda è che il corpo (\textit{body}) della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il decodificatore non rimuove e che,
 rimanendo come primo carattere della stringa, rende l'intero documento non interpretabile.
 La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
 e rimozione del BOM iniziale quando presente.
 
 Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
-si ferma ma passa in \textit{fallback} sull'altra fonte.
+si ferma ma passa in \textit{fallback} (\textit{asset} di riserva) sull'altra fonte.
 Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
 %Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
 %il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
@@ -111,10 +111,10 @@ Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvi
 attenderne il risultato e senza segnalarne l'operazione.
 Il passaggio da una patologia all'altra avviene infatti con un comando a due sole posizioni, e senza
 precaricamento comporterebbe un'attesa della risposta dalla rete a ogni cambio; con il precaricamento il passaggio è istantaneo dopo la prima volta.
-L'eventuale errore del precaricamento viene ignorato, perchè riguarda dati che l'utente non ha ancora richiesto di vedere.
+L'eventuale errore del precaricamento viene ignorato, perché riguarda dati che l'utente non ha ancora richiesto di vedere.
 
 La figura \ref{fig:sequenza-endpoint} riassume la sequenza di interrogazione appena descritta, e mostra i tre punti
-in cui la pipeline si dirama: il successo della richiesta, l'attivazione del \textit{fallback} e l'avvio del
+in cui il flusso di elaborazione si dirama: il successo della richiesta, l'attivazione del \textit{fallback} e l'avvio del
 precaricamento dell'altra patologia.
 
 \begin{figure}[H]
@@ -163,8 +163,42 @@ La normalizzazione ha tre compiti distinti:
   \item Riconoscere i record inutilizzabili scartandoli senza interrompere l'elaborazione degli altri, come da requisito RNF-09.
 \end{enumerate}
 
+La figura \ref{fig:pipeline-normalizzazione} mostra la pipeline che ne risulta: ogni record attraversa in sequenza i tre
+compiti, e lo scarto di un record non valido interessa soltanto il ramo che lo contiene, senza fermare l'elaborazione
+degli altri.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=0.9, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
+              minimum height=0.7cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+\node[nd] (in) at (0,4.6) {Record grezzo\\ dalla sorgente};
+\node[nd] (alias) at (0,2.9) {Risoluzione dei campi\\ tramite catene di \textit{alias}};
+\node[nd] (contatti) at (0,1.2) {Estrazione dei contatti\\ dal testo (\textit{regex})};
+\node[nd] (coord) at (0,-0.5) {Conversione tollerante\\ delle coordinate};
+\node[dcd] (d1) at (0,-2.4) {coordinate\\ valide?};
+\node[nd, fill=black!8] (scarto) at (5.4,-2.4) {Record scartato};
+\node[nd, fill=black!5] (ok) at (0,-4.2) {Record normalizzato\\ aggiunto all'elenco};
+
+\draw[flw] (in) -- (alias);
+\draw[flw] (alias) -- (contatti);
+\draw[flw] (contatti) -- (coord);
+\draw[flw] (coord) -- (d1);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (scarto.west);
+\draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (ok.north);
+\end{tikzpicture}
+\caption{Pipeline di normalizzazione di un record: i tre compiti in sequenza e lo scarto per coordinate invalide,
+che non interrompe l'elaborazione degli altri record (requisito RNF-09).}
+\label{fig:pipeline-normalizzazione}
+\end{figure}
+
 Il primo punto si risolve con le catene di \textit{alias} già discusse al paragrafo \ref{subsec:modello-centri},
-ove la denominazione viene quindi cercata in sequenza fra i nomi che già conosciamo, la longitudine viene cercata sotto
+ove la denominazione viene quindi cercata in sequenza fra i nomi già noti, la longitudine viene cercata sotto
 due chiavi distinte, e in entrambi i casi il primo valore trovato vince sul secondo.
 
 Il secondo punto riguarda i contatti, come email e numeri di telefono, dalla fonte dei centri per la psoriasi,
@@ -206,7 +240,7 @@ La funzione restituisce un valore nullo quando la conversione non è possibile.
 Non è previsto un valore predefinito.
 Questo per un buon motivo: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro in una posizione totalmente errata,
 dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inutile.
-Restituire un valore nullo invece obbliga ogni chiamante a, nel nostro caso, ignorare il record.
+Restituire un valore nullo invece obbliga ogni chiamante, nel nostro caso, a ignorare il record.
 È l'applicazione pratica del requisito RF-04.
 
 %Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
@@ -218,36 +252,45 @@ Restituire un valore nullo invece obbliga ogni chiamante a, nel nostro caso, ign
 \subsection{Salvataggio sul Dispositivo}\label{subsec:impl-persistenza}
 
 Il salvataggio locale impiega l'archivio di coppie chiave-valore fornito dalla piattaforma, che memorizza tipi elementari e
-che viene quindi usato per custodire i dati serializzati in formato JSON. Per i tre archivi \textit{cache} descritti al paragrafo \ref{subsec:strategia-cache} le
-chiavi sono distinte:
-\begin{enumerate}
-  \item Una per ciascuna patologia, ottenuta componendo un prefisso fisso con il nome della patologia
-  \item Una per i centri personalizzati, con un \textit{version tag} (tag o suffisso di versione)
-\end{enumerate}
+che viene quindi usato per custodire i dati serializzati in formato JSON. Per i tre archivi \textit{cache} descritti al paragrafo \ref{subsec:strategia-cache}
+le chiavi sono distinte, come riassunto nella tabella \ref{tab:chiavi-cache}.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{4.4cm} P{4.6cm} L@{}}
+\toprule
+\textbf{Archivio} & \textbf{Chiave} & \textbf{Contenuto} \tabularnewline
+\midrule
+Cache dell'elenco, una per patologia & Prefisso fisso e nome della patologia & Ultimo elenco remoto scaricato, in forma originale \tabularnewline
+Centri personalizzati & Chiave fissa con suffisso di versione (\textit{version tag}) & Voci inserite dall'utente, in forma tipizzata \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Chiavi degli archivi locali: due per gli elenchi delle patologie, una per i centri personalizzati.}
+\label{tab:chiavi-cache}
+\end{table}
 
 Il \textit{version tag} nella chiave dei centri personalizzati è necessario per il seguente motivo.
 L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
 dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
 sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
 È lo stesso ragionamento che si applica alla migrazione di uno schema di database,
-%(che ho anche trattato in un tirocinio esterno),
-ridotto alla scala dell'App.
+%(che è stato anche trattato in un tirocinio esterno),
+ridotto alla scala dell'app.
 
-All'avvio vengono eseguite diverse operazioni come sono definite in \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
-Vengono prima letti i \textit{record} salvati in memoria per entrambe le patologie e riportate nella mappa,
+All'avvio vengono eseguite le operazioni definite al paragrafo \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
+Vengono prima letti i \textit{record} salvati sul dispositivo per entrambe le patologie e riportate nella mappa,
 poi viene effettuata una richiesta alla fonte.
-Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'attesa della risposta dalla rete non crea
-un'attesa; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
+Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'attesa della risposta dalla rete non blocca
+l'interazione; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
 sempre basandosi su questo meccanismo.
 
-Il salvataggio in locale viene avviato subito prima di aggiornare lo stato che attiva l'evento che esegue
-l'aggiornamento sulla mappa.
+Il salvataggio in locale viene avviato subito prima di aggiornare lo stato da cui dipende il ridisegno della mappa.
 In questo modo l'utente vede subito i marker senza dover aspettare che vengano prima scritti su disco, e un eventuale
-errore di scrittura non ha conseguenze sulla sessione in corso, poichè i dati sono comunque presenti in memoria.
-L'errore viene comunque registrato nei log, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
+errore di scrittura non ha conseguenze sulla sessione in corso, poiché i dati sono comunque presenti in memoria.
+L'errore viene comunque registrato nei \textit{log}, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
 
 Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o d'errore, restituisce un elenco vuoto.
-La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perchè un documento JSON sintatticamente
+La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perché un documento JSON sintatticamente
 valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
 I due casi sono verificati fra i test descritti al paragrafo \ref{sec:test-unitari}.
 
@@ -272,26 +315,62 @@ proporzionale al numero di marker e non alla complessità dell'intera schermata.
 
 La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport attiva,
 allargati di metà della loro estensione su ciascun lato.
-Se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
+se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
 spostamento, producendo un effetto di comparsa improvvisa lungo i lati dello schermo.
 Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha una superficie più ampia:
 si disegnano più marker di quelli necessari, in cambio di un ingresso graduale ai bordi.
-Allo stesso modo, quando il filtro per raggio è attivo, viene scartato ciò che risulti al di fuori della distanza ammessa, così che le due
-condizioni siano valutate in un unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
+Inoltre, quando il filtro per raggio è attivo, viene scartato ciò che si trova al di fuori della distanza ammessa, così che le due
+condizioni siano valutate in un'unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
 
 L'aggiornamento è governato da due meccanismi che agiscono in sequenza.
-Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi al posto
-di aggiornarla a ogni pixel, viene emesso un timer e allo scadere di esso, la mappa viene aggiornata.
+Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi invece
+di aggiornarla a ogni movimento viene avviato un timer e alla sua scadenza la mappa viene aggiornata.
 Il secondo è il confronto con il risultato precedente: se l'elenco aggiornato coincide con quello già in uso, ne viene
 annullato l'aggiornamento.
 
 Non tutti gli eventi della mappa provocano un ricalcolo.
-Vengono considerati solo quelli che segnalano la conclusione di un movimento, spostamento, di uno zoom per doppio
+Vengono considerati solo quelli che segnalano la conclusione di un movimento, uno spostamento, uno zoom per doppio
 tocco, l'utilizzo di un controllo; gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora
 sullo schermo, vengono ignorati.
 È la realizzazione del requisito RNF-06.
+La figura \ref{fig:aggiornamento-marker} riassume l'intera catena, dal tipo di evento al ridisegno del solo livello dei marker.
 
-Un controllo particolare sulla mappa è la bussola, specialmente come riallinearla al valore di default dopo una rotazione della mappa.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=0.9, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.6cm,
+              minimum height=0.7cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+\node[nd] (ev) at (0,6.2) {Evento della mappa\\ (spostamento, zoom, controllo)};
+\node[dcd] (d1) at (0,4.4) {evento conclusivo?};
+\node[nd, fill=black!8] (ign) at (5.0,4.4) {Evento ignorato};
+\node[nd] (tmr) at (0,2.6) {Riavvio del rinvio temporale};
+\node[nd] (sel) at (0,0.9) {Selezione dei centri visibili\\ (viewport allargata, filtro per raggio)};
+\node[dcd] (d2) at (0,-1.0) {elenco identico\\ al precedente?};
+\node[nd, fill=black!8] (no) at (5.0,-1.0) {Nessun ridisegno};
+\node[nd] (upd) at (0,-2.8) {Aggiornamento dell'oggetto\\ osservabile dei marker};
+\node[nd, fill=black!5] (drw) at (0,-4.4) {Ridisegno del solo\\ livello dei marker};
+
+\draw[flw] (ev) -- (d1);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (ign.west);
+\draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (tmr.north);
+\draw[flw] (tmr) -- node[midway, right=2pt, font=\scriptsize] {al termine} (sel.north);
+\draw[flw] (sel) -- (d2);
+\draw[flw] (d2.east) -- node[midway, above, font=\scriptsize] {sì} (no.west);
+\draw[flw] (d2.south) -- node[midway, right=2pt, font=\scriptsize] {no} (upd.north);
+\draw[flw] (upd) -- (drw);
+\end{tikzpicture}
+\caption{Catena di aggiornamento dei marker: solo gli eventi conclusivi riavviano il rinvio temporale, e il ridisegno
+avviene soltanto se l'elenco selezionato è cambiato.}
+\label{fig:aggiornamento-marker}
+\end{figure}
+
+Un controllo particolare della mappa è la bussola, in particolare per quanto riguarda il riallineamento al valore
+predefinito dopo una rotazione.
 Il comando compare soltanto quando si ruota la mappa di oltre due gradi, per questione pratica ed estetica,
 e la rotazione viene registrata nello stato solo quando si discosta di oltre mezzo grado dall'ultimo valore noto, per non provocare un
 aggiornamento sulla schermata a ogni fotogramma della rotazione.
@@ -314,12 +393,12 @@ final double target = start + delta;
 \label{lst:bussola}
 \end{listing}
 
-L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (attenuazione), e
+L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (interpolazione),
 al termine della quale la rotazione viene impostata esattamente a zero.
 
 \subsection{Algoritmo di clustering dei marker}\label{subsec:impl-clustering}
 
-La funzionalità di clustering è stato riscritta in modo nativo, come definito dal paragrafo \ref{subsec:scelta-flutter}, a causa di problemi di
+La funzionalità di clustering è stata riscritta in modo nativo, come discusso al paragrafo \ref{subsec:scelta-flutter}, a causa di problemi di
 compatibilità tra le versioni.
 Questo serve quando i centri dermatologici si concentrano, per esempio, nelle aree urbane, come nella zona di Milano o
 di Roma dove decine di marker finiscono a pochi punti di distanza l'uno dall'altro, sovrapponendosi fino a rendere impossibile
@@ -327,20 +406,20 @@ sia contarli e sia selezionarli.
 
 L'approccio adottato è il \textit{grid-based clustering} (clustering basato a griglia).
 Lo spazio delle coordinate viene suddiviso in celle quadrate, ogni centro visibile viene assegnato alla cella che lo
-contiene, e ogni cella non vuota produce un clustering collocato nel baricentro dei propri membri.
+contiene, e ogni cella non vuota produce un cluster collocato nel baricentro dei propri membri.
 Le celle con un solo membro danno luogo a un normale marker, quelle con più membri a un cluster (una bolla) che ne riporta il numero.
 
-La dimensione della cella dipende dallo zoom, perchè la sovrapposizione è un fenomeno che avviene sullo schermo e non sul territorio:
-due centri distanti dieci chilometri si sovrappongono in una vista più ampia ma sono ben separati in una vista più vicina.
+La dimensione della cella dipende dallo zoom, perché la sovrapposizione è un fenomeno che avviene sullo schermo e non sul territorio:
+due centri distanti dieci chilometri si sovrappongono in una vista ampia ma sono ben separati in una vista ravvicinata.
 La formula impiegata è
 \begin{equation}
 c(z) = \frac{84}{2^{z}}
 \label{eq:cella}
 \end{equation}
-dove $z$ è il livello di zoom corrente e $c(z)$ il lato della cella in gradi (formula del baricentro).
+dove $z$ è il livello di zoom corrente e $c(z)$ il lato della cella in gradi.
 La struttura della formula segue direttamente la relazione esponenziale dello schema slippy map richiamata al
 paragrafo \ref{sec:piattaforme-cartografiche}: se ogni incremento unitario dello zoom raddoppia il numero di tile per
-lato, il lato della cella deve dimezzarsi allo stesso modo perchè il suo effetto visivo resti invariato.
+lato, il lato della cella deve dimezzarsi allo stesso modo perché il suo effetto visivo resti invariato.
 
 %La costante al numeratore, fissata per tentativi successivi, a prima vista può sembrare arbitraria.
 %Il suo significato si chiarisce traducendo il lato della cella dai gradi ai punti dello schermo.
@@ -353,7 +432,7 @@ lato, il lato della cella deve dimezzarsi allo stesso modo perchè il suo effett
 
 Gli errori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
 È questa la proprietà per cui si rende necessaria la formula; la cella non è una distanza geografica ma una distanza sullo schermo, di
-poco meno di circa sessanta punti, cioè circa un quarto del lato di un tile.
+circa sessanta punti, cioè circa un quarto del lato di un tile.
 La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero di gradi che a ogni zoom corrisponde a
 quella distanza sullo schermo.
 
@@ -380,7 +459,7 @@ La tabella \ref{tab:celle} riporta i valori a diversi livelli di zoom.
 \bottomrule
 \end{tabular}
 \caption{Dimensione della cella di clustering ai vari livelli di zoom. Le distanze in metri e l'altezza in punti sono calcolate
-alla latitudine di 45° gradi.}
+alla latitudine di 45 gradi.}
 \label{tab:celle}
 \end{table}
 
@@ -391,7 +470,7 @@ alla latitudine di 45° gradi.}
 Il codice \ref{lst:clustering} riporta la costruzione dei cluster.
 L'assegnazione alla cella avviene dividendo le coordinate per il lato e troncando all'intero inferiore; le celle sono conservate
 in una struttura associativa a due livelli, indicizzata prima per colonna e poi per riga, e ogni cella non vuota produce un
-clustering nel baricentro dei propri membri.
+cluster nel baricentro dei propri membri.
 
 \begin{listing}[H]
 \begin{minted}{dart}
@@ -423,14 +502,14 @@ List<_Cluster> _buildClusters(List<dynamic> centers, double zoom) {
   return clusters;
 }
 \end{minted}
-\caption{Costruzione dei grid-based cluster dipendente dallo zoom.}
+\caption{Costruzione dei cluster a griglia dipendente dallo zoom.}
 \label{lst:clustering}
 \end{listing}
 
-Il costo dell'algoritmo è lineare per il numero di centri esaminati, perchè ciascuno viene collocato nella propria cella con un
+Il costo dell'algoritmo è lineare nel numero di centri esaminati, perché ciascuno viene collocato nella propria cella con un
 numero costante di operazioni e nessun punto viene confrontato con nessun altro.
 
-%Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perchè non è evidente dal codice.
+%Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perché non è evidente dal codice.
 %La griglia è ancorata all'origine delle coordinate, cioè all'intersezione fra equatore e meridiano fondamentale, e non all'angolo
 %dell'area visibile.
 %Ne segue che la cella di appartenenza di un centro dipende soltanto dalle sue coordinate e dallo zoom, e non da dove l'utente
@@ -465,12 +544,12 @@ cella per rendere la lettura indipendente dal livello di zoom.
     \fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
     \node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
     \node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: marker ordinario};
-    \node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun clustering};
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun cluster};
     \draw[flowdash, shorten >=1pt] (2.62,2.42) -- (3.15,2.42);
     \draw[flowdash, shorten >=1pt] (1.4,0.35) -- (3.15,1.5);
     \draw[flowdash, shorten >=1pt] (1.05,0.2) -- (3.15,0.6);
   \end{tikzpicture}
-  \caption{Principio del clustering a griglia: le celle sono ancorate all'origine delle coordinate e ogni x celle non vuote si crea un clustering nel baricentro dei propri membri, oppure un marker ordinario qualora ne sia presente soltanto uno.}
+   \caption{Principio del clustering a griglia: le celle sono ancorate all'origine delle coordinate e ogni cella non vuota produce un cluster nel baricentro dei propri membri, oppure un marker ordinario qualora contenga un solo centro.}
   \label{fig:clustering}
 \end{figure}
 
@@ -481,7 +560,7 @@ cella per rendere la lettura indipendente dal livello di zoom.
 %comunque una scena leggibile: nel peggiore dei casi si vedono due bolle dove una sarebbe bastata.
 %La stabilità del risultato mi è sembrata un requisito più importante della completezza dell'aggregazione.
 
-La selezione di una bolla, per esempio tramite tocco, provoca un avvicinamento di due livelli di zoom, il limite massimo è il diciottesimo livello.
+La selezione della bolla, per esempio tramite tocco, provoca un avvicinamento di due livelli di zoom; il limite massimo è il diciottesimo livello.
 Il valore rispetta il requisito RF-10, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
 Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di
 partenza in un massimo di sedici nuove celle.
@@ -497,7 +576,7 @@ l'applicazione deve restare utilizzabile anche quando la posizione non c'è, com
 Il permesso non viene richiesto all'avvio.
 La schermata riceve dalla vista precedente la posizione, se questa è già disponibile, e in quel caso si limita ad avviare il flusso di
 aggiornamento senza alcuna richiesta all'utente; quando invece la posizione non arriva, la richiesta viene rinviata al momento in cui
-l'utente attiva una funzione che la necessita, cioè il ritorno alla propria posizione, il centro più vicino o l'elenco dei centri vicini.
+l'utente attiva una funzione che ne ha bisogno, cioè il ritorno alla propria posizione, il centro più vicino o l'elenco dei centri vicini.
 Traduce il requisito RF-12, ed è anche una scelta di merito: un permesso chiesto prima che ne sia evidente il motivo viene negato con maggiore
 frequenza di uno chiesto in risposta a un comando esplicito.
 
@@ -520,29 +599,29 @@ volta, oppure può essere stato negato in modo permanente.
   \node[comp, text width=3.4cm, minimum height=0.9cm] (stream) at (0,-1.4) {Flusso di aggiornamento};
   \draw[flow] (start) -- (d1);
   \draw[flow] (d1) -- node[above, font=\scriptsize] {no} (imp1);
-  \draw[flow] (d1) -- node[right, font=\scriptsize, xshift=1pt] {si} (d2);
+  \draw[flow] (d1) -- node[right, font=\scriptsize, xshift=1pt] {sì} (d2);
   \draw[flow] (d2) -- node[above, font=\scriptsize] {negato sempre} (imp2);
   \draw[flow] (d2) -- node[above, font=\scriptsize] {da chiedere} (req);
   \draw[flow] (req.south) |- (0,2.8) -| (imp2.south) node[midway, above, font=\scriptsize] {negato};
   \draw[flow] (req.south) |- (-4.6,1.5) -- (last.west) node[midway, above, font=\scriptsize] {concesso};
-  \draw[flow] (d2) -- node[right, font=\scriptsize, xshift=1pt] {concesso} (last);
+  \draw[flow] (d2) -- node[right, font=\scriptsize, xshift=1pt] {sì} (last);
   \draw[flow] (last) -- (fresh);
   \draw[flow] (fresh) -- (stream);
   \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,1.5) {se presente};
   \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,0.1) {appena disponibile};
-  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-1.4) {ogni 25 metri si aggiorna};
+   \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-1.4) {aggiornamento ogni 25 metri};
   \end{tikzpicture}
-  \caption{Stati attraversati nell'acquisizione della posizione. Sia in caso di posizione concessa o meno.}
+  \caption{Stati attraversati nell'acquisizione della posizione, sia in caso di posizione concessa che negata.}
   \label{fig:permessi}
 \end{figure}
 
-La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perchè le due
+La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perché le due
 condizioni si risolvono in schermate di sistema diverse: la prima nelle impostazioni di localizzazione del dispositivo,
 la seconda nella scheda dell'applicazione.
 Portare l'utente nella schermata sbagliata equivale a non aiutarlo: l'interruttore che cerca non si trova lì.
 Il negato permanente, in particolare, si riconosce dal fatto che da quello stato il sistema operativo non ripresenta più la richiesta:
 insistere con una nuova domanda non produrrebbe alcuna finestra e l'utente vedrebbe un comando che non fa nulla.
-In quel caso l'unica strada è il collegamento diretto alle impostazioni, come chiede il requisito RF-15.
+In quel caso l'unica strada è il collegamento diretto alle impostazioni, come richiesto dal requisito RF-15.
 
 L'acquisizione riuscita procede in due tempi, e la ragione è la reattività percepita.
 La posizione di alta precisione richiede alcuni secondi, durante i quali l'interfaccia non avrebbe nulla da mostrare; l'ultima posizione
@@ -577,6 +656,45 @@ La conseguenza è che una digitazione fluida non produce alcuna richiesta fino a
 dipende dal numero di pause invece che dal numero di caratteri.
 Il valore di mezzo secondo è il doppio di quello impiegato per il ricalcolo dei marker descritto al paragrafo \ref{subsec:impl-marker},
 e la differenza è voluta: nel primo caso si tratta di rispettare un limite d'uso esterno, nel secondo soltanto di non sprecare calcolo locale.
+La figura \ref{fig:debounce} mostra il comportamento della digitazione con il rinvio: ogni nuovo carattere annulla il rinvio
+pendente e ne programma uno nuovo, quindi la richiesta parte solo alla prima pausa.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=0.92, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=5pt, minimum height=0.75cm}]
+
+  \draw[black!70, thick, -{Latex[length=2mm]}] (-0.3,0) -- (11.2,0);
+\foreach \x/\lab in {0/{0\,s}, 2/{0{,}5\,s}, 4/{1{,}0\,s}, 6/{1{,}5\,s}, 8/{2{,}0\,s}, 10/{2{,}5\,s}} {
+  \draw[black!70, thin] (\x,-0.08) -- (\x,0.08);
+  \node[below=3pt, font=\scriptsize] at (\x,0) {\lab};
+}
+
+\foreach \x in {0.3, 0.9, 1.5, 6.3, 6.9} {
+  \node[circle, fill=black!75, inner sep=0pt, minimum size=4pt] at (\x,0) {};
+}
+
+\draw[black!55, dashed, thick] (1.5,0) -- (1.5,1.5) -- (2.5,1.5);
+\draw[black!55, dashed, thick] (2.5,1.5) -- (2.5,0);
+\node[font=\scriptsize, align=left, anchor=west] at (2.7,1.6) {rinvio 1: avviato e riavviato due volte};
+
+  \draw[black!55, dashed, thick] (6.9,0) -- (6.9,0.9) -- (7.9,0.9);
+\draw[black!55, dashed, thick] (7.9,0.9) -- (7.9,0);
+\node[font=\scriptsize, align=left, anchor=west] at (8.1,1.0) {rinvio 2};
+
+  \node[nd] (r1) at (2.5,-1.1) {richiesta 1};
+\node[nd] (r2) at (7.9,-1.1) {richiesta 2};
+\draw[flowdash] (2.5,-0.1) -- (r1.north);
+\draw[flowdash] (7.9,-0.1) -- (r2.north);
+
+  \node[font=\scriptsize, align=center, anchor=east] at (1.35,0.55) {3 caratteri};
+\node[font=\scriptsize, align=center, anchor=east] at (6.75,0.55) {2 caratteri};
+\end{tikzpicture}
+\caption{Comportamento del rinvio sull'input di ricerca: la richiesta parte soltanto quando la digitazione si interrompe
+per mezzo secondo, quindi il numero di richieste dipende dalle pause e non dai caratteri.}
+\label{fig:debounce}
+\end{figure}
 
 %Questo accorgimento riduce il numero di richieste ma non garantisce formalmente il limite di frequenza.
 %Una digitazione a scatti, con pause di poco superiori al mezzo secondo, produce una richiesta per ciascuna pausa e può
@@ -601,7 +719,7 @@ intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile
 Il requisito RF-22 chiede che il calcolo delle distanze tenga conto della curvatura terrestre, e la richiesta non è un eccesso di rigore.
 Trattare latitudine e longitudine come coordinate cartesiane, cioè applicare il teorema di Pitagora ai gradi, produce un errore che
 dipende dalla latitudine e che alle latitudini italiane è dell'ordine del trenta per cento sulle distanze in direzione est-ovest,
-perchè un grado di longitudine misura circa settantotto chilometri a Milano e centoundici all'equatore.
+perché un grado di longitudine misura circa settantotto chilometri a Milano e centoundici all'equatore.
 Su un elenco ordinato per distanza un errore di quell'entità non si limita a sbagliare i numeri: cambia l'ordine dei risultati,
 ed è quindi visibile all'utente come un centro più lontano collocato prima di uno più vicino.
 
@@ -611,53 +729,53 @@ dell'ordine delle decine o centinaia di chilometri, l'approssimazione sferica è
 ellissoide resta entro qualche parte per mille, ben al di sotto della precisione con cui i risultati vengono presentati all'utente.
 
 La presentazione delle distanze segue tre scaglioni, scelti in base a quello che l'utente può fare con il dato.
-Sotto il chilometro la distanza è espressa in metri arrotondati, perchè a quella scala la differenza fra trecento e
+Sotto il chilometro la distanza è espressa in metri arrotondati, perché a quella scala la differenza fra trecento e
 ottocento metri decide se andare a piedi.
 Fra uno e dieci chilometri viene usato un decimale.
-Oltre i dieci chilometri l'arrotondamento è al chilometro intero, perchè i decimali su una distanza di cinquanta
+Oltre i dieci chilometri l'arrotondamento è al chilometro intero, perché i decimali su una distanza di cinquanta
 chilometri suggerirebbero una precisione che il dato non ha, trattandosi comunque di una distanza in linea d'aria e non
 di un percorso stradale.
 
-%La figura \ref{fig:scaglioni-distanza} rappresenta i tre scaglioni come fasce adiacenti su un asse, associate ciascuna
-%all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
+La figura \ref{fig:scaglioni-distanza} rappresenta i tre scaglioni come fasce adiacenti su un asse, associate ciascuna
+all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
 
-%\begin{figure}[H]
-%\centering
-%\begin{tikzpicture}[font=\footnotesize, xscale=0.9, yscale=0.84, transform shape]
-%\draw[black!70, thick, -{Latex[length=2mm]}] (-0.3, 0) -- (12.6, 0);
-%\foreach \x/\lab in {0/{0}, 1/{1 km}, 10/{10 km}} {
-%  \draw[black!70, thick] (\x, -0.10) -- (\x, 0.10);
-%  \node[below=4pt, font=\scriptsize] at (\x, 0) {\lab};
-%}
-%\foreach \x in {0.25, 0.5, 0.75} {
-%  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
-%}
-%\foreach \x in {2, 3, 4, 5, 6, 7, 8, 9} {
-%  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
-%}
-%\foreach \x in {11, 12} {
-%  \draw[black!55, thin] (\x, -0.06) -- (12, 0.06);
-%}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, xscale=0.9, yscale=0.84, transform shape]
+\draw[black!70, thick, -{Latex[length=2mm]}] (-0.3, 0) -- (12.6, 0);
+\foreach \x/\lab in {0/{0}, 1/{1 km}, 10/{10 km}} {
+  \draw[black!70, thick] (\x, -0.10) -- (\x, 0.10);
+  \node[below=4pt, font=\scriptsize] at (\x, 0) {\lab};
+}
+\foreach \x in {0.25, 0.5, 0.75} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
+\foreach \x in {2, 3, 4, 5, 6, 7, 8, 9} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
+\foreach \x in {11, 12} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
 
-%\fill[black!8] (0, 0.25) rectangle (1, 1.8);
-%\draw[black!55, thin] (0, 0.25) rectangle (1, 1.8);
-%\node[font=\scriptsize\bfseries, align=center] at (0.5, 1.4) {metri};
+\fill[black!8] (0, 0.25) rectangle (1, 1.8);
+\draw[black!55, thin] (0, 0.25) rectangle (1, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (0.5, 1.4) {metri};
 
-%\fill[black!5] (1, 0.25) rectangle (10, 1.8);
-%\draw[black!55, thin] (1, 0.25) rectangle (10, 1.8);
-%\node[font=\scriptsize\bfseries, align=center] at (5.5, 1.4) {chilometri con un decimale};
+\fill[black!5] (1, 0.25) rectangle (10, 1.8);
+\draw[black!55, thin] (1, 0.25) rectangle (10, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (5.5, 1.4) {chilometri con un decimale};
 
-%\fill[black!10] (10, 0.25) rectangle (12, 1.8);
-%\draw[black!55, thin] (10, 0.25) rectangle (12, 1.8);
-%\node[font=\scriptsize\bfseries, align=center] at (11, 1.4) {chilometri};
+\fill[black!10] (10, 0.25) rectangle (12, 1.8);
+\draw[black!55, thin] (10, 0.25) rectangle (12, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (11, 1.4) {chilometri};
 
-%\node[font=\scriptsize, align=center, text width=2.4cm] at (0.5, -1.3) {andare a piedi};
-%\node[font=\scriptsize, align=center, text width=2.6cm] at (5.5, -1.3) {spostarsi in città};
-%\node[font=\scriptsize, align=center, text width=2.4cm] at (11, -1.3) {spostarsi fra\\ comuni};
-%\end{tikzpicture}
-%\caption{Scaglioni della distanza, con l'unità di misura e l'azione tipica associata a ciascuno.}
-%\label{fig:scaglioni-distanza}
-%\end{figure}
+\node[font=\scriptsize, align=center, text width=2.4cm] at (0.5, -1.3) {andare a piedi};
+\node[font=\scriptsize, align=center, text width=2.6cm] at (5.5, -1.3) {spostarsi in città};
+\node[font=\scriptsize, align=center, text width=2.4cm] at (11, -1.3) {spostarsi fra\\ comuni};
+\end{tikzpicture}
+\caption{Scaglioni della distanza, con l'unità di misura e l'azione tipica associata a ciascuno.}
+\label{fig:scaglioni-distanza}
+\end{figure}
 
 %Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
 Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
@@ -691,24 +809,24 @@ filtrati per raggio soltanto nell'elenco dei centri vicini.
 La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, quello remoto e quello personale, mantenendo
 il minimo corrente insieme all'azione che ne aprirà la scheda.
 La ricerca del minimo procede in un unico attraversamento, ed è quindi lineare; un ordinamento completo dell'elenco, che sarebbe
-costato un fattore logaritmico in più, non serve, perchè di quell'ordinamento interessa soltanto il primo elemento.
+costato un fattore logaritmico in più, non serve, perché di quell'ordinamento interessa soltanto il primo elemento.
 
 Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata, coerentemente con quanto
 disegnato sulla mappa.
 Sui centri remoti il filtro per patologia è implicito nell'insieme stesso, secondo l'asimmetria discussa al
 paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono saltati.
 
-Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perchè comprenda sia la posizione
+Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perché comprenda sia la posizione
 dell'utente sia il centro trovato, con un margine di ottanta punti sui bordi e un limite superiore di ingrandimento al quindicesimo livello.
 La scelta risponde a una domanda diversa da quella letterale: l'utente che chiede il centro più vicino non vuole vedere il centro,
-vuole vedere quanto è lontano da sè, e una viewport centrata sul solo centro perderebbe proprio quell'informazione.
+vuole vedere quanto è lontano da sé, e una viewport centrata sul solo centro perderebbe proprio quell'informazione.
 Il limite di ingrandimento evita l'effetto opposto, cioè un avvicinamento eccessivo quando il centro trovato è a poche centinaia di metri.
 
 La scheda del centro viene aperta dopo un rinvio di trecentocinquanta millisecondi dall'inizio dello spostamento.
-Il rinvio è volutamente in attesa cieca e non legato al termine dell'animazione, che la libreria non espone come evento in
+Il rinvio è volutamente a tempo fisso e non legato al termine dell'animazione, che la libreria non espone come evento in
 questa forma di adattamento della viewport; il valore corrisponde alla durata tipica dello spostamento e produce l'effetto di
 una scheda che compare a movimento concluso.
-%è una soluzione fragile, perchè su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
+%è una soluzione fragile, perché su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
 
 \section{Inserimento dei Centri Personalizzati}\label{subsec:impl-validazione}
 
@@ -725,17 +843,17 @@ l'utente possa spostare la viewport e poi riallineare il dato.
 
 La validazione è organizzata su due livelli, e la separazione non è arbitraria ma imposta da ciò che ciascun livello può esprimere.
 Il primo livello è quello dei validatori associati ai singoli campi, che il modulo valuta insieme e che riguardano una proprietà
-del campo in sè: la denominazione, l'indirizzo e la città non possono essere vuoti, il numero di telefono deve rispettare il
+del campo in sé: la denominazione, l'indirizzo e la città non possono essere vuoti, il numero di telefono deve rispettare il
 formato nazionale, l'indirizzo di posta deve essere sintatticamente corretto.
 Il secondo livello riguarda le condizioni che coinvolgono più campi contemporaneamente, e che un validatore di campo non può
 formulare: la presenza di almeno un contatto fra telefono e posta, e la selezione di almeno una patologia.
 Queste sono verificate al momento della conferma, dopo che il primo livello ha dato esito positivo.
 
 La verifica dei campi avviene mentre l'utente scrive e non soltanto alla conferma.
-La differenza è sostanziale sul piano dell'esperienza: un modulo che segnala tutti gli errori insieme al termine della
+La differenza è sostanziale sul piano dell'esperienza: un modulo che segnala tutti gli errori al termine della
 compilazione obbliga a ricostruire quale campo abbia prodotto quale messaggio, mentre una segnalazione immediata collega
 l'errore al campo nel momento in cui vi si sta lavorando.
-è anche una risposta al requisito RNF-03, che chiede un riscontro visivo immediato per ogni azione.
+È anche una risposta al requisito RNF-03, che chiede un riscontro visivo immediato per ogni azione.
 
 Il controllo sul numero di telefono, riportato nel listato \ref{lst:telefono}, vale una spiegazione: la sua struttura
 riflette il formato reale della numerazione italiana e non una convenzione generica.
@@ -763,63 +881,63 @@ String? _validateItalianPhone(String? value) {
 \end{listing}
 
 Il controllo procede in tre passi.
-Prima rimuove ogni carattere che non sia una cifra, perchè i recapiti vengono scritti nei modi più vari, con spazi,
+Prima rimuove ogni carattere che non sia una cifra, perché i recapiti vengono scritti nei modi più vari, con spazi,
 punti, barre e prefissi fra parentesi, e nessuna di quelle forme è sbagliata dal punto di vista dell'utente.
 Poi riconosce e rimuove il prefisso internazionale, ma soltanto quando la lunghezza residua lo giustifica: la condizione
 sulla lunghezza evita di scambiare per prefisso internazionale le prime due cifre di un numero di cellulare che cominci
-per trentanove, che altrimenti verrebbe mutilato.
+per trentanove, che altrimenti verrebbe privato di quel frammento.
 Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
 rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
 
-%La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, e rende
-%visibile il punto in cui il valore vuoto imbocca un percorso separato che non applica alcun rifiuto di campo.
+La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, e rende
+visibile il punto in cui il valore vuoto imbocca un percorso separato che non applica alcun rifiuto di campo.
 
-%\begin{figure}[H]
-%\centering
-%\begin{tikzpicture}[font=\footnotesize, scale=0.86, transform shape,
-%  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
-%             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
-%  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
-%              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
-%              minimum height=0.7cm},
-%  ok/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!15,
-%             align=center, font=\scriptsize\bfseries, inner sep=6pt, minimum height=0.9cm},
-%  flw/.style={-{Latex[length=2mm]}, thick}
-%]
-%% Ingresso
-%\node[nd] (in) at (0, 5.4) {Stringa grezza\\ dal campo di input};
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=0.86, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
+              minimum height=0.7cm},
+  ok/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!15,
+             align=center, font=\scriptsize\bfseries, inner sep=6pt, minimum height=0.9cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+% Ingresso
+\node[nd] (in) at (0, 5.4) {Stringa grezza\\ dal campo di input};
 
-%% Passo 1
-%\node[nd, fill=black!5] (p1) at (0, 3.7) {Passo 1.\\ Rimozione dei caratteri non numerici};
+% Passo 1
+\node[nd, fill=black!5] (p1) at (0, 3.7) {Passo 1.\\ Rimozione dei caratteri non numerici};
 
-%% Bivio campo vuoto
-%\node[dcd] (empty) at (0, 1.9) {stringa vuota?};
-%\node[ok] (okEmpty) at (5.2, 1.9) {Esito positivo\\ (campo opzionale)};
+% Bivio campo vuoto
+\node[dcd] (empty) at (0, 1.9) {stringa vuota?};
+\node[ok] (okEmpty) at (5.2, 1.9) {Esito positivo\\ (campo opzionale)};
 
-%% Passo 2
-%\node[nd, fill=black!5] (p2) at (0, 0.1) {Passo 2.\\ Rimozione del prefisso\\ internazionale, se presente};
+% Passo 2
+\node[nd, fill=black!5] (p2) at (0, 0.1) {Passo 2.\\ Rimozione del prefisso\\ internazionale, se presente};
 
-%% Passo 3
-%\node[nd, fill=black!5] (p3) at (0, -1.7) {Passo 3.\\ Verifica della prima cifra\\ e del numero di cifre};
+% Passo 3
+\node[nd, fill=black!5] (p3) at (0, -1.7) {Passo 3.\\ Verifica della prima cifra\\ e del numero di cifre};
 
-%% Esiti
-%\node[dcd] (d1) at (0, -3.3) {cifre e prefisso\\ coerenti?};
-%\node[ok, fill=black!10] (okYes) at (-3.2, -4.8) {Esito positivo};
-%\node[ok, fill=black!20] (errNo) at (3.2, -4.8) {Segnalazione errore};
+% Esiti
+\node[dcd] (d1) at (0, -3.3) {cifre e prefisso\\ coerenti?};
+\node[ok, fill=black!10] (okYes) at (-3.2, -4.8) {Esito positivo};
+\node[ok, fill=black!20] (errNo) at (3.2, -4.8) {Segnalazione errore};
 
-%% Frecce
-%\draw[flw] (in) -- (p1);
-%\draw[flw] (p1) -- (empty);
-%\draw[flw] (empty.east) -- node[midway, above, font=\scriptsize] {sì} (okEmpty.west);
-%\draw[flw] (empty.south) -- node[midway, right=2pt, font=\scriptsize] {no} (p2.north);
-%\draw[flw] (p2) -- (p3);
-%\draw[flw] (p3) -- (d1);
-%\draw[flw] (d1.west) -- node[midway, above, font=\scriptsize] {sì} (okYes.north);
-%\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (errNo.north);
-%\end{tikzpicture}
-%\caption{Validazione del numero di telefono.}
-%\label{fig:validazione-telefono}
-%\end{figure}
+% Frecce
+\draw[flw] (in) -- (p1);
+\draw[flw] (p1) -- (empty);
+\draw[flw] (empty.east) -- node[midway, above, font=\scriptsize] {sì} (okEmpty.west);
+\draw[flw] (empty.south) -- node[midway, right=2pt, font=\scriptsize] {no} (p2.north);
+\draw[flw] (p2) -- (p3);
+\draw[flw] (p3) -- (d1);
+\draw[flw] (d1.west) -- node[midway, above, font=\scriptsize] {sì} (okYes.north);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (errNo.north);
+\end{tikzpicture}
+\caption{Validazione del numero di telefono: i tre passi del controllo e il percorso separato previsto per il valore vuoto.}
+\label{fig:validazione-telefono}
+\end{figure}
 
 Un valore vuoto restituisce esito positivo, e non è una dimenticanza: il telefono è opzionale, ed è la verifica di secondo
 livello a stabilire che almeno un contatto sia presente.
@@ -868,11 +986,11 @@ I due \textit{fallback} riportati nella terza colonna corrispondono agli scenari
 verificati sui rispettivi collegamenti.
 Nessuna delle due produce un errore visibile: l'applicazione si apre con la destinazione corretta e una modalità di percorso
 diversa da quella richiesta, che l'utente può cambiare sul posto.
-Ho preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
+Si è preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
 che avrebbe reso incomprensibile la scomparsa di una voce dall'elenco.
 
 Per la chiamata e per la posta il collegamento è composto con gli schemi dedicati, e la richiesta si arresta all'apertura del
-programma con il recapito già inserito, senza avviare la chiamata: la conferma resta all'utente, come deve essere per un'azione
+programma con il recapito già inserito, senza avviare la chiamata: la conferma resta all'utente, com'è giusto che sia per un'azione
 che ha un costo.
 I campi dei dati di origine, però, contengono spesso più recapiti nello stesso campo, ed è necessario isolarne uno; viene
 preso il primo, separando la stringa sui caratteri che nei dati fungono da separatore.
@@ -882,7 +1000,7 @@ preso il primo, separando la stringa sui caratteri che nei dati fungono da separ
 %anche sul trattino; ne segue che un numero singolo che contenga un trattino al proprio interno, forma di scrittura tutt'altro
 %che rara come in \texttt{02-1234567}, viene troncato alla parte precedente il trattino, e il programma telefonico si apre con le
 %sole cifre iniziali.
-%Il difetto è circoscritto ai recapiti scritti in quella forma e non provoca alcuna chiamata errata, perchè l'utente vede il numero
+%Il difetto è circoscritto ai recapiti scritti in quella forma e non provoca alcuna chiamata errata, perché l'utente vede il numero
 %incompleto prima di confermare, ma resta un errore effettivo.
 %La correzione consiste nel separare su una sequenza più specifica, comprensiva degli spazi che accompagnano il trattino di unione,
 %oppure nell'adottare in composizione un separatore che non possa comparire dentro un numero.
@@ -908,7 +1026,7 @@ verificare visivamente alcune delle scelte descritte nelle pagine precedenti.
 \begin{subfigure}[t]{0.3\textwidth}
   \centering
   \includegraphics[width=\textwidth]{mappa-cluster}
-  \caption{cluster}
+  \caption{Cluster}
   \label{fig:sub-cluster}
 \end{subfigure}\hfill
 \begin{subfigure}[t]{0.3\textwidth}

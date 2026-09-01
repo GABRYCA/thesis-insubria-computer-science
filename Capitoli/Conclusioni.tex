@@ -63,7 +63,7 @@ invece che per appartenenza territoriale.
 % \end{table}
 %
 % La tabella \ref{tab:scostamenti} elenca uno per uno gli scostamenti, con la natura di ciascuno.
-% è la parte del riepilogo che ha richiesto più lavoro, perchè diversi di questi scostamenti non erano noti durante lo sviluppo
+% è la parte del riepilogo che ha richiesto più lavoro, perché diversi di questi scostamenti non erano noti durante lo sviluppo
 % e sono emersi dal riesame sistematico del codice svolto per la scrittura dei capitoli precedenti: scrivere che cosa fa un
 % programma è un modo efficace di accorgersi di che cosa non fa.
 %
@@ -101,8 +101,8 @@ invece che per appartenenza territoriale.
 Fra i risultati va contato anche l'impianto di verifica, con dodici test unitari superati sulla serializzazione, sulla
 persistenza e sul calcolo geodetico.
 % , e otto test di widget sulla validazione del modulo di inserimento.
-% Queste ultime, come descritto al paragrafo \ref{sec:test-ui}, risultano tutte non superate, e non perchè le condizioni
-% verificate siano disattese, ma perchè hanno reso visibile un difetto dell'interfaccia che nessun test manuale aveva rilevato.
+% Queste ultime, come descritto al paragrafo \ref{sec:test-ui}, risultano tutte non superate, e non perché le condizioni
+% verificate siano disattese, ma perché hanno reso visibile un difetto dell'interfaccia che nessun test manuale aveva rilevato.
 % è l'esito che considero più significativo dell'intera attività di verifica, e non a dispetto della colonna di esiti negativi
 % ma proprio in virtù di essa.
 
@@ -110,20 +110,22 @@ Sul piano personale il lavoro ha avuto un esito che vale registrare.
 La scelta iniziale di rinunciare a una piattaforma cartografica commerciale, motivata al paragrafo \ref{subsec:scelta-flutter} da
 ragioni di costo e di riproducibilità, ha comportato la necessità di costruire a mano funzioni che quella piattaforma avrebbe fornito
 comprese nel prezzo.
-La conseguenza è stata che la parte più interessante del lavoro, cioè l'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
-e il ragionamento sulla dimensione della cella, esiste soltanto perchè quella funzione non era disponibile.
+La conseguenza è stata che la parte dell'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
+e il ragionamento sulla dimensione della cella, esiste perché quella funzione non era disponibile.
 % Che la costante di quell'algoritmo sia stata trovata per tentativi e ne abbia compreso il significato geometrico soltanto
 % in un secondo momento, ricostruendolo per scrivere queste pagine, è a sua volta un risultato del lavoro di stesura.
 
 \section{Criticità e Limiti Attuali}\label{sec:limiti-attuali}
 
-I limiti che restano aperti sono riconducibili a tre punti.
-La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo scaricamento finchè l'utente
-non richiede espressamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
-La verifica sulla piattaforma iOS non è stata eseguita, per l'assenza di un dispositivo, come dichiarato al
-paragrafo \ref{sec:test-compatibilita}.
-Il modulo dipende infine dagli elenchi pubblici di terzi, sui cui formati e sulla cui disponibilità non esiste alcun controllo.
-Le direzioni individuate per rimuovere questi limiti sono il tema del paragrafo \ref{sec:sviluppi-futuri}.
+I limiti che restano sono riconducibili a tre punti.
+\begin{enumerate}
+    \item La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo scaricamento finché l'utente
+    non richiede espressamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
+    \item La verifica sulla piattaforma iOS non è stata eseguita, per l'assenza di un dispositivo, come dichiarato al
+    paragrafo \ref{sec:test-compatibilita}.
+    \item Il modulo dipende infine dagli elenchi pubblici di terzi, sui cui formati e sulla cui disponibilità non esiste alcun controllo.
+    Le direzioni individuate per rimuovere questi limiti sono il tema del paragrafo \ref{sec:sviluppi-futuri}.
+\end{enumerate}
 
 % I limiti si dividono in tre famiglie, che hanno natura ed esigibilità diverse: le omissioni da correggere, i compromessi di
 % progettazione consapevoli, e i vincoli imposti dalle condizioni in cui il lavoro si è svolto.
@@ -159,7 +161,7 @@ Le direzioni individuate per rimuovere questi limiti sono il tema del paragrafo 
 % La terza famiglia raccoglie i limiti imposti dalle condizioni del lavoro, e il principale è l'assenza di qualunque verifica su
 % iOS, dichiarata al paragrafo \ref{sec:test-compatibilita}.
 % Il codice è scritto per entrambe le piattaforme e i tre punti in cui le distingue sono espliciti, ma nessuno di essi è stato
-% osservato in esecuzione; finchè quella verifica non avviene, il supporto a iOS resta una previsione.
+% osservato in esecuzione; finché quella verifica non avviene, il supporto a iOS resta una previsione.
 % Allo stesso ordine appartiene l'impossibilità di sottoporre a test automatico l'algoritmo di clustering, che non dipende da
 % un vincolo esterno ma da una scelta di collocazione del codice, e che il requisito RNF-18 avrebbe dovuto prevenire.
 %
@@ -168,11 +170,11 @@ Le direzioni individuate per rimuovere questi limiti sono il tema del paragrafo 
 % un cambiamento di formato deciso alla sorgente lo rende inutilizzabile fino a un aggiornamento dell'applicazione, e la chiusura
 % di una delle due sorgenti ne dimezza il contenuto.
 % La resistenza costruita nel livello di acquisizione, con la ricaduta fra sorgenti e la conservazione locale, attenua il problema
-% ma non lo elimina, perchè sposta soltanto in avanti il momento in cui l'assenza del dato diventa visibile.
+% ma non lo elimina, perché sposta soltanto in avanti il momento in cui l'assenza del dato diventa visibile.
 
 \section{Sviluppi Futuri}\label{sec:sviluppi-futuri}
 
-Le direzioni di sviluppo che mi sembrano più sensate non sono l'aggiunta di nuove funzioni, di cui il modulo non ha particolare
+Le opzioni di sviluppo che sembrano più opportune non sono l'aggiunta di nuove funzioni, di cui il modulo non ha particolare
 bisogno, ma la rimozione dei limiti individuati nel paragrafo precedente.
 Le tre che seguono sono ordinate per rapporto fra beneficio e costo, e la prima è anche quella dall'effetto più ampio.
 
@@ -181,12 +183,12 @@ Le tre che seguono sono ordinate per rapporto fra beneficio e costo, e la prima 
 L'intervento con l'effetto più ampio consiste nell'interporre fra le sorgenti pubbliche e l'applicazione un servizio
 proprio, che interroghi periodicamente gli elenchi originali, ne normalizzi il contenuto una volta per tutte ed esponga
 ai client un unico formato stabile.
-è precisamente la componente che il progetto ha scelto di non realizzare, per le ragioni dichiarate al
+È precisamente la componente che il progetto ha scelto di non realizzare, per le ragioni dichiarate al
 paragrafo \ref{sec:architettura-sistema}.
 % , e il riesame conclusivo mostra quanto quella rinuncia sia costata.
 
 Un servizio di questo genere risolverebbe in un colpo tre limiti distinti.
-Renderebbe superflue le catene di alias disperse nel codice, perchè l'applicazione riceverebbe record già omogenei e
+Renderebbe superflue le catene di alias disperse nel codice, perché l'applicazione riceverebbe record già omogenei e
 i nomi dei campi remoti resterebbero confinati nel servizio, che è il luogo dove il requisito RNF-17 li voleva.
 Permetterebbe di riconoscere sul lato del servizio i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
 sul dispositivo dell'utente e sotto forma di elenco vuoto.
@@ -195,10 +197,10 @@ un solo committente a intervalli regolari invece che da ciascuna copia dell'appl
 % , allineando il comportamento alle politiche d'uso
 % che al paragrafo \ref{sec:limiti-attuali} risultano rispettate solo in parte
 
-L'altra faccia è il costo: un servizio va ospitato, mantenuto, sorvegliato e finanziato, e introduce un punto di guasto
-che oggi non esiste.
-è per questo che la scelta iniziale resta difendibile nel contesto di una tesi. Il modulo attuale, con tutti i suoi limiti,
-funziona senza che nessuno se ne prenda cura.
+%L'altra faccia è il costo: un servizio va ospitato, mantenuto, sorvegliato e finanziato, e introduce un punto di guasto
+%che oggi non esiste.
+%È per questo che la scelta iniziale resta difendibile nel contesto di una tesi. Il modulo attuale, con tutti i suoi limiti,
+%funziona senza che nessuno se ne prenda cura.
 
 \subsection{Sincronizzazione fra Dispositivi}\label{subsec:futuro-cloud}
 
@@ -229,7 +231,7 @@ Tutte le distanze mostrate dal modulo sono geodetiche, e la limitazione è discu
 L'introduzione di un servizio di instradamento permetterebbe di ordinare i centri per tempo di percorrenza effettivo invece
 che per distanza in linea d'aria, che è la grandezza a cui l'utente è realmente interessato: in un contesto montano, o in un'area
 urbana congestionata, il centro geograficamente più vicino non è necessariamente quello raggiungibile prima.
-Il cambiamento non sarebbe soltanto quantitativo, perchè trasformerebbe l'ordinamento dell'elenco dei centri vicini, ed è anche
+Il cambiamento non sarebbe soltanto quantitativo, perché trasformerebbe l'ordinamento dell'elenco dei centri vicini, ed è anche
 il motivo per cui uno dei test unitari del paragrafo \ref{sec:test-unitari} verifica la simmetria della distanza: un instradamento
 su rete stradale non è simmetrico, e quel test segnalerebbe il cambiamento di semantica invece di lasciarlo passare.
 

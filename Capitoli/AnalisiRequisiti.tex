@@ -29,7 +29,7 @@ Questi non hanno intenzioni, ma il sistema dipende da loro e deve prevedere il c
 Utente & primario & Consulta la mappa, applica i filtri, gestisce preferiti e centri propri, avvia le azioni di contatto
 e navigazione. \tabularnewline
 Servizio elenco centri & secondario & Fornisce l'elenco dei centri dermatologici tramite endpoint HTTP pubblici.
-Il sistema ne interroga due, uno principale e uno di riserva secondario. \tabularnewline
+Il sistema ne interroga due, uno principale e uno secondario di riserva. \tabularnewline
 Servizio di geocodifica & secondario & Traduce il testo digitato dall'utente in coordinate geografiche. \tabularnewline
 Server dei tile & secondario & Fornisce le immagini cartografiche che compongono la mappa. \tabularnewline
 Sistema operativo & secondario & Espone la posizione del dispositivo e media la concessione del relativo permesso. \tabularnewline
@@ -88,7 +88,7 @@ RF-11 & Il sistema deve disegnare soltanto i marker compresi nell'area visibile,
 & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Localizzazione e ricerca}} \tabularnewline
-RF-12 & Il sistema deve richiedere il permesso di accesso alla posizione soltanto quando l'utente attiva una funzione che lo necessita.
+RF-12 & Il sistema deve richiedere il permesso di accesso alla posizione soltanto quando l'utente attiva una funzione che lo richiede.
 & Obbligatorio \tabularnewline
 RF-13 & Il sistema deve centrare la vista sulla posizione dell'utente e indicarla con un simbolo distinto da quello dei centri.
 & Obbligatorio \tabularnewline
@@ -148,7 +148,7 @@ RF-35 & Il sistema deve consentire la condivisione della scheda del centro trami
 & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
-RF-36 & Il sistema deve fornire comandi di avvicinamento (\textit{zoom}) e allontanamento (\textit{unzoom}) della vista alternativi al gesto a due dita.
+RF-36 & Il sistema deve fornire comandi di avvicinamento (\textit{zoom in}) e allontanamento (\textit{zoom out}) della vista alternativi al gesto a due dita.
 & Desiderabile \tabularnewline
 RF-37 & Quando la mappa è ruotata, il sistema deve mostrare una bussola che ne consenta il ripristino verso il nord.
 & Desiderabile \tabularnewline
@@ -274,7 +274,7 @@ indicazioni e contatti delegano il compito ad applicazioni installate sul dispos
 
 I casi d'uso sono numerati da UC-01 a UC-08 seguendo l'ordine con cui compaiono nel diagramma, dall'alto verso il basso.
 Le schede che seguono ne mostrano nel dettaglio sei: sono esclusi il filtro per patologia e la gestione dei preferiti,
-il cui svolgimento si riduce all'attivazione di un comando e all'aggiornamento della \textit{View} (vista),
+il cui svolgimento si riduce all'attivazione di un comando e all'aggiornamento della vista (\textit{view}),
 senza azioni particolari.
 %Per gli altri la sequenza di interazione non è immediata, oppure il comportamento in caso di errore conviene definirlo per iscritto.
 L'ultima riga di ogni scheda richiama i requisiti funzionali (RF) corrispondenti.%, così da rendere verificabile la copertura della specifica.
@@ -407,7 +407,7 @@ della viewport attiva, che l'utente può visualizzare sulla viewport aggiornata 
 \newline 5a.
 Nome, indirizzo oppure città sono vuoti: il sistema segnala il campo mancante e resta sul modulo, conservando quanto già inserito.
 \newline 5b.
-Nè il telefono nè l'email sono stati inseriti: il sistema chiede l'inserimento di almeno un contatto.
+Né il telefono né l'email sono stati inseriti: il sistema chiede l'inserimento di almeno un contatto.
 \newline 5c.
 Il numero di telefono non rispetta il formato nazionale oppure l'indirizzo email non è sintatticamente corretto: il sistema segnala l'errore sul campo interessato.
 \newline 5d.
