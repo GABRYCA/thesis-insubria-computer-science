@@ -2,40 +2,37 @@
 
 \section{Strategia di Testing}\label{sec:strategia-testing}
 
-La verifica di un modulo come questo incontra una difficoltà di fondo: quasi tutto ciò che fa dipende da qualcosa che
-non controlla.
+%La verifica di un modulo come questo incontra una difficoltà di fondo: quasi tutto ciò che fa dipende da qualcosa che
+%non controlla.
 I dati arrivano da servizi di terzi, la posizione arriva dal sistema operativo, le azioni finali vengono eseguite da
 altre applicazioni, e la resa cartografica dipende da immagini scaricate dalla rete.
-Sottoporre a test automatico l'intero percorso richiederebbe di simulare tutti questi interlocutori, con un impianto di
-test più grande del modulo stesso.
+Questi elementi possono rendere la fase di testing potenzialmente molto complessa.
 
-La strategia adottata parte quindi da una domanda diversa da quella usuale, cioè non che cosa sarebbe desiderabile verificare,
-ma che cosa è verificabile in modo affidabile e ripetibile senza un dispositivo collegato e senza dipendere dalla rete.
-La risposta individua due fasce di verifica, riassunte nella tabella \ref{tab:strategia-test}, e lascia dichiaratamente
-fuori tutto il resto.
+La strategia adottata parte quindi da una domanda, che cos'è verificabile in modo affidabile e ripetibile senza un
+dispositivo collegato e senza dipendere dalla rete.
+Sono quindi implementati due tipi di verifica, riassunte nella tabella \ref{tab:strategia-test}.
 
 \begin{table}[H]
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}P{2.9cm} P{2.6cm} L@{}}
 \toprule
-\textbf{Livello} & \textbf{Strumento} & \textbf{Oggetto della verifica} \tabularnewline
+\textbf{Livello} & \textbf{Strumento} & \textbf{Elemento verificato} \tabularnewline
 \midrule
-Test unitari & framework di test del linguaggio & Serializzazione dei centri personalizzati, lettura e scrittura
+Unit Testing & Framework di test del linguaggio & Serializzazione dei centri personalizzati, lettura e scrittura
 dell'archivio locale, calcolo delle distanze geodetiche \tabularnewline
 % Test di widget & framework di test dell'interfaccia & Validazione del modulo di inserimento, comportamento in
 % modifica, esito del salvataggio \tabularnewline
-Test manuali & dispositivo ed emulatore & Permessi di posizione, cluster, delega alle applicazioni esterne,
+Test manuali & Dispositivo ed emulatore & Permessi di posizione, cluster, delega alle applicazioni esterne,
 comportamento senza rete \tabularnewline
 \bottomrule
 \end{tabularx}
-\caption{Livelli di verifica adottati e rispettivo oggetto.}
+\caption{Livelli di verifica adottati e rispettivo elemento verificato.}
 \label{tab:strategia-test}
 \end{table}
 
-La distribuzione fra i due livelli segue l'impostazione consueta, in cui i test più numerosi sono anche i più veloci e i
-più vicini al codice \cite{sommervilleSoftwareEng, flutterTesting}.
-I test unitari non richiedono alcun ambiente grafico e si eseguono in una frazione di secondo; i test manuali sono i più
-costosi e sono stati riservati a ciò che i primi non possono raggiungere.
+La maggior parte dei test sono anche i più veloci e i più vicini al codice \cite{sommervilleSoftwareEng, flutterTesting}.
+Gli \textit{unit test} (test unitari) non richiedono alcun ambiente grafico e si eseguono in pochi secondi se non meno; i test manuali sono i più
+lunghi e sono stati riservati a ciò che i primi non possono coprire.
 % I test unitari non richiedono alcun ambiente grafico e si eseguono in una frazione di secondo; quelle di widget costruiscono
 % un albero di componenti in memoria e simulano i tocchi, con un costo maggiore ma ancora senza dispositivo; i test manuali
 % sono i più costosi e sono state riservate a ciò che le prime due non possono raggiungere.
@@ -58,9 +55,9 @@ costosi e sono stati riservati a ciò che i primi non possono raggiungere.
 % La correttezza dell'algoritmo è stata dunque valutata soltanto per osservazione diretta sulla mappa, e le proprietà numeriche riportate
 % nella tabella \ref{tab:celle} sono verifiche analitiche, non risultati di test eseguiti.
 
-\section{Test Unitari sulla Logica Applicativa}\label{sec:test-unitari}
+\section{Unit Test sulla Logica Applicativa}\label{sec:test-unitari}
 
-I test unitari sono dodici, raggruppati in tre insiemi omogenei, e vengono superati tutti.
+Gli Unit Test sono dodici, raggruppati in tre insiemi.
 La tabella \ref{tab:test-unitari} li elenca con l'esito e con il requisito a cui ciascun insieme si riferisce.
 
 \begin{table}[H]
@@ -70,22 +67,22 @@ La tabella \ref{tab:test-unitari} li elenca con l'esito e con il requisito a cui
 \textbf{N.} & \textbf{Caso di test} & \textbf{Esito} \tabularnewline
 \midrule
 \multicolumn{3}{@{}l}{\textbf{Serializzazione dei centri personalizzati} (RF-29)} \tabularnewline
-1 & La conversione verso JSON e il ritorno conservano tutti i campi & superato \tabularnewline
-2 & I campi opzionali vuoti o di soli spazi diventano assenza di valore & superato \tabularnewline
-3 & In assenza dell'elenco delle patologie vengono assegnate entrambe & superato \tabularnewline
-4 & Coordinate mancanti ricadono a zero senza sollevare errori & superato \tabularnewline
-5 & La copia con modifica altera i soli campi richiesti e conserva l'identificatore & superato \tabularnewline
+1 & La conversione verso JSON e il valore di ritorno conservano tutti i campi & Superato \tabularnewline
+2 & I campi opzionali vuoti o di soli spazi diventano \textit{null} & Superato \tabularnewline
+3 & In assenza dell'elenco delle patologie vengono assegnate entrambe & Superato \tabularnewline
+4 & Coordinate mancanti diventano zero senza sollevare errori & Superato \tabularnewline
+5 & La copia con modifica altera i soli campi richiesti e conserva l'identificatore & Superato \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Archivio locale dei centri personalizzati} (RF-29, RNF-11)} \tabularnewline
-6 & Un archivio vuoto restituisce un elenco vuoto & superato \tabularnewline
-7 & Scrittura e successiva lettura conservano i centri e il loro ordine & superato \tabularnewline
-8 & Un contenuto corrotto non propaga l'errore e restituisce un elenco vuoto & superato \tabularnewline
-9 & Un documento JSON valido ma di forma diversa da un elenco viene ignorato & superato \tabularnewline
+6 & Un archivio vuoto restituisce un elenco vuoto & Superato \tabularnewline
+7 & Scrittura e successiva lettura conservano i centri e il loro ordine & Superato \tabularnewline
+8 & Un contenuto corrotto non propaga l'errore e restituisce un elenco vuoto & Superato \tabularnewline
+9 & Un documento JSON valido ma di forma diversa da un elenco viene ignorato & Superato \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Calcolo geodetico delle distanze} (RF-21, RF-22) } \tabularnewline
-10 & La distanza Milano-Roma corrisponde al valore ortodromico noto & superato \tabularnewline
-11 & La distanza di un punto da se stesso è nulla & superato \tabularnewline
-12 & La distanza è simmetrica rispetto allo scambio degli estremi & superato \tabularnewline
+10 & La distanza Milano-Roma corrisponde al valore ortodromico noto & Superato \tabularnewline
+11 & La distanza di un punto da se stesso è nulla & Superato \tabularnewline
+12 & La distanza è simmetrica rispetto allo scambio degli estremi & Superato \tabularnewline
 \bottomrule
 \end{tabularx}
   \caption{Prove unitarie sulla logica applicativa: dodici casi, tutti superati.}
@@ -207,16 +204,16 @@ La tabella \ref{tab:test-manuali} riporta gli scenari percorsi e l'esito osserva
 \toprule
 \textbf{Scenario} & \textbf{Comportamento atteso} & \textbf{Esito} \tabularnewline
 \midrule
-Permesso concesso & La mappa si centra sulla posizione e l'indicatore la segue negli spostamenti & conforme \tabularnewline
-Permesso negato una volta & L'applicazione resta utilizzabile sulla viewport predefinita e la richiesta può essere ripresentata & conforme \tabularnewline
-Permesso negato in modo permanente & Compare il collegamento alle impostazioni dell'applicazione & conforme \tabularnewline
-Localizzazione disattivata & Compare il collegamento alle impostazioni di sistema, distinto dal precedente & conforme \tabularnewline
-Avvio senza rete con cache presente & I marker compaiono dai dati conservati, senza avviso di errore & conforme \tabularnewline
-Avvio senza rete e senza cache & Compare l'avviso di errore ed è disponibile il comando di aggiornamento & conforme \tabularnewline
-Cluster in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & conforme \tabularnewline
-Spostamento continuo della viewport & I marker si aggiornano al termine del gesto e non durante & conforme \tabularnewline
-Delega a navigatore, telefono e posta & Si apre l'applicazione competente con il dato precompilato & conforme \tabularnewline
-Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & conforme \tabularnewline
+Permesso concesso & La mappa viene centrata sulla posizione e l'indicatore la segue negli spostamenti & Conforme \tabularnewline
+Permesso negato una volta & L'applicazione resta utilizzabile sulla viewport predefinita e la richiesta può essere ripresentata & Conforme \tabularnewline
+Permesso negato in modo permanente & Compare il collegamento alle impostazioni dell'applicazione & Conforme \tabularnewline
+Localizzazione disattivata & Compare il collegamento alle impostazioni di sistema, diverso dal precedente & Conforme \tabularnewline
+Avvio senza rete con cache presente & I marker compaiono dai dati conservati, senza avviso di errore & Conforme \tabularnewline
+Avvio senza rete e senza cache & Compare l'avviso di errore ed è disponibile il comando di aggiornamento & Conforme \tabularnewline
+Cluster in area urbana & Le bolle riportano il numero corretto e si scompongono all'avvicinamento & Conforme \tabularnewline
+Spostamento continuo della viewport & I marker si aggiornano al termine del gesto e non durante & Conforme \tabularnewline
+Delega a navigatore, telefono e posta & Si apre l'applicazione competente con il dato precompilato & Conforme \tabularnewline
+Apertura della tastiera nella barra di ricerca & I comandi flottanti si ritraggono e la mappa non si ridimensiona & Conforme \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Scenari verificati manualmente su Android e relativo esito.}
