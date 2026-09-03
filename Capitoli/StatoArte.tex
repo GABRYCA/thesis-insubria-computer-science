@@ -113,27 +113,28 @@ remoti nella stessa mappa e negli stessi filtri.
 %\label{tab:limiti-strumenti}
 %\end{table}
 
-\section{Piattaforme Cartografiche per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
+\section{Provider mappe per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
 
-La scelta del provider cartografico condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
+La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
 di scrivere l'applicazione.
 Sono state valutate tre alternative.
 
-La prima è Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
-Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
-e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}.
-Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
+\begin{enumerate}
+  \item Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
+  Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
+  e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}.
+  Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
+  \item Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero
+  di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
+  La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.
+  \item OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
+  l'attribuzione \cite{osmCopyright}.
+  In Flutter il compito è affidato a \texttt{flutter\_map}, un package mantenuto dalla \textit{community} che effettua il rendering dei \textit{tile layer}
+  (i tasselli quadrati che compongono la mappa) senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
+  Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
+  può essere sostituita modificando un URL.
+\end{enumerate}
 
-La seconda è Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero
-di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
-La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.
-
-La terza è OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
-l'attribuzione \cite{osmCopyright}.
-In Flutter il compito è affidato a \texttt{flutter\_map}, un package mantenuto dalla \textit{community} che effettua il rendering dei \textit{tile layer}
-(i tasselli quadrati che compongono la mappa) senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
-Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
-può essere sostituita modificando un URL.
 
 \begin{table}[H]
 \centering
@@ -142,44 +143,45 @@ può essere sostituita modificando un URL.
 \toprule
 \textbf{Criterio} & \textbf{Google Maps} & \textbf{Mapbox} & \textbf{OSM con flutter\_map} \tabularnewline
 \midrule
-Costo di esercizio & a consumo oltre la soglia gratuita & a consumo oltre la soglia gratuita & nessun costo diretto \tabularnewline
-Credenziali richieste & chiave API con fatturazione attiva & token di accesso & nessuna \tabularnewline
-Licenza dei dati & proprietaria & proprietaria & ODbL con attribuzione \tabularnewline
-Personalizzazione dei marker & vincolata al plugin nativo & buona & totale, sono widget Flutter \tabularnewline
-Sostituibilità del provider & bassa & bassa & alta \tabularnewline
-Vincoli d'uso & contrattuali & contrattuali & policy di utilizzo dei tile \tabularnewline
+Costi operativi & A consumo oltre la soglia gratuita & A consumo oltre la soglia gratuita & Nessun costo diretto \tabularnewline
+Credenziali richieste & Chiave API con fatturazione attiva & Token di accesso & nessuna \tabularnewline
+Licenza & Proprietaria & Proprietaria & ODbL con attribuzione \tabularnewline
+Marker personalizzabili & Vincolata al plugin nativo & Buona & Totale, sono widget Flutter \tabularnewline
+Sostituibilità del provider & Bassa & Bassa & Alta \tabularnewline
+Vincoli d'uso & Contrattuali & Contrattuali & Policy di utilizzo dei tile \tabularnewline
 \bottomrule
 \end{tabularx}
-\caption{Confronto tra le piattaforme cartografiche valutate per il progetto.}
+\caption{Confronto dei provider delle mappe valutati.}
 \label{tab:confronto-piattaforme}
 \end{table}
 
-La decisione è caduta su OpenStreetMap con \texttt{flutter\_map}.
-Il fattore determinante non è stato soltanto il costo, ma il fatto che i marker siano widget Flutter
+A seguito di un'attenta valutazione, la scelta migliore è risultata OpenStreetMap con \texttt{flutter\_map}.
+I fattori determinanti non sono stati solamente i costi, ma anche il fatto che i marker siano widget Flutter
 a tutti gli effetti: questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
 con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un layer nativo.
 
-Un compromesso tuttavia esiste ed è duplice.
+Tuttavia, esiste un compromesso da questa scelta.
 I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
 identificare l'applicazione richiedente e richiede di rispettare le direttive di caching \cite{osmTilePolicy}: sono vincoli che vanno rispettati
-e che diventerebbero un limite se l'applicazione crescesse in numero di utenti.
-In secondo luogo, la resa grafica dei \textit{tile} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
+e che andrebbero gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
+In secondo luogo, la grafica dei \textit{tile} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
 
-Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator e suddivisa,
+Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator
+(standard per le mappe digitiali web) e suddivisa,
 a ogni livello di zoom, in una griglia di immagini quadrate indicizzate da tre valori, cioè zoom, colonna e riga \cite{slippyMap}.
-Ogni incremento unitario dello zoom raddoppia il numero di tile per lato, come illustrato nella figura \ref{fig:tasselli}.
-Questa relazione esponenziale non è un dettaglio confinato al rendering: torna, come si vedrà, nella formula che dimensiona le celle dell'algoritmo di clustering.
+Ogni incremento dello zoom raddoppia il numero di tile per lato, come illustrato nella figura \ref{fig:tasselli}.
+Questa relazione esponenziale viene trattata anche nella formula che dimensiona le celle dell'algoritmo di clustering.
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[font=\footnotesize]
-% Livello di zoom k
-\draw[black!70, thick] (0,0) rectangle (2.4,2.4);
+
+  \draw[black!70, thick] (0,0) rectangle (2.4,2.4);
 \draw[cellgrid] (1.2,0) -- (1.2,2.4);
 \draw[cellgrid] (0,1.2) -- (2.4,1.2);
 \fill[black!15] (1.2,1.2) rectangle (2.4,2.4);
 \node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k$, $2\times2$};
-% Livello di zoom k+1
+
 \begin{scope}[xshift=3.4cm]
 \draw[black!70, thick] (0,0) rectangle (2.4,2.4);
 \foreach \x in {0.6,1.2,1.8} {\draw[cellgrid] (\x,0) -- (\x,2.4);}
@@ -187,7 +189,7 @@ Questa relazione esponenziale non è un dettaglio confinato al rendering: torna,
 \fill[black!15] (0.6,1.2) rectangle (1.2,1.8);
 \node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}1$, $4\times4$};
 \end{scope}
-% Livello di zoom k+2
+
 \begin{scope}[xshift=6.8cm]
 \draw[black!70, thick] (0,0) rectangle (2.4,2.4);
 \foreach \i in {1,...,7} {
@@ -198,38 +200,43 @@ Questa relazione esponenziale non è un dettaglio confinato al rendering: torna,
 \node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}2$, $8\times8$};
 \end{scope}
 \end{tikzpicture}
-\caption{Schema slippy map: la stessa porzione di territorio ai livelli di zoom successivi, con un tile evidenziato per ciascuno. Ogni incremento unitario dello zoom raddoppia il numero di tile per lato e ogni tile è individuato dagli indici di zoom, colonna e riga.}
+\caption{Schema slippy map: la stessa porzione di territorio ai diversi livelli di zoom, con un tile evidenziato per ciascuno.
+Ogni incremento dello zoom raddoppia il numero di tile per lato e ogni tile è individuato dagli indici di zoom, colonna e riga.}
 \label{fig:tasselli}
 \end{figure}
 
 \subsection{Geocodifica e Ricerca per Indirizzo}\label{subsec:geocodifica}
 
-Una mappa senza barra di ricerca è utile soltanto a chi già sa dove guardare.
-Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate.
+Una mappa senza barra di ricerca è utile soltanto a chi sa già dove guardare.
+Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate, come una barra di ricerca per l'indirizzo.
 Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON\@.
 
 Anche qui valgono vincoli precisi, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
-divieto di geocodifica massiva e invito esplicito a memorizzare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
-Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il
-servizio a ogni carattere digitato violerebbe la policy dopo poche lettere.
+divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (caching) per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
+%Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il
+%servizio a ogni carattere digitato violerebbe la policy dopo poche lettere.
 La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
-nasce proprio da questo vincolo e non da una preferenza estetica.
+nasce proprio da questo vincolo. %e non da una preferenza estetica.
 
 \section{Framework per lo Sviluppo Cross-Platform}\label{sec:framework-cross-platform}
 
-Il requisito di una singola base di codice per Android e iOS restringe il campo.
+Il requisito di una singola base di codice per Android e iOS è molto importante.
 Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta
-due implementazioni parallele dell'intera interfaccia, un costo non giustificabile in un progetto di queste dimensioni.
+due implementazioni parallele dell'interfaccia, serve quindi una soluzione alternativa.
 
-React Native adotta un approccio a componenti nativi pilotati da JavaScript \cite{reactNative}, ed è una scelta solida
+React Native adotta un approccio a componenti pilotati da JavaScript \cite{reactNative}, ed è una buona scelta
 quando si dispone già di competenze nell'ecosistema web.
 
-Infine, Flutter segue una strada diversa: compila codice Dart in binario nativo e disegna l'interfaccia con un proprio motore
+Infine, Flutter segue una strada diversa: compila codice Dart in binario e disegna l'interfaccia con un proprio motore
 grafico, ottenendo un controllo completo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
 
-Per questo progetto Flutter presentava due vantaggi principali.
-Il primo è il controllo totale sul rendering, indispensabile quando i marker della mappa devono cambiare forma e dimensione
-in funzione del livello di zoom.
-Il secondo è la disponibilità di Material 3 come design system già implementato \cite{material3}, che ha permesso di
-ottenere un'interfaccia coerente senza costruire da zero i componenti.
-A questi si aggiunge un ecosistema di package che copre con precisione le esigenze del progetto, dalla geolocalizzazione alla persistenza locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
+Per questo progetto quindi, Flutter presentava due vantaggi principali.
+\begin{enumerate}
+  \item Il primo è il controllo totale sul rendering, indispensabile quando i marker della mappa devono cambiare forma e dimensione
+  in funzione del livello di zoom.
+  \item Il secondo è la disponibilità di Material 3 come design system già implementato \cite{material3}, che ha permesso di
+  ottenere un'interfaccia coerente senza costruire da zero i componenti.
+\end{enumerate}
+
+A questi si aggiunge un ecosistema di package che copre già le esigenze del progetto, dalla geolocalizzazione alla
+persistenza dei dati in locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
