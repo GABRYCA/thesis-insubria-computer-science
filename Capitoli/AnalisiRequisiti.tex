@@ -2,18 +2,18 @@
 
 \section{Attori e destinatari del sistema}\label{sec:attori-sistema}
 
-Il destinatario dell'applicazione è una sola figura, e conviene descriverla con precisione perché da lei dipendono quasi
-tutte le scelte di interfaccia.
+Il destinatario dell'applicazione è una sola figura, e conviene descriverla con precisione perché da lei dipendono le scelte dell'interfaccia.
 Si tratta di una persona, per esempio colui che è affetto da dermatite atopica o psoriasi, ma potrebbe anche essere un suo
-familiare o un dottore, che deve individuare una struttura specialistica raggiungibile.
+familiare o un dottore, che deve individuare una struttura specializzata raggiungibile.
 Non ha competenze informatiche particolari, usa l'applicazione su uno smartphone e spesso con una sola mano.
-Non è necessariamente un operatore sanitario: non inserisce dati clinici e non ha bisogno di funzioni di refertazione.
+Non è necessariamente un operatore sanitario, non inserisce dati clinici e non ha bisogno di funzioni di refertazione.
 
-Da questo profilo derivano due conseguenze operative:
+Da questa analisi derivano due conseguenze operative:
 \begin{enumerate}
-  \item La prima è che nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
-  la risposta alla domanda \emph{dove è il centro più vicino} è un passaggio che riduce l'utilità dello strumento.
-  \item La seconda è che i controlli devono essere collocati nella metà inferiore dello schermo, dov'è possibile arrivarci con il pollice.
+  \item Nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
+  la risposta alla domanda \emph{dove è il centro più vicino} è un passaggio che riduce l'utilizzabilità dello strumento.
+  \item La seconda è che i controlli devono essere collocati nella metà inferiore dello schermo,
+  dov'è possibile arrivarci più facilmente con il pollice.
 \end{enumerate}
 
 Accanto all'attore primario operano diversi sistemi esterni, che nella terminologia UML (\textit{Unified Modeling Language}) sono attori secondari.
@@ -26,14 +26,14 @@ Questi non hanno intenzioni, ma il sistema dipende da loro e deve prevedere il c
 \toprule
 \textbf{Attore} & \textbf{Tipo} & \textbf{Ruolo nel sistema} \tabularnewline
 \midrule
-Utente & primario & Consulta la mappa, applica i filtri, gestisce preferiti e centri propri, avvia le azioni di contatto
+Utente & Primario & Consulta la mappa, applica i filtri, gestisce preferiti e centri personalizzati, avvia le azioni di contatto
 e navigazione. \tabularnewline
-Servizio elenco centri & secondario & Fornisce l'elenco dei centri dermatologici tramite endpoint HTTP pubblici.
+Servizio elenco centri & Secondario & Fornisce l'elenco dei centri dermatologici tramite endpoint HTTP pubblici.
 Il sistema ne interroga due, uno principale e uno secondario di riserva. \tabularnewline
-Servizio di geocodifica & secondario & Traduce il testo digitato dall'utente in coordinate geografiche. \tabularnewline
-Server dei tile & secondario & Fornisce le immagini cartografiche che compongono la mappa. \tabularnewline
-Sistema operativo & secondario & Espone la posizione del dispositivo e media la concessione del relativo permesso. \tabularnewline
-Applicazioni esterne & secondario & Ricevono le richieste di navigazione, chiamata, invio email e condivisione. \tabularnewline
+Servizio di geocodifica & Secondario & Traduce il testo digitato dall'utente in coordinate geografiche. \tabularnewline
+Server dei tile & Secondario & Fornisce le immagini che compongono la mappa. \tabularnewline
+Sistema operativo & Secondario & Espone la posizione del dispositivo e fa da tramite per garantirne il relativo permesso. \tabularnewline
+Applicazioni esterne & Secondario & Ricevono le richieste di navigazione, chiamata, invio email e condivisione. \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Attori del sistema e rispettivo ruolo.}
@@ -43,7 +43,7 @@ Applicazioni esterne & secondario & Ricevono le richieste di navigazione, chiama
 \section{Requisiti funzionali}\label{sec:requisiti-funzionali}
 
 I requisiti funzionali sono raccolti nella tabella \ref{tab:requisiti-funzionali}, raggruppati per area.
-La colonna di priorità distingue i requisiti obbligatori, senza i quali l'applicazione non potrebbe svolgere il suo compito, da quelli desiderabili,
+La colonna di priorità distingue i requisiti obbligatori necessari per il funzionamento all'applicazione, e da quelli desiderabili
 che migliorano l'esperienza ma la cui assenza non ne compromette il funzionamento.
 
 \footnotesize
@@ -62,11 +62,11 @@ che migliorano l'esperienza ma la cui assenza non ne compromette il funzionament
 \bottomrule
 \endlastfoot
 \multicolumn{3}{@{}l}{\textbf{Acquisizione e persistenza dei dati}} \tabularnewline
-RF-01 & Il sistema deve scaricare l'elenco dei centri dermatologici da un servizio pubblico da remoto.
+RF-01 & Il sistema deve scaricare l'elenco dei centri dermatologici da un servizio pubblico remoto.
 & Obbligatorio \tabularnewline
 RF-02 & In caso di errore o di risposta non valida dal servizio principale, il sistema deve interrogare automaticamente un endpoint secondario.
 & Obbligatorio \tabularnewline
-RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione interna.
+RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione comune interna.
 & Obbligatorio \tabularnewline
 RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interromperne l'elaborazione dei restanti.
 & Obbligatorio \tabularnewline
@@ -74,10 +74,10 @@ RF-05 & Il sistema deve conservare l'ultimo elenco scaricato in una cache persis
 & Obbligatorio \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Visualizzazione cartografica}} \tabularnewline
-RF-06 & Il sistema deve mostrare una mappa interattiva con supporto a spostamento, zoom e rotazione.
+RF-06 & Il sistema deve mostrare una mappa interattiva con supporto a spostamenti, zoom e rotazione.
 & Obbligatorio \tabularnewline
-RF-07 & Il sistema deve riportare l'attribuzione della sorgente cartografica in modo visibile.
-& Obbligatorio \tabularnewline
+RF-07 & Il sistema deve riportare i crediti della mappa originale in modo visibile.
+& Desiderabile \tabularnewline
 RF-08 & Ogni centro deve essere rappresentato da un marker posizionato sulle proprie coordinate.
 & Obbligatorio \tabularnewline
 RF-09 & Marker geograficamente vicini devono essere \textit{clusterizzati} (raggruppati) in un unico indicatore che riporti il numero di centri contenuti.
@@ -88,7 +88,7 @@ RF-11 & Il sistema deve disegnare soltanto i marker compresi nell'area visibile,
 & Desiderabile \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Localizzazione e ricerca}} \tabularnewline
-RF-12 & Il sistema deve richiedere il permesso di accesso alla posizione soltanto quando l'utente attiva una funzione che lo richiede.
+RF-12 & Il sistema deve richiedere il permesso di accesso alla posizione soltanto quando l'utente attiva una funzione che la richieda.
 & Obbligatorio \tabularnewline
 RF-13 & Il sistema deve centrare la vista sulla posizione dell'utente e indicarla con un simbolo distinto da quello dei centri.
 & Obbligatorio \tabularnewline
@@ -178,28 +178,28 @@ opera in un contesto d'uso mobile in cui la connettività non è garantita.
 \endfoot
 \bottomrule
 \endlastfoot
-RNF-01 & Usabilità & I comandi di uso frequente devono trovarsi nella porzione inferiore dello schermo, raggiungibile con
-il pollice a una sola mano. \tabularnewline
-RNF-02 & Usabilità & Ogni elemento interattivo deve avere un'area di tocco non inferiore a 48 punti logici per lato, in
+RNF-01 & Usabilità & I comandi d'uso frequente devono trovarsi nella porzione inferiore dello schermo, raggiungibile con
+il pollice e una sola mano. \tabularnewline
+RNF-02 & Usabilità & Ogni elemento interattivo deve avere un'area di tocco non inferiore a 48 punti logici (pt) per lato, in
 accordo con le indicazioni di Material 3. \tabularnewline
-RNF-03 & Usabilità & Ogni azione dell'utente deve produrre un riscontro visivo immediato, così da rendere percepibile lo
+RNF-03 & Usabilità & Ogni azione dell'utente deve produrre un feedback visivo immediato, così da rendere percepibile lo
 stato del sistema. \tabularnewline
 RNF-04 & Usabilità & I messaggi rivolti all'utente devono essere in italiano e privi di terminologia tecnica o di codici
 di errore. \tabularnewline
 RNF-05 & Prestazioni & Lo spostamento e lo zoom della mappa devono risultare fluidi anche con l'intero elenco dei centri
 caricato in memoria. \tabularnewline
 RNF-06 & Prestazioni & Il ricalcolo dei cluster non deve essere eseguito a ogni fotogramma dell'interazione, ma solo al
-termine del gesto. \tabularnewline
+termine di essa. \tabularnewline
 RNF-07 & Prestazioni & L'avvio dell'applicazione non deve attendere il completamento delle richieste di rete per mostrare
 la mappa. \tabularnewline
-RNF-08 & Robustezza & Ogni richiesta di rete deve avere un \textit{timeout} oltre il quale viene scartata, per non bloccare l'interfaccia. \tabularnewline
-RNF-09 & Robustezza & Un record malformato proveniente dal servizio remoto non deve impedire il caricamento dei record corretti. \tabularnewline
-RNF-10 & Robustezza & In assenza di connessione il sistema deve restare utilizzabile con i dati già acquisiti, segnalando
+RNF-08 & Stabilità & Ogni richiesta di rete deve avere un \textit{timeout} oltre il quale viene scartata, per non bloccare l'interfaccia. \tabularnewline
+RNF-09 & Stabilità & Un record malformato proveniente dal servizio remoto non deve impedire il caricamento dei record corretti. \tabularnewline
+RNF-10 & Stabilità & In assenza di connessione il sistema deve restare utilizzabile con i dati già acquisiti, segnalando
 all'utente la condizione. \tabularnewline
-RNF-11 & Robustezza & Un errore di lettura della cache locale non deve impedire l'avvio dell'applicazione. \tabularnewline
-RNF-12 & Conformità & L'attribuzione dei dati cartografici deve essere sempre visibile, come previsto dalla licenza della
+RNF-11 & Stabilità & Un errore di lettura della cache locale non deve impedire l'avvio dell'applicazione. \tabularnewline
+RNF-12 & Compatibilità & L'attribuzione dei dati cartografici deve essere sempre visibile, come previsto dalla licenza della
 sorgente. \tabularnewline
-RNF-13 & Conformità & Le richieste ai servizi pubblici devono identificare l'applicazione e rispettare i limiti di frequenza
+RNF-13 & Compatibilità & Le richieste ai servizi pubblici devono identificare l'applicazione e rispettare i limiti di frequenza
 dichiarati nelle rispettive policy. \tabularnewline
 RNF-14 & Riservatezza & La posizione dell'utente deve essere impiegata per il centraggio della mappa e per il
 calcolo delle distanze, e non deve essere trasmessa ad alcun servizio. \tabularnewline
@@ -213,10 +213,10 @@ la sostituzione di un endpoint senza modifiche all'interfaccia. \tabularnewline
 \end{longtable}
 \normalsize
 
-I requisiti di usabilità sono definiti nei paragrafi successivi.
-La norma ISO 9241 definisce l'usabilità come il grado in cui un sistema permette a determinati utenti di raggiungere obiettivi
-specifici con efficacia, efficienza e soddisfazione in un determinato contesto d'uso \cite{iso9241}, e in questo caso il contesto
-d'uso, cioè una persona che cerca una struttura sanitaria, è parte integrante della specifica.
+%I requisiti d'usabilità sono definiti nei paragrafi successivi.
+%La norma ISO 9241 definisce l'usabilità come il grado in cui un sistema permette a determinati utenti di raggiungere obiettivi
+%specifici con efficacia, efficienza e in modo soddisfacente in un determinato contesto d'utilizzo \cite{iso9241}. %e in questo caso il contesto
+%d'uso, cioè una persona che cerca una struttura sanitaria, è parte integrante della specifica.
 %Le classiche linee guida di valutazione dell'interfaccia \cite{nielsenUsability} hanno guidato in particolare i requisiti
 %RNF-03 e RNF-04: la visibilità dello stato del sistema e l'uso di un linguaggio comprensibile all'utente sono due dei dieci criteri,
 %e sono anche i due punti su cui un'applicazione che dipende dalla rete sbaglia più facilmente.
