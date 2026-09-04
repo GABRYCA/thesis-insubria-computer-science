@@ -1,17 +1,19 @@
 \chapter{Conclusioni}\label{ch:conclusioni}
 
-\section{Risultati Raggiunti}\label{sec:risultati-raggiunti}
+\section{Risultati raggiunti}\label{sec:risultati-raggiunti}
 
-Il lavoro ha prodotto un modulo cartografico funzionante, che raccoglie da elenchi pubblici i centri dermatologici dedicati
+Il lavoro ha prodotto una mappa funzionante, che raccoglie da elenchi pubblici i centri dermatologici dedicati
 alla dermatite atopica e alla psoriasi, li mostra su una mappa interattiva con clustering dinamico dei marker, li filtra per
-patologia e per distanza dalla posizione dell'utente, li integra con voci inserite a mano e conservate sul dispositivo, e
-delega ai programmi installati le azioni che seguono la consultazione.
+patologia e per distanza, %dalla posizione dell'utente,
+li integra con voci inserite a mano e salvate sul dispositivo, e
+delega ai programmi installati le azioni che seguono la consultazione come, per esempio, la creazione del percorso.
 
 Rispetto alla domanda da cui il lavoro è partito, cioè dove si trovi il centro più vicino che segue una determinata patologia e
-come raggiungerlo, la risposta è ora ottenibile con due tocchi a partire dall'apertura della schermata, contro una navigazione per
-suddivisione amministrativa e un confronto manuale fra elenchi.
-Il contributo non sta nei dati, che restano quelli censiti da altri, ma nel modo in cui vengono interrogati: per prossimità
-invece che per appartenenza territoriale.
+come raggiungerlo, la risposta è ora ottenibile con due tocchi a partire dall'apertura della schermata, rispetto alla ricerca manuale
+degli elenchi o di diverse mappe online.
+Il contributo non sta nei dati, che restano quelli censiti da altri, ma nel modo in cui vengono interrogati: per prossimità,
+in un unico posto.
+%invece che per appartenenza territoriale.
 
 % Sul piano quantitativo la copertura della specifica è riassunta nella tabella \ref{tab:copertura} e distribuita graficamente nella
 % figura \ref{fig:copertura}.
@@ -98,7 +100,7 @@ invece che per appartenenza territoriale.
 % \label{tab:scostamenti}
 % \end{table}
 
-Fra i risultati va contato anche l'impianto di verifica, con dodici test unitari superati sulla serializzazione, sulla
+Fra i risultati va contato anche il sistema di verifica, con dodici unit test superati sulla serializzazione,
 persistenza e sul calcolo geodetico.
 % , e otto test di widget sulla validazione del modulo di inserimento.
 % Queste ultime, come descritto al paragrafo \ref{sec:test-ui}, risultano tutte non superate, e non perché le condizioni
@@ -106,25 +108,24 @@ persistenza e sul calcolo geodetico.
 % è l'esito che considero più significativo dell'intera attività di verifica, e non a dispetto della colonna di esiti negativi
 % ma proprio in virtù di essa.
 
-Sul piano personale il lavoro ha avuto un esito che vale registrare.
-La scelta iniziale di rinunciare a una piattaforma cartografica commerciale, motivata al paragrafo \ref{subsec:scelta-flutter} da
+A livello personale, il lavoro ha avuto un valore che vale menzionare.
+%Sul piano personale il lavoro ha avuto un esito che vale registrare.
+La scelta iniziale di rinunciare a una piattaforma di mappe commerciale, motivata al paragrafo \ref{subsec:scelta-flutter} da
 ragioni di costo e di riproducibilità, ha comportato la necessità di costruire a mano funzioni che quella piattaforma avrebbe fornito
 comprese nel prezzo.
-La conseguenza è stata che la parte dell'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
-e il ragionamento sulla dimensione della cella, esiste perché quella funzione non era disponibile.
+Di conseguenza, il modulo dell'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
+e i ragionamenti annessi, esistono perché quella funzione non era disponibile.
 % Che la costante di quell'algoritmo sia stata trovata per tentativi e ne abbia compreso il significato geometrico soltanto
 % in un secondo momento, ricostruendolo per scrivere queste pagine, è a sua volta un risultato del lavoro di stesura.
 
-\section{Criticità e Limiti Attuali}\label{sec:limiti-attuali}
+\section{Criticità e limiti attuali}\label{sec:limiti-attuali}
 
 I limiti che restano sono riconducibili a tre punti.
 \begin{enumerate}
-    \item La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo scaricamento finché l'utente
-    non richiede espressamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
-    \item La verifica sulla piattaforma iOS non è stata eseguita, per l'assenza di un dispositivo, come dichiarato al
-    paragrafo \ref{sec:test-compatibilita}.
-    \item Il modulo dipende infine dagli elenchi pubblici di terzi, sui cui formati e sulla cui disponibilità non esiste alcun controllo.
-    Le direzioni individuate per rimuovere questi limiti sono il tema del paragrafo \ref{sec:sviluppi-futuri}.
+    \item La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo \textit{download} finché l'utente
+    non richiede esplicitamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
+    \item Il modulo dipende dagli elenchi pubblici di terzi, sui quali non si ha controllo ne sul formato e ne sulla loro disponobilità.
+    Le opzioni migliori valutate per rimuovere questi limiti sono tema del paragrafo \ref{sec:sviluppi-futuri}.
 \end{enumerate}
 
 % I limiti si dividono in tre famiglie, che hanno natura ed esigibilità diverse: le omissioni da correggere, i compromessi di
@@ -172,28 +173,34 @@ I limiti che restano sono riconducibili a tre punti.
 % La resistenza costruita nel livello di acquisizione, con la ricaduta fra sorgenti e la conservazione locale, attenua il problema
 % ma non lo elimina, perché sposta soltanto in avanti il momento in cui l'assenza del dato diventa visibile.
 
-\section{Sviluppi Futuri}\label{sec:sviluppi-futuri}
+\section{Sviluppi futuri}\label{sec:sviluppi-futuri}
 
-Le opzioni di sviluppo che sembrano più opportune non sono l'aggiunta di nuove funzioni, di cui il modulo non ha particolare
-bisogno, ma la rimozione dei limiti individuati nel paragrafo precedente.
-Le tre che seguono sono ordinate per rapporto fra beneficio e costo, e la prima è anche quella dall'effetto più ampio.
+Le opzioni di sviluppo future che sembrano più opportune non sono l'aggiunta di nuove funzioni, %di cui il modulo non ha particolare bisogno,
+ma la rimozione dei limiti individuati nel paragrafo precedente.
+Le tre che seguono sono ordinate per rapporto di beneficio/costo.%, e la prima è anche quella dall'effetto più ampio.
 
-\subsection{Un Livello Intermedio di Normalizzazione}\label{subsec:futuro-backend}
+\subsection{Un livello intermedio di normalizzazione}\label{subsec:futuro-backend}
 
-L'intervento con l'effetto più ampio consiste nell'interporre fra le sorgenti pubbliche e l'applicazione un servizio
-proprio, che interroghi periodicamente gli elenchi originali, ne normalizzi il contenuto una volta per tutte ed esponga
-ai client un unico formato stabile.
-È precisamente la componente che il progetto ha scelto di non realizzare, per le ragioni dichiarate al
+L'intervento con l'effetto più ampio consiste nell'integrare fra le sorgenti pubbliche e l'applicazione un servizio
+proprio (come un \textit{middleware} o un'\textit{API}), che interroghi periodicamente gli elenchi originali, ne normalizzi
+il contenuto una volta ed esponga ai client un unico formato stabile.
+Questo è un elemento che non è stato ancora sviluppato, per le ragioni mostrate al
 paragrafo \ref{sec:architettura-sistema}.
 % , e il riesame conclusivo mostra quanto quella rinuncia sia costata.
 
-Un servizio di questo genere risolverebbe in un colpo tre limiti distinti.
-Renderebbe superflue le catene di alias disperse nel codice, perché l'applicazione riceverebbe record già omogenei e
-i nomi dei campi remoti resterebbero confinati nel servizio, che è il luogo dove il requisito RNF-17 li voleva.
-Permetterebbe di riconoscere sul lato del servizio i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
-sul dispositivo dell'utente e sotto forma di elenco vuoto.
-Ridurrebbe infine drasticamente le richieste dirette ai servizi pubblici: le interrogazioni verrebbero effettuate da
-un solo committente a intervalli regolari invece che da ciascuna copia dell'applicazione.
+Un servizio di questo genere risolverebbe tre limiti distinti:
+
+\begin{enumerate}
+    \item Renderebbe superflue le catene di alias nel codice, perché l'applicazione riceverebbe record già omogenei e
+    i nomi dei campi resterebbero confinati nel servizio, che è il luogo dove il requisito RNF-17 li voleva.
+    \item Sul lato del servizio permetterebbe di riconoscere i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
+    sul dispositivo dell'utente e sotto forma di elenco vuoto o malformato.
+    \item Ridurrebbe drasticamente le richieste dirette ai servizi pubblici: le interrogazioni verrebbero effettuate da
+    un solo ente a intervalli regolari invece che da ciascuna copia dell'applicazione.
+\end{enumerate}
+
+
+
 % , allineando il comportamento alle politiche d'uso
 % che al paragrafo \ref{sec:limiti-attuali} risultano rispettate solo in parte
 
@@ -202,51 +209,56 @@ un solo committente a intervalli regolari invece che da ciascuna copia dell'appl
 %È per questo che la scelta iniziale resta difendibile nel contesto di una tesi. Il modulo attuale, con tutti i suoi limiti,
 %funziona senza che nessuno se ne prenda cura.
 
-\subsection{Sincronizzazione fra Dispositivi}\label{subsec:futuro-cloud}
+\subsection{Sincronizzazione fra dispositivi}\label{subsec:futuro-cloud}
 
-I centri inseriti dall'utente vivono oggi soltanto sul dispositivo su cui sono stati creati.
-Cambiando telefono si perdono, e non esiste modo di consultarli da un secondo dispositivo.
-Una sincronizzazione remota risolverebbe entrambi i problemi, e sul piano tecnico si innesterebbe senza difficoltà
+I centri inseriti dall'utente vivono ad oggi soltanto sul dispositivo su cui sono stati creati.
+Cambiando telefono vengono persi, e non esiste modo di consultarli da un secondo dispositivo.
+Una sincronizzazione remota risolverebbe entrambi i problemi, e sul piano tecnico sarebbe integrabile
 sull'impianto esistente: i centri personalizzati hanno già una rappresentazione tipizzata, una serializzazione simmetrica
-e un identificatore stabile: sono i tre presupposti di qualunque schema di riconciliazione.
+e un identificatore stabile, ossia i tre requisiti principali di un sistema tale.
 
-L'aspetto delicato non è la sincronizzazione ma ciò che essa comporta sul piano della riservatezza.
+Un aspetto delicato non è la sincronizzazione ma ciò che essa comporta sul piano della riservatezza.
 L'applicazione, nella versione attuale, non richiede alcuna registrazione e non trasmette all'esterno alcun dato personale,
-come stabiliscono i requisiti RNF-14 e RNF-15; l'elenco dei centri dermatologici che una persona ha annotato è un'informazione
-da cui si desume la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato sanitario custodito da
-terzi, con le conseguenze normative che ne derivano.
+come stabiliscono i requisiti RNF-14 e RNF-15; l'elenco dei centri dermatologici che una persona salva è un'informazione
+da cui si potrebbe presumere la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato
+sanitario personale custodito da terzi, con le conseguenze normative che ne derivano.
 Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
 corretta sarebbe una cifratura eseguita sul dispositivo con una chiave che il servizio non possiede, in modo che il servizio
-conservi dati che non è in grado di leggere.
+conservi dati che non è in grado di leggere nemmeno in caso esso venisse violato.
 
-Un'estensione ulteriore, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
-strutture che ha annotato e che negli elenchi pubblici non compaiono.
-Chiuderebbe il ciclo fra i due ruoli: chi consuma il censimento è anche nella posizione migliore per accorgersi di ciò che
+Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
+strutture che ha salvato e che negli elenchi pubblici non compaiono.
+Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che
 manca, e restituirebbe valore ai portali da cui il progetto prende i propri dati; richiederebbe però una moderazione redazionale,
-che è un problema organizzativo e non informatico.
+che è un problema più organizzativo piuttosto che informatico.
 
-\subsection{Percorsi Reali e Cartografia Non Raster}\label{subsec:futuro-percorsi}
+\subsection{Percorsi reali e cartografia non raster}\label{subsec:futuro-percorsi}
 
 Tutte le distanze mostrate dal modulo sono geodetiche, e la limitazione è discussa al paragrafo \ref{subsec:impl-filtraggio}.
-L'introduzione di un servizio di instradamento permetterebbe di ordinare i centri per tempo di percorrenza effettivo invece
+L'introduzione di un servizio di instradamento (\textit{routing}) permetterebbe di ordinare i centri per il tempo di viaggio effettivo invece
 che per distanza in linea d'aria, che è la grandezza a cui l'utente è realmente interessato: in un contesto montano, o in un'area
 urbana congestionata, il centro geograficamente più vicino non è necessariamente quello raggiungibile prima.
 Il cambiamento non sarebbe soltanto quantitativo, perché trasformerebbe l'ordinamento dell'elenco dei centri vicini, ed è anche
-il motivo per cui uno dei test unitari del paragrafo \ref{sec:test-unitari} verifica la simmetria della distanza: un instradamento
-su rete stradale non è simmetrico, e quel test segnalerebbe il cambiamento di semantica invece di lasciarlo passare.
+il motivo per cui uno degli unit test del paragrafo \ref{sec:test-unitari} verifica la simmetria della distanza: un instradamento
+su rete stradale non è simmetrico, e quel test segnalerebbe il cambiamento invece di ignorarlo.
 
-Sul versante della resa, il passaggio da tile raster a cartografia vettoriale porterebbe due vantaggi.
-Il primo è la nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo, che l'immagine raster non può garantire.
-Il secondo, meno evidente e più interessante per questa applicazione, è la possibilità di intervenire sullo stile della mappa
-attenuando gli elementi non pertinenti: una cartografia in cui le strutture sanitarie risultino accentuate e il resto del contesto
-sia reso più tenue metterebbe in risalto proprio l'informazione che l'utente sta cercando, cosa che con i tile raster, già disegnati
-all'origine, non è possibile fare.
+Lato grafico, il passaggio da tile raster ad una mappa vettoriale porterebbe due vantaggi.
 
-Da ultimo, una funzione utile e di costo contenuto sarebbe la conservazione locale dei tile di un'area scelta dall'utente, per
-consultare la mappa in assenza completa di rete.
-Oggi la conservazione riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
-quindi in assenza di rete i marker compaiono su uno sfondo cartografico vuoto: l'informazione essenziale resta disponibile,
+\begin{enumerate}
+    \item La nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo (\textit{DPI}), che l'immagine raster non può garantire.
+    \item Meno evidente ma molto utile, è la possibilità di personalizzare lo stile della mappa attenuando gli elementi meno
+    importanti: una mappa in cui le strutture sanitarie vengono evidenziate e il resto del contesto
+    sia reso più tenue metterebbe in risalto proprio l'informazione che l'utente sta cercando, cosa che con i tile raster, già disegnati
+    all'origine, non è possibile fare facilmente.
+\end{enumerate}
+
+
+
+Un'ultima funzione utile e di costo contenuto sarebbe il \textit{download} in locale dei tile di un'area scelta dall'utente, per
+consultare la mappa in assenza di rete.
+Attualmente il salvataggio in locale riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
+quindi in assenza di rete i marker compaiono su uno sfondo vuoto: l'informazione essenziale resta disponibile,
 ma il contesto geografico che la rende leggibile va perduto.
-Su questa strada occorrerebbe però procedere con attenzione alla politica d'uso dei tile pubblici, che vieta espressamente lo
-scaricamento massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario un accordo con un provider diverso oppure
+Su questa strada occorrerebbe però procedere con attenzione per rispettare la politica d'uso dei tile pubblici, che vieta espressamente
+il \textit{download} massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario l'utilizzo di un provider diverso oppure
 la predisposizione di un proprio servizio di tile.

@@ -7,7 +7,7 @@ clustering dei marker, la localizzazione, la ricerca, i filtri, i centri persona
 la delega ai servizi del dispositivo.
 Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno illustrate prima le ragioni e poi il meccanismo.
 
-\section{Ambiente di Sviluppo e Librerie Utilizzate}\label{sec:ambiente-sviluppo}
+\section{Ambiente di sviluppo e librerie utilizzate}\label{sec:ambiente-sviluppo}
 
 Lo sviluppo si è svolto su Windows 11 con Android Studio, impiegando Flutter e il linguaggio Dart \cite{flutterDocs, dartLang}.
 La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16, con la
@@ -72,13 +72,13 @@ Alla classe dello stato sono applicate due estensioni: la prima consente di dich
 l'utente perde il \textit{focus} dalla schermata, la seconda fornisce il supporto temporale necessario alle animazioni, impiegato dal comando
 della bussola descritto al paragrafo \ref{subsec:impl-marker}.
 
-\section{Acquisizione e Normalizzazione dei Dati}\label{sec:impl-acquisizione}
+\section{Acquisizione e normalizzazione dei dati}\label{sec:impl-acquisizione}
 
 %L'acquisizione è la parte del modulo che ha richiesto il maggior numero di correzioni, e non per la complessità del protocollo,
 %che si riduce a due richieste HTTP, ma piuttosto a causa della variabilità dei dati nei campi.
 Ogni accorgimento descritto in questo paragrafo corrisponde a un caso reale osservato durante lo sviluppo.
 
-\subsection{Interrogazione delle fonti e Fallback}\label{subsec:impl-endpoint}
+\subsection{Interrogazione delle fonti e fallback}\label{subsec:impl-endpoint}
 
 Le due patologie sono servite da due fonti indipendenti.
 Quella per la dermatite atopica espone un servizio che restituisce un oggetto con \textit{record} annidati raggruppati da una chiave, e non
@@ -154,7 +154,7 @@ della prima richiesta; il \textit{fallback} converge sul nodo che governa il pre
 \label{fig:sequenza-endpoint}
 \end{figure}
 
-\subsection{Normalizzazione dei Record}\label{subsec:impl-normalizzazione}
+\subsection{Normalizzazione dei record}\label{subsec:impl-normalizzazione}
 
 La normalizzazione ha tre compiti distinti:
 \begin{enumerate}
@@ -249,7 +249,7 @@ Restituire un valore nullo invece obbliga ogni chiamante, nel nostro caso, a ign
 %memorizzazione dei risultati; tuttavia su elenchi di ordine superiore sarebbe il primo punto da rivedere, specialmente nella struttura dei dati,
 %di cui viene discussa in \ref{subsec:modello-centri}.
 
-\subsection{Salvataggio sul Dispositivo}\label{subsec:impl-persistenza}
+\subsection{Salvataggio sul dispositivo}\label{subsec:impl-persistenza}
 
 Il salvataggio locale impiega l'archivio di coppie chiave-valore fornito dalla piattaforma, che memorizza tipi elementari e
 che viene quindi usato per custodire i dati serializzati in formato JSON. Per i tre archivi \textit{cache} descritti al paragrafo \ref{subsec:strategia-cache}
@@ -294,9 +294,9 @@ La lettura inoltre verifica che il contenuto interpretato sia effettivamente un 
 valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
 I due casi sono verificati fra i test descritti al paragrafo \ref{sec:test-unitari}.
 
-\section{Caricamento mappa e Gestione dei marker}\label{sec:impl-mappe}
+\section{Caricamento mappa e gestione dei marker}\label{sec:impl-mappe}
 
-\subsection{Livelli, marker e Controlli della Mappa}\label{subsec:impl-marker}
+\subsection{Livelli, marker e controlli della mappa}\label{subsec:impl-marker}
 
 La schermata è costruita per sovrapposizione, secondo l'ordine di disegno riportato nella tabella \ref{tab:strati}.
 Alla base sta il livello dei tile, che richiede due soli parametri: l'URL del template da cui ricavare l'immagine di ciascun tile a
@@ -567,7 +567,7 @@ partenza in un massimo di sedici nuove celle.
 Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
 bolla; tre avrebbero fatto perdere il contesto circostante.
 
-\section{Localizzazione e Gestione dei Permessi}\label{sec:impl-localizzazione}
+\section{Localizzazione e gestione dei permessi}\label{sec:impl-localizzazione}
 
 La posizione dell'utente serve a tre cose: centrare la mappa all'apertura, calcolare le distanze e valutare il filtro per raggio.
 Nessuna delle tre è indispensabile al funzionamento del modulo, e questa è la premessa che ha guidato l'intera gestione dei permessi:
@@ -636,7 +636,7 @@ pressioni ravvicinate avvierebbero due procedure concorrenti, con la possibilit�
 richiesta sovrapposte.
 Un indicatore di procedura in corso impedisce l'avvio di una seconda acquisizione mentre la prima non si è conclusa.
 
-\section{Ricerca per Indirizzo e Geocodifica}\label{subsec:impl-ricerca}
+\section{Ricerca per indirizzo e geocodifica}\label{subsec:impl-ricerca}
 
 La ricerca per indirizzo si appoggia al servizio di geocodifica dell'ecosistema OpenStreetMap descritto al
 paragrafo \ref{subsec:geocodifica}, interrogato in due modalità distinte.
@@ -712,9 +712,9 @@ Sul piano dell'interfaccia la ricerca ha imposto la soluzione del problema di so
 Mentre i comandi sono nascosti vengono anche resi insensibili al tocco: un elemento reso trasparente resta altrimenti capace di
 intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
 
-\section{Filtri e Ricerca per Prossimità}\label{sec:impl-filtri}
+\section{Filtri e ricerca per prossimità}\label{sec:impl-filtri}
 
-\subsection{Distanze Geodetiche e Filtro per Raggio}\label{subsec:impl-filtraggio}
+\subsection{Distanze geodetiche e filtro per raggio}\label{subsec:impl-filtraggio}
 
 Il requisito RF-22 chiede che il calcolo delle distanze tenga conto della curvatura terrestre, e la richiesta non è un eccesso di rigore.
 Trattare latitudine e longitudine come coordinate cartesiane, cioè applicare il teorema di Pitagora ai gradi, produce un errore che
@@ -804,7 +804,7 @@ filtrati per raggio soltanto nell'elenco dei centri vicini.
 %raggio scompare dall'elenco ma resta disegnato sulla mappa.
 %è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
 
-\subsection{Individuazione del Centro più Vicino}\label{subsec:impl-piu-vicino}
+\subsection{Individuazione del centro più vicino}\label{subsec:impl-piu-vicino}
 
 La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, quello remoto e quello personale, mantenendo
 il minimo corrente insieme all'azione che ne aprirà la scheda.
@@ -828,7 +828,7 @@ questa forma di adattamento della viewport; il valore corrisponde alla durata ti
 una scheda che compare a movimento concluso.
 %è una soluzione fragile, perché su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
 
-\section{Inserimento dei Centri Personalizzati}\label{subsec:impl-validazione}
+\section{Inserimento dei centri personalizzati}\label{subsec:impl-validazione}
 
 L'inserimento di un centro proprio parte da un vincolo di interfaccia dichiarato nel requisito RF-26: le coordinate non si digitano.
 Chiedere a un utente di scrivere latitudine e longitudine significa chiedergli un dato che non conosce, in un formato
@@ -955,7 +955,7 @@ chiave con cui l'aggiornamento distingue la sostituzione dall'inserimento.
 %I centri salvati a partire da una voce dell'elenco pubblico portano un identificatore con un prefisso distinto, il che
 %permette di riconoscerne l'origine in una eventuale versione futura, quando servisse per esempio riallinearli al dato remoto.
 
-\section{Integrazione con i Servizi del Dispositivo}\label{sec:impl-integrazione}
+\section{Integrazione con i servizi del dispositivo}\label{sec:impl-integrazione}
 
 Le azioni che seguono la consultazione, cioè raggiungere un centro, telefonargli, scrivergli o condividerne la scheda, non sono
 realizzate dall'applicazione ma delegate ai programmi installati sul dispositivo.
@@ -1016,7 +1016,7 @@ installata dichiara di saper gestire quello schema.
 In entrambi i casi l'utente riceve un avviso testuale e la scheda del centro resta aperta, come prevede lo scenario alternativo
 del caso d'uso UC-07.
 
-\section{Il Modulo in Esecuzione}\label{sec:impl-screenshot}
+\section{Il modulo in esecuzione}\label{sec:impl-screenshot}
 
 Le figure \ref{fig:screen-mappa} e \ref{fig:screen-schede} mostrano il modulo in funzione su dispositivo Android, e permettono di
 verificare visivamente alcune delle scelte descritte nelle pagine precedenti.

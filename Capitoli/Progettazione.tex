@@ -5,7 +5,7 @@ L'ordine segue il percorso naturale del lavoro: prima la scelta della piattaform
 poi l'organizzazione dell'interfaccia, infine la rappresentazione dei dati e la loro conservazione sul dispositivo.
 Dove una decisione ha comportato una rinuncia, quest'ultima viene dichiarata esplicitamente.
 
-\section{Architettura del Sistema}\label{sec:architettura-sistema}
+\section{Architettura del sistema}\label{sec:architettura-sistema}
 
 La premessa che vincola ogni altra scelta è l'assenza di un servizio proprio.
 Per questo lavoro non è stato realizzato alcun backend: l'applicazione interroga direttamente elenchi pubblicati da terzi,
@@ -86,7 +86,7 @@ Gli scambi fra livelli sono bidirezionali perché alle richieste discendenti cor
 collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita: l'applicazione interroga o delega, ma nessun sistema
 esterno la contatta di propria iniziativa.
 
-\subsection{Scelta Tecnologica: Il Framework Flutter e Dart}\label{subsec:scelta-flutter}
+\subsection{Scelta tecnologica: il framework Flutter e Dart}\label{subsec:scelta-flutter}
 
 Il requisito di partenza era coprire Android e iOS con un solo sviluppo, avendo a disposizione il tempo di una tesi triennale
 e un solo sviluppatore.
@@ -125,7 +125,7 @@ Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al c
 %piattaforme e distingue esplicitamente i due casi dove serve, ma il comportamento su dispositivo Apple reale non è stato osservato.
 %La questione è ripresa al capitolo dedicato ai test.
 
-\subsection{Pattern Architetturale e Gestione Stato}\label{subsec:gestione-stato}
+\subsection{Pattern architetturale e gestione stato}\label{subsec:gestione-stato}
 
 Per la gestione dello stato non è stata adottata alcuna libreria dedicata.
 %La decisione è deliberata e va giustificata, perché va in direzione contraria alla pratica corrente.
@@ -177,14 +177,14 @@ sola volta al termine del movimento.
 Lo stesso accorgimento è applicato, con una pausa più lunga, alle interrogazioni del servizio di geocodifica durante la digitazione,
 dove la motivazione non è soltanto l'efficienza ma il rispetto dei limiti d'uso imposti dal servizio.
 
-\section{Progettazione dell'Interfaccia}\label{sec:progettazione-ui-ux}
+\section{Progettazione dell'interfaccia}\label{sec:progettazione-ui-ux}
 
 L'interfaccia è stata pensata attorno a un vincolo semplice: su una mappa il contesto è il contenuto.
 Se per leggere i dettagli di una struttura l'utente perde di vista la mappa, perde anche la relazione fra quella struttura
 e le altre, il motivo per cui stava consultando una mappa invece di un elenco.
 Tutte le decisioni descritte in questa sezione derivano da questa considerazione.
 
-\subsection{Flusso di Navigazione e Mappa dell'App}\label{subsec:flusso-navigazione}
+\subsection{Flusso di navigazione e mappa dell'App}\label{subsec:flusso-navigazione}
 
 Il modulo occupa una schermata intera,
 %raggiunta da una vista precedente che gli trasmette
@@ -234,7 +234,7 @@ di chiusura difficile da prevedere per l'utente.
     \label{fig:navigazione}
 \end{figure}
 
-\subsection{Progettazione del Modulo Mappa e del Filtraggio}\label{subsec:design-mappa-centri}
+\subsection{Progettazione del modulo mappa e filtri}\label{subsec:design-mappa-centri}
 
 La schermata è costruita per sovrapposizione: la mappa occupa tutto lo spazio disponibile e ogni comando le sta sopra,
 senza sottrarle superficie.
@@ -309,14 +309,14 @@ che sta consultando, e resta comunque modificabile nel modulo di inserimento.
 La scelta opposta, associare per difetto tutte le patologie, avrebbe fatto comparire il marker anche in un contesto in
 cui l'utente non lo aveva richiesto, che è l'errore più fastidioso dei due.
 
-\section{Modello dei Dati e Persistenza}\label{sec:modello-dati}
+\section{Modello e persistenza dei dati}\label{sec:modello-dati}
 
 Resta da descrivere la parte meno visibile del lavoro, e probabilmente la più delicata: come vengono rappresentati i
 centri all'interno dell'applicazione, e dove finiscono quando l'applicazione viene chiusa.
 Il problema nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti} non sono state pensate
 per essere consumate insieme, e nessuna delle due è stata pensata per questa applicazione.
 
-\subsection{Rappresentazione e Normalizzazione}\label{subsec:modello-centri}
+\subsection{Rappresentazione e normalizzazione}\label{subsec:modello-centri}
 
 Le sorgenti differiscono su tre piani, nello specifico differiscono nella forma della risposta, perché una restituisce
 un oggetto con i record annidati sotto una chiave mentre l'altra restituisce direttamente un elenco.
@@ -419,7 +419,7 @@ multivalore.
 È la stessa asimmetria osservata al paragrafo \ref{subsec:design-mappa-centri}, vista dal lato dei dati: due meccanismi
 diversi che convergono sullo stesso effetto per l'utente, cioè vedere sulla mappa soltanto i centri pertinenti alla patologia scelta.
 
-\subsection{Strategia di Cache e Funzionamento Offline}\label{subsec:strategia-cache}
+\subsection{Strategia di caching e funzionamento offline}\label{subsec:strategia-cache}
 
 Il requisito RNF-10 chiede che l'applicazione resti utilizzabile in assenza di connessione.
 Non è una richiesta di comodo: la ricerca di un centro avviene tipicamente in viaggio, cioè nella condizione in cui

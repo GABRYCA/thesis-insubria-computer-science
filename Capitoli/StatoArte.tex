@@ -1,8 +1,8 @@
-\chapter{Stato dell'Arte}\label{ch:stato-arte}
+\chapter{Stato dell'arte}\label{ch:stato-arte}
 
-\section{Inquadramento Clinico}\label{sec:inquadramento-clinico}
+\section{Inquadramento clinico}\label{sec:inquadramento-clinico}
 
-\subsection{Dermatite Atopica e Psoriasi: Caratteristiche e Differenze}\label{subsec:dermatite-psoriasi}
+\subsection{Dermatite atopica e psoriasi: caratteristiche e differenze}\label{subsec:dermatite-psoriasi}
 
 Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
 Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e
@@ -40,7 +40,7 @@ Un elenco che non distingua i due casi costringe l'utente a verificare struttura
 Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è un attributo di
 prima classe del centro e non un'annotazione testuale.
 
-\subsection{Il Percorso di Cura e il Ruolo dei Centri Specialistici}\label{subsec:percorso-cura}
+\subsection{Il percorso di cura e il ruolo dei centri specialistici}\label{subsec:percorso-cura}
 
 Nelle forme moderate e severe la gestione esce dall'ambito della medicina generale.
 I farmaci biologici e le piccole molecole di più recente introduzione richiedono una prescrizione specialistica, esami di
@@ -54,9 +54,9 @@ in carico \cite{pianoCronicita}.
 Ridurre quel confronto a un'unica vista ordinata per distanza è l'obiettivo minimo che un'applicazione come questa deve
 raggiungere per essere utile.
 
-\section{Strumenti Esistenti per la Ricerca di Centri Dermatologici}\label{sec:strumenti-esistenti}
+\section{Strumenti esistenti per la ricerca di centri dermatologici}\label{sec:strumenti-esistenti}
 
-\subsection{I Portali Dermatopia e Vicini di Pelle}\label{subsec:portali-esistenti}
+\subsection{I portali dermatopia e vicini di pelle}\label{subsec:portali-esistenti}
 
 Nel panorama italiano due iniziative si distinguono per completezza.
 La prima, Dermatopia, espone un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
@@ -69,7 +69,7 @@ potrebbe replicare con la stessa affidabilità.
 Per questa ragione il progetto non tenta di costruire un archivio proprio: assume queste sorgenti come dato di partenza e
 concentra il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
 
-\subsection{Limiti degli Strumenti Attuali}\label{subsec:limiti-strumenti}
+\subsection{Limiti degli strumenti attuali}\label{subsec:limiti-strumenti}
 
 Dall'analisi dei due portali emergono alcuni limiti ricorrenti, che hanno orientato in modo diretto i requisiti del
 capitolo \ref{ch:analisi-dei-requisiti}.
@@ -113,7 +113,7 @@ remoti nella stessa mappa e negli stessi filtri.
 %\label{tab:limiti-strumenti}
 %\end{table}
 
-\section{Provider mappe per Applicazioni Mobili}\label{sec:piattaforme-cartografiche}
+\section{Provider di mappe per applicazioni mobili}\label{sec:piattaforme-cartografiche}
 
 La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
 di scrivere l'applicazione.
@@ -205,7 +205,7 @@ Ogni incremento dello zoom raddoppia il numero di tile per lato e ogni tile è i
 \label{fig:tasselli}
 \end{figure}
 
-\subsection{Geocodifica e Ricerca per Indirizzo}\label{subsec:geocodifica}
+\subsection{Geocodifica e ricerca per indirizzo}\label{subsec:geocodifica}
 
 Una mappa senza barra di ricerca è utile soltanto a chi sa già dove guardare.
 Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate, come una barra di ricerca per l'indirizzo.
@@ -218,7 +218,7 @@ divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (cac
 La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
 nasce proprio da questo vincolo. %e non da una preferenza estetica.
 
-\section{Framework per lo Sviluppo Cross-Platform}\label{sec:framework-cross-platform}
+\section{Framework per lo sviluppo cross-platform}\label{sec:framework-cross-platform}
 
 Il requisito di una singola base di codice per Android e iOS è molto importante.
 Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta
