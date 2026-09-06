@@ -224,8 +224,8 @@ la sostituzione di un endpoint senza modifiche all'interfaccia. \tabularnewline
 \section{Casi d'uso}\label{sec:casi-duso}
 
 Il diagramma della figura \ref{fig:casi-uso} raccoglie le interazioni principali.
-L'utente compare a sinistra, i casi d'uso sono racchiusi nel confine del sistema, e i servizi esterni sono collegati con
-linee tratteggiate ai soli casi d'uso che li coinvolgono: la cartina geografica e l'acquisizione dell'elenco dipendono da
+L'utente compare a sinistra, i casi d'uso sono racchiusi nel confine, e i servizi esterni sono collegati con
+linee tratteggiate ai casi d'uso che li coinvolgono: la cartina geografica e l'acquisizione dell'elenco dipendono da
 servizi remoti, la ricerca per indirizzo dalla geocodifica, la ricerca dei centri vicini dal sistema operativo, mentre
 indicazioni e contatti delegano il compito ad applicazioni installate sul dispositivo.
 
@@ -236,9 +236,9 @@ indicazioni e contatti delegano il compito ad applicazioni installate sul dispos
   \node[anchor=north] at (3.7,9.25) {\textbf{Applicazione}};
 
   \node[ucase] (uc1) at (3.7,8.3) {Consultare la mappa dei centri};
-  \node[ucase] (uc2) at (3.7,7.1) {Cercare una località per indirizzo};
+  \node[ucase] (uc2) at (3.7,7.1) {Ricerca località per indirizzo};
   \node[ucase] (uc3) at (3.7,5.9) {Filtrare i centri per patologia};
-  \node[ucase] (uc4) at (3.7,4.7) {Trovare i centri più vicini};
+  \node[ucase] (uc4) at (3.7,4.7) {Ricerca centri più vicini};
   \node[ucase] (uc5) at (3.7,3.5) {Gestire i centri preferiti};
   \node[ucase] (uc6) at (3.7,2.3) {Gestire i centri personalizzati};
   \node[ucase] (uc7) at (3.7,1.1) {Ottenere le indicazioni stradali};
@@ -268,7 +268,7 @@ indicazioni e contatti delegano il compito ad applicazioni installate sul dispos
   \draw[flowdash] (uc7.east) -- (s4.west);
   \draw[flowdash] (uc8.east) -- (s4.west);
 \end{tikzpicture}
-\caption{Diagramma dei casi d'uso. I collegamenti tratteggiati indicano la dipendenza da servizi esterni.}
+\caption{Diagramma dei casi d'uso.}
 \label{fig:casi-uso}
 \end{figure}
 
@@ -316,7 +316,7 @@ Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09, RF-10
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
-\multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Cercare una località per indirizzo}} \tabularnewline
+\multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Ricerca località per indirizzo}} \tabularnewline
 \midrule
 Attore primario & Utente \tabularnewline
 Attori secondari & Servizio di geocodifica \tabularnewline
@@ -348,7 +348,7 @@ Requisiti & RF-16, RF-17, RF-18 \tabularnewline
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
 \toprule
-\multicolumn{2}{@{}l}{\textbf{UC-04 \textemdash{} Trovare centri più vicini}} \tabularnewline
+\multicolumn{2}{@{}l}{\textbf{UC-04 \textemdash{} Ricerca centri più vicini}} \tabularnewline
 \midrule
 Attore primario & Utente \tabularnewline
 Attori secondari & Sistema operativo \tabularnewline
