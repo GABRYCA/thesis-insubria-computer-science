@@ -300,9 +300,9 @@ L'utente apre l'applicazione.
 Scenari alternativi & 3a.
 Il servizio principale non risponde oppure restituisce dati invalidi: il sistema interroga la fonte alternativa e prosegue dal passo 4.
 \newline 3b.
-Nessuna fonte è raggiungibile ma la cache contiene dati: il sistema resta sui dati in cache e segnala che l'elenco potrebbe non essere aggiornato.
+Nessuna fonte raggiungibile ma la cache contiene dati: il sistema utilizza la cache e segnala che l'elenco potrebbe non essere aggiornato.
 \newline 3c.
-Nessuna fonte è raggiungibile e la cache è vuota: il sistema segnala l'assenza di dati e offre un comando per ritentare.
+Nessuna fonte raggiungibile e cache vuota: il sistema segnala l'assenza di dati e offre un comando per riprovare.
 \newline 4a.
 Alcuni record sono privi di coordinate valide: il sistema li scarta e disegna i rimanenti. \tabularnewline
 Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09, RF-10, RF-11 \tabularnewline
@@ -329,12 +329,12 @@ L'utente tocca il campo di ricerca e digita un indirizzo oppure il nome di una l
 \newline 4. L'utente seleziona un risultato.
 \newline 5. Il sistema chiude l'elenco, sposta la vista sulle coordinate corrispondenti e ricalcola i marker visibili. \tabularnewline
 Scenari alternativi & 2a.
-L'utente continua a digitare prima della scadenza dell'attesa: il sistema annulla l'interrogazione in corso e ne pianifica
-una nuova, in modo da non inviare una richiesta per ogni carattere.
+L'utente continua a digitare prima della scadenza del timeout (attesa): il sistema annulla la query in corso e ne pianifica
+una nuova, così da evitare multiple richieste per ogni carattere inserito.
 \newline 3a.
-Il servizio non restituisce alcun risultato: il sistema segnala esito e lascia il testo inserito.
+Il servizio non restituisce alcun risultato: il sistema segnala l'esito e lascia il testo inserito.
 \newline 3b.
-Il servizio non è raggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
+Il servizio è irraggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
 \newline 4a.
 L'utente annulla la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
 Requisiti & RF-16, RF-17, RF-18 \tabularnewline
@@ -353,23 +353,23 @@ Requisiti & RF-16, RF-17, RF-18 \tabularnewline
 Attore primario & Utente \tabularnewline
 Attori secondari & Sistema operativo \tabularnewline
 Precondizioni & La mappa e l'elenco dei centri sono stati caricati. \tabularnewline
-Postcondizioni & L'utente dispone dell'elenco dei centri entro il raggio scelto, ordinati per distanza. \tabularnewline
+Postcondizioni & L'utente dispone dell'elenco dei centri entro il raggio prescelto, ordinati per distanza. \tabularnewline
 Scenario principale & 1.
 L'utente attiva la funzione di ricerca per raggio.
 \newline 2. Il sistema verifica se il servizio di localizzazione del dispositivo sia attivo e se il permesso sia già stato concesso.
-\newline 3. Il sistema richiede la posizione attuale al sistema operativo.
+\newline 3. Il sistema richiede la posizione aggiornata al sistema operativo.
 \newline 4. L'utente seleziona il raggio di ricerca e, se lo desidera, la patologia di interesse.
-\newline 5. Il sistema calcola la distanza di ogni centro dalla posizione dell'utente tenendo conto della curvatura terrestre,
-scarta quelli oltre il raggio e applica il filtro per patologia sia ai centri remoti sia a quelli personalizzati inseriti dall'utente.
+\newline 5. Il sistema calcola la distanza di ogni centro dalla posizione dell'utente,
+scarta quelli troppo distanti e applica il filtro per patologia sia ai centri remoti sia a quelli personalizzati
 \newline 6. Il sistema disegna sulla mappa la circonferenza corrispondente al raggio e presenta l'elenco dei centri trovati
 ordinati per distanza crescente. \tabularnewline
 Scenari alternativi & 2a.
-Il permesso non è ancora stato concesso: il sistema lo richiede e prosegue dal passo 3 se viene concesso dall'utente.
+Il permesso non viene concesso: il sistema lo richiede e prosegue dal passo 3 se viene dato.
 \newline 2b.
 Il permesso viene negato: il sistema mantiene la viewport predefinita, avvisa che la funzione richiede la posizione e chiede
 di riprovare più tardi.
 \newline 2c.
-Il permesso è stato negato in modo permanente: il sistema offre un collegamento alle impostazioni del sistema, poichè da
+Il permesso viene negato in modo permanente: il sistema offre un collegamento alle impostazioni di sistema, poichè da
 questo stato la richiesta non può più essere ripresentata dall'applicazione.
 \newline 2d.
 Il servizio di geolocalizzazione del dispositivo è disattivato: il sistema lo segnala e invita ad attivarlo.
