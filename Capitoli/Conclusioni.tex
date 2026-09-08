@@ -248,17 +248,16 @@ Lato grafico, il passaggio da tile raster ad una mappa vettoriale porterebbe due
     \item La nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo (\textit{DPI}), che l'immagine raster non può garantire.
     \item Meno evidente ma molto utile, è la possibilità di personalizzare lo stile della mappa attenuando gli elementi meno
     importanti: una mappa in cui le strutture sanitarie vengono evidenziate e il resto del contesto
-    sia reso più tenue metterebbe in risalto proprio l'informazione che l'utente sta cercando, cosa che con i tile raster, già disegnati
-    all'origine, non è possibile fare facilmente.
+    sia reso più tenue metterebbe in risalto l'informazione che l'utente sta cercando.
 \end{enumerate}
 
 
 
-Un'ultima funzione utile e di costo contenuto sarebbe il \textit{download} in locale dei tile di un'area scelta dall'utente, per
+Un'ultima funzione utile sarebbe il \textit{pre-download} in locale dei tile di un'area scelta dall'utente, per
 consultare la mappa in assenza di rete.
 Attualmente il salvataggio in locale riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
-quindi in assenza di rete i marker compaiono su uno sfondo vuoto: l'informazione essenziale resta disponibile,
-ma il contesto geografico che la rende leggibile va perduto.
-Su questa strada occorrerebbe però procedere con attenzione per rispettare la politica d'uso dei tile pubblici, che vieta espressamente
+quindi in assenza di rete i marker compaiono su uno sfondo vuoto.
+L'informazione più importante resta quindi disponibile, ma il contesto geografico che la rende leggibile va perduto.
+Su questa strada occorrerebbe procedere con attenzione per rispettare la politica d'uso dei tile pubblici, che vieta espressamente
 il \textit{download} massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario l'utilizzo di un provider diverso oppure
 la predisposizione di un proprio servizio di tile.

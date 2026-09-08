@@ -434,21 +434,21 @@ Postcondizioni & Il percorso verso il centro è aperto in un'applicazione di nav
 Scenario principale & 1.
 L'utente richiede le indicazioni dalla scheda del centro.
 \newline 2. Il sistema propone la scelta di un mezzo di trasporto tra automobile, mezzi pubblici, bicicletta e a piedi.
-\newline 3. L'utente seleziona il mezzo o modo desiderato.
-\newline 4. Il sistema propone le applicazioni di navigazione utilizzabili.
+\newline 3. L'utente seleziona il mezzo desiderato.
+\newline 4. Il sistema propone le applicazioni di navigazione.
 \newline 5. L'utente seleziona un'applicazione.
-\newline 6. Il sistema compone il collegamento verso quell'applicazione, inserendo le coordinate del centro come destinazione e
+\newline 6. Il sistema crea il collegamento verso quell'applicazione, inserendo le coordinate del centro come destinazione e
 il mezzo prescelto, e ne delega l'apertura al sistema operativo. \tabularnewline
 Scenari alternativi & 4a.
-Il dispositivo è Android: il sistema propone Google Maps e Waze.
+Dispositivo Android: il sistema propone Google Maps e Waze.
 \newline 4b.
-Il dispositivo è iOS: il sistema propone anche Apple Maps.
+Dispositivo iOS: il sistema propone anche Apple Maps.
 \newline 6a.
 Viene scelta come applicazione Waze, che accetta nel collegamento la destinazione ma non il mezzo di trasporto: il sistema avvia la
-navigazione lasciando all'applicazione la propria modalità predefinita.
+navigazione lasciando all'applicazione la sua modalità predefinita.
 \newline 6b.
 Viene scelta come applicazione Apple Maps e il mezzo selezionato è la bicicletta, che il collegamento non riconosce: il sistema
-mostra allora il percorso in auto.
+mostra allora il percorso con un mezzo alternativo, ossia in auto.
 \newline 6c.
 Nessuna applicazione è in grado di gestire il collegamento oppure l'apertura fallisce: il sistema avvisa che le indicazioni
 non possono essere aperte e mantiene la scheda del centro. \tabularnewline
@@ -487,7 +487,7 @@ Il campo contiene più recapiti separati da virgole o barre: il sistema ne utili
 \newline 4b.
 Dopo la rimozione dei caratteri non ammessi il numero risulta vuoto: il sistema non effettua alcuna azione.
 \newline 4c.
-Nessuna applicazione è in grado di gestire il collegamento: l'operazione viene annullata senza modificare la scheda. \tabularnewline
+Nessuna applicazione è in grado di gestire il collegamento: l'operazione viene annullata rimanendo sulla scheda corrente. \tabularnewline
 Requisiti & RF-31, RF-34, RF-35 \tabularnewline
 \bottomrule
 \end{tabularx}
