@@ -2,7 +2,7 @@
 
 \section{Contesto}\label{sec:contesto}
 
-La dermatite atopica e la psoriasi condividono una caratteristica che, dal punto di vista informatico, pesa più di quanto
+La dermatite atopica e la psoriasi condividono una caratteristica che, dal punto di vista generale, pesa più di quanto
 si potrebbe pensare: non guariscono.
 Sono patologie infiammatorie croniche recidivanti, in cui fasi di remissione e fasi di riacutizzazione si alternano nel
 corso di anni o di decenni \cite{weidingerAD, griffithsPsoriasis}.
@@ -55,35 +55,37 @@ In termini più operativi, il progetto si è dato i seguenti obiettivi:
   \item Garantire un funzionamento accettabile in assenza di connessione, attraverso una cache persistente dell'ultimo elenco scaricato.
 \end{itemize}
 
-È altrettanto importante definire ciò che il progetto non si propone di fare: delimitare il perimetro rientra a pieno titolo
-nel lavoro di analisi.
-L'applicazione non formula diagnosi e non esprime valutazioni cliniche: si limita a mostrare dove si trovano le strutture
+È altrettanto importante definire ciò che il progetto non si propone di fare.%: delimitare il perimetro rientra a pieno titolo
+%nel lavoro di analisi.
+L'applicazione non formula diagnosi e non esprime valutazioni cliniche, si limita a mostrare dove si trovano le strutture
 e a fornirne i contatti.
 Non prevede autenticazione né profili utente e, di conseguenza, non trasmette all'esterno alcun dato personale.
-Non include un backend dedicato, scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
+Non include un backend dedicato, e si basa su servizi pubblicamente disponibili che agiscono da fonti. %scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
 
 \section{Struttura della tesi}\label{sec:struttura-tesi}
 
-Il capitolo \ref{ch:stato-arte} inquadra il problema, prima dal lato clinico e poi dal lato tecnologico: esamina gli strumenti
-già disponibili per cercare un centro dermatologico e ne individua i limiti, confronta le piattaforme cartografiche utilizzabili
+Il capitolo \ref{ch:stato-arte} inquadra il problema, prima dal lato clinico e poi dal lato tecnologico.
+Esamina gli strumenti già disponibili per cercare un centro dermatologico e ne individua i limiti, confronta le piattaforme cartografiche utilizzabili
 in ambito \textit{mobile} e motiva la scelta del framework di sviluppo.
 
 Il capitolo \ref{ch:analisi-dei-requisiti} formalizza attori, requisiti funzionali e requisiti non funzionali, e li raccoglie
-in un diagramma dei casi d'uso corredato dalle schede dei tre scenari principali.
+in un diagramma dei casi d'uso seguito dalle schede dei tre scenari principali.
 
 Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'applicazione, la strategia di gestione dello stato,
 l'impianto dell'interfaccia (\textit{UI e UX}) e il modello dei dati adottato per riconciliare sorgenti eterogenee.
 
-Il capitolo \ref{ch:sviluppo} è la parte più estesa e ripercorre l'implementazione: acquisizione dei dati con endpoint di
-riserva, normalizzazione, persistenza, resa cartografica, algoritmo di clustering dei marker, macchina a stati dei
-permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni del dispositivo.
+Il capitolo \ref{ch:sviluppo} è la parte più estesa e ripercorre l'implementazione.
+L'acquisizione dei dati con endpoint di riserva, normalizzazione, persistenza, caricamento mappa, algoritmo di clustering dei marker, macchina a stati,
+permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni disponibili sul dispositivo.
 
-Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati dei test automatici.
+Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati ottenuti.
 % , incluso un difetto dell'interfaccia
 % emerso proprio durante la loro scrittura.
 
-Il capitolo \ref{ch:conclusioni} raggruppa l'intero operato, elenca i limiti che restano aperti e indica le direzioni di
-sviluppo che sembrano migliori.
+Il capitolo \ref{ch:conclusioni} raggruppa l'intero operato, elenca i limiti che restano aperti e indica le possibili direzioni di
+sviluppo future.
+
+Il percorso logico dei capitoli, in cui ciascuno prepara le basi del successivo, è riassunto nella figura \ref{fig:struttura-tesi}:
 
 \begin{figure}[H]
 \centering
@@ -102,8 +104,6 @@ sviluppo che sembrano migliori.
 \draw[flow] (c5) -- (c6);
 \draw[flow] (c6) -- (c7);
 \end{tikzpicture}
-\caption{Struttura della tesi: l'ordine dei capitoli segue il percorso del lavoro, dalla definizione del problema alla conclusione.}
+\caption{Struttura della tesi.}
 \label{fig:struttura-tesi}
 \end{figure}
-
-Il percorso logico dei capitoli, in cui ciascuno prepara le basi del successivo, è riassunto nella figura \ref{fig:struttura-tesi}.
