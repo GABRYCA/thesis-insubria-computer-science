@@ -806,40 +806,43 @@ filtrati per raggio soltanto nell'elenco dei centri vicini.
 
 \subsection{Individuazione del centro più vicino}\label{subsec:impl-piu-vicino}
 
-La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, quello remoto e quello personale, mantenendo
-il minimo corrente insieme all'azione che ne aprirà la scheda.
-La ricerca del minimo procede in un unico attraversamento, ed è quindi lineare; un ordinamento completo dell'elenco, che sarebbe
-costato un fattore logaritmico in più, non serve, perché di quell'ordinamento interessa soltanto il primo elemento.
+La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, sia quello remoto che quello personale.%, mantenendo
+%il minimo corrente insieme all'azione che ne aprirà la scheda.
+Funziona tramite una singola lettura dell'intero elenco, e salvando quello alla distanza minore trovato.
+Di fatto, in questo scenario sarebbe inutile un ordinamento dell'intero insieme, e comporterebbe solamente un costo evitabile.
+%La ricerca del minimo procede in un unico attraversamento, ed è quindi lineare; un ordinamento completo dell'elenco, che sarebbe
+%costato un fattore logaritmico in più, non serve, perché di quell'ordinamento interessa soltanto il primo elemento.
 
-Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata, coerentemente con quanto
-disegnato sulla mappa.
+Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata.%, coerentemente con quanto
+%disegnato sulla mappa.
 Sui centri remoti il filtro per patologia è implicito nell'insieme stesso, secondo l'asimmetria discussa al
-paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono saltati.
+paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono scartati.
 
 Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perché comprenda sia la posizione
-dell'utente sia il centro trovato, con un margine di ottanta punti sui bordi e un limite superiore di ingrandimento al quindicesimo livello.
-La scelta risponde a una domanda diversa da quella letterale: l'utente che chiede il centro più vicino non vuole vedere il centro,
-vuole vedere quanto è lontano da sé, e una viewport centrata sul solo centro perderebbe proprio quell'informazione.
-Il limite di ingrandimento evita l'effetto opposto, cioè un avvicinamento eccessivo quando il centro trovato è a poche centinaia di metri.
+dell'utente sia quella del centro trovato.%, con un margine di ottanta punti sui bordi e un limite superiore di ingrandimento al quindicesimo livello.
+Questo perchè l'utente che chiede il centro più vicino non vuole solamente vederlo,
+vuole vedere quanto è lontano, e una viewport centrata sul solo centro perderebbe tale informazione.
+%Il limite di ingrandimento evita l'effetto opposto, cioè un avvicinamento eccessivo quando il centro trovato è a poche centinaia di metri.
 
-La scheda del centro viene aperta dopo un rinvio di trecentocinquanta millisecondi dall'inizio dello spostamento.
-Il rinvio è volutamente a tempo fisso e non legato al termine dell'animazione, che la libreria non espone come evento in
-questa forma di adattamento della viewport; il valore corrisponde alla durata tipica dello spostamento e produce l'effetto di
-una scheda che compare a movimento concluso.
+La scheda del centro viene aperta poco dopo l'inizio dello spostamento su di esso.
+Il ritardo è voluto, per dare il tempo alla mappa e all'animazione di spostarsi sul centro prima di aprirne la scheda.
 %è una soluzione fragile, perché su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
 
 \section{Inserimento dei centri personalizzati}\label{subsec:impl-validazione}
 
-L'inserimento di un centro proprio parte da un vincolo di interfaccia dichiarato nel requisito RF-26: le coordinate non si digitano.
-Chiedere a un utente di scrivere latitudine e longitudine significa chiedergli un dato che non conosce, in un formato
-che sbaglierà, e per un punto che sta guardando sullo schermo; la posizione viene quindi acquisita dalla mappa.
+L'inserimento di un centro personalizzato parte da un vincolo di interfaccia dichiarato nel requisito RF-26, ossia che le coordinate non si digitano.
+Chiedere a un utente di scrivere latitudine e longitudine significa chiedergli un dato che potenzialmente non conosce, in un formato
+che potrebbe sbagliare poco intuitivo, e per un punto che sta guardando sullo schermo; la posizione viene quindi acquisita dalla mappa.
 
-Le vie di acquisizione sono due, e corrispondono a due situazioni d'uso diverse.
-La prima è la pressione prolungata sulla mappa nel punto desiderato, che apre il modulo assumendo quel punto come posizione:
-è la via precisa, disponibile quando l'utente sa dove si trova la struttura.
-La seconda è l'apertura del modulo dall'elenco dei propri centri, dove non esiste alcun punto indicato e viene quindi assunto
-il centro della viewport corrente; il modulo mantiene un comando che riporta la posizione sul centro della mappa, così che
-l'utente possa spostare la viewport e poi riallineare il dato.
+In base al tipo di situazione, i centri possono essere inseriti nei seguenti modi:
+%Le vie di acquisizione sono due, e corrispondono a due situazioni d'uso diverse:
+
+\begin{enumerate}
+  \item Tramite pressione prolungata sulla mappa nel punto desiderato, si apre il modulo assumendo quel punto come posizione.%: è la via precisa, disponibile quando l'utente sa dove si trova la struttura.
+  \item Tramite apertura del modulo dall'elenco dei centri personalizzati e dei preferiti, dove non esiste alcun punto indicato e viene quindi assunto
+  il centro della schermata corrente; il modulo mantiene un comando che riporta la posizione sul centro della mappa, così che
+  l'utente possa spostarsi e poi ottenere il dato.
+\end{enumerate}
 
 La validazione è organizzata su due livelli, e la separazione non è arbitraria ma imposta da ciò che ciascun livello può esprimere.
 Il primo livello è quello dei validatori associati ai singoli campi, che il modulo valuta insieme e che riguardano una proprietà
