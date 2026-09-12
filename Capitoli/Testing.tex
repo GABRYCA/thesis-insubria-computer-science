@@ -18,19 +18,19 @@ Sono quindi implementati due tipi di verifica, riassunte nella tabella \ref{tab:
 \toprule
 \textbf{Livello} & \textbf{Strumento} & \textbf{Elemento verificato} \tabularnewline
 \midrule
-Unit Testing & Framework di test del linguaggio & Serializzazione dei centri personalizzati, lettura e scrittura
-dell'archivio locale, calcolo delle distanze geodetiche \tabularnewline
+Unit Testing & Framework di test & Serializzazione dei centri personalizzati, lettura e scrittura
+dell'archivio, calcolo delle distanze geodetiche \tabularnewline
 % Test di widget & framework di test dell'interfaccia & Validazione del modulo di inserimento, comportamento in
 % modifica, esito del salvataggio \tabularnewline
 Test manuali & Dispositivo ed emulatore & Permessi di posizione, cluster, delega alle applicazioni esterne,
 comportamento senza rete \tabularnewline
 \bottomrule
 \end{tabularx}
-\caption{Livelli di verifica adottati e rispettivo elemento verificato.}
+\caption{Verifiche effettuate e rispettivo elemento coinvolto.}
 \label{tab:strategia-test}
 \end{table}
 
-La maggior parte dei test sono anche i più veloci e i più vicini al codice \cite{sommervilleSoftwareEng, flutterTesting}.
+%La maggior parte dei test sono anche i più veloci e i più vicini al codice \cite{sommervilleSoftwareEng, flutterTesting}.
 Gli \textit{unit test} (test unitari) non richiedono alcun ambiente grafico e si eseguono in pochi secondi se non meno; i test manuali sono i più
 lunghi e sono stati riservati a ciò che i primi non possono coprire.
 % I test unitari non richiedono alcun ambiente grafico e si eseguono in una frazione di secondo; quelle di widget costruiscono
@@ -58,7 +58,7 @@ lunghi e sono stati riservati a ciò che i primi non possono coprire.
 \section{Unit test sulla logica applicativa}\label{sec:test-unitari}
 
 Gli Unit Test sono dodici, raggruppati in tre insiemi.
-La tabella \ref{tab:test-unitari} li elenca con l'esito e con il requisito a cui ciascun insieme si riferisce.
+La tabella \ref{tab:test-unitari} li elenca con l'esito e con il requisito a cui ciascuno si riferisce.
 
 \begin{table}[H]
 \footnotesize
