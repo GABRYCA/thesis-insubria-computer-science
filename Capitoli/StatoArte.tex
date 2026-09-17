@@ -6,8 +6,8 @@
 
 Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
 Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e
-un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono, però, sono distinti, e
-distinti sono i percorsi terapeutici.
+un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono tuttavia, sono distinti, come
+lo sono anche i percorsi terapeutici.
 
 La dermatite atopica è caratterizzata da un difetto della barriera cutanea associato a una risposta immunitaria di tipo 2.
 Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}.
@@ -36,15 +36,15 @@ e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
 La conseguenza organizzativa è che le due patologie non vengono seguite necessariamente dalle stesse strutture.
 Alcuni ambulatori sono dedicati a una sola delle due, altri a entrambe, e la specializzazione si riflette sui farmaci disponibili
 e sui protocolli di monitoraggio.
-Un elenco che non distingua i due casi costringe l'utente a verificare struttura per struttura, che è esattamente il lavoro che si vorrebbe evitargli.
-Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è un attributo di
-prima classe del centro e non un'annotazione testuale.
+Un elenco che non distingua i due casi costringe l'utente a verificare struttura per struttura, che è esattamente parte del lavoro che si vorrebbe evitargli.
+Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è uno degli attributi principali
+del centro.% e non un'annotazione testuale.
 
 \subsection{Il percorso di cura e il ruolo dei centri specialistici}\label{subsec:percorso-cura}
 
 Nelle forme moderate e severe la gestione esce dall'ambito della medicina generale.
 I farmaci biologici e le piccole molecole di più recente introduzione richiedono una prescrizione specialistica, esami di
-monitoraggio periodici e, in Italia, l'erogazione attraverso centri individuati a livello regionale.
+monitoraggio periodici e, in Italia, l'erogazione attraverso centri riconosciuti a livello regionale.
 Questo genera una geografia particolare: le strutture non sono distribuite in modo uniforme sul territorio, e la distanza
 dal centro più vicino diventa un fattore che incide sull'aderenza alla terapia.
 
@@ -59,15 +59,15 @@ raggiungere per essere utile.
 \subsection{I portali dermatopia e vicini di pelle}\label{subsec:portali-esistenti}
 
 Nel panorama italiano due iniziative si distinguono per completezza.
-La prima, Dermatopia, espone un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
+La prima, Dermatopia, offre un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
 La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento,
-costruita sopra un plugin cartografico per WordPress \cite{viciniDiPelle}.
+costruita tramite un plugin cartografico WordPress \cite{viciniDiPelle}.
 
 Entrambe risolvono la parte difficile del problema, cioè il censimento.
 Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, che nessuna tesi triennale
 potrebbe replicare con la stessa affidabilità.
-Per questa ragione il progetto non tenta di costruire un archivio proprio: assume queste sorgenti come dato di partenza e
-concentra il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
+Per questa ragione il progetto non tenta di costruire un archivio proprio e assume queste sorgenti come dato di partenza,
+concentrando il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
 
 \subsection{Limiti degli strumenti attuali}\label{subsec:limiti-strumenti}
 

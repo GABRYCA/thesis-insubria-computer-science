@@ -10,7 +10,7 @@ Chi ne è affetto non ha bisogno di una visita isolata, ma di un percorso: contr
 topica o sistemica e, in una parte dei casi, trattamenti biologici che possono essere prescritti soltanto da strutture autorizzate.
 
 L'Organizzazione Mondiale della Sanità (\textit{OMS}), nel rapporto globale dedicato alla psoriasi, ha riconosciuto
-esplicitamente il ritardo diagnostico e la difficoltà di accesso alle cure specialistiche come problemi di salute pubblica,
+il ritardo diagnostico e la difficoltà di accesso alle cure specialistiche come problemi di salute pubblica,
 non come semplici disagi organizzativi \cite{whoPsoriasis}.
 In Italia il Piano Nazionale della Cronicità (\textit{PNC}) muove nella stessa direzione, quando individua nella continuità
 assistenziale e nella presa in carico territoriale i due assi su cui intervenire \cite{pianoCronicita}.
@@ -40,27 +40,34 @@ In termini più operativi, il progetto si è dato i seguenti obiettivi:
 
 \begin{itemize}[itemsep=2pt]
   \item Acquisire l'elenco dei centri da sorgenti pubbliche già esistenti, senza richiedere la costruzione di un nuovo archivio
-  proprietario e senza duplicare un lavoro di censimento già svolto da altri;
+  proprietario e senza duplicare un lavoro di censimento già svolto da altri.
   \item Normalizzare dati provenienti da servizi con schemi diversi in un'unica rappresentazione interna coerente, gestendo
-  i casi di record incompleti o malformati;
+  i casi di record incompleti o malformati.
   \item Visualizzare i centri su una mappa interattiva, con un clustering automatico dei marker che mantenga la scena
-  leggibile anche quando le strutture sono concentrate nella stessa area urbana;
+  leggibile anche quando le strutture sono concentrate nella stessa area urbana.
   \item Consentire il filtraggio per patologia e per raggio di distanza dalla posizione dell'utente, con l'ordinamento dei
-  risultati per distanza geodetica;
+  risultati per distanza geodetica.
   \item Offrire una ricerca per indirizzo o per località, appoggiandosi a un servizio di geocodifica;
   \item Permettere all'utente di salvare i centri di interesse tra i preferiti e di inserire, modificare ed eliminare centri propri,
-  conservati localmente sul dispositivo;
+  conservati localmente sul dispositivo.
   \item Integrare le azioni che seguono la consultazione, cioè l'avvio della navigazione verso il centro, la chiamata telefonica,
-  l'invio di un'email e la condivisione della scheda;
+  l'invio di un'email e la condivisione della scheda.
   \item Garantire un funzionamento accettabile in assenza di connessione, attraverso una cache persistente dell'ultimo elenco scaricato.
 \end{itemize}
 
-È altrettanto importante definire ciò che il progetto non si propone di fare.%: delimitare il perimetro rientra a pieno titolo
+%È altrettanto importante definire ciò che
+Parlando di elementi che il progetto non si propone di fare: %: delimitare il perimetro rientra a pieno titolo
 %nel lavoro di analisi.
-L'applicazione non formula diagnosi e non esprime valutazioni cliniche, si limita a mostrare dove si trovano le strutture
-e a fornirne i contatti.
-Non prevede autenticazione né profili utente e, di conseguenza, non trasmette all'esterno alcun dato personale.
-Non include un backend dedicato, e si basa su servizi pubblicamente disponibili che agiscono da fonti. %scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
+
+\begin{itemize}
+  \item L'applicazione non formula diagnosi, non esprime valutazioni cliniche e si limita a mostrare dove si trovano le strutture
+  e a fornirne i contatti.
+  \item Non prevede autenticazione né profili utente e, di conseguenza, non trasmette all'esterno alcun dato personale.
+  \item Non include un backend dedicato, e si basa su servizi pubblicamente disponibili. %che agiscono da fonti. %scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
+\end{itemize}
+
+
+
 
 \section{Struttura della tesi}\label{sec:struttura-tesi}
 
@@ -75,7 +82,7 @@ Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'App, l
 l'impianto dell'interfaccia (\textit{UI e UX}) e il modello dei dati adottato per riconciliare sorgenti eterogenee.
 
 Il capitolo \ref{ch:sviluppo} ripercorre l'implementazione dell'App.
-L'acquisizione dei dati con endpoint di riserva, normalizzazione, persistenza, caricamento mappa, algoritmo di clustering dei marker, macchina a stati,
+L'acquisizione dei dati da più endpoint, normalizzazione, persistenza, caricamento mappa, algoritmo di clustering dei marker, macchina a stati,
 permessi di localizzazione, ricerca per indirizzo, filtri e integrazione con i servizi esterni disponibili sul dispositivo.
 
 Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati ottenuti.
