@@ -58,40 +58,38 @@ raggiungere per essere utile.
 
 \subsection{I portali dermatopia e vicini di pelle}\label{subsec:portali-esistenti}
 
-Nel panorama italiano due iniziative si distinguono per completezza.
+Nel contesto italiano, due piattaforme di denotano per completezza.
 La prima, Dermatopia, offre un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
 La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento,
 costruita tramite un plugin cartografico WordPress \cite{viciniDiPelle}.
 
-Entrambe risolvono la parte difficile del problema, cioè il censimento.
-Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, che nessuna tesi triennale
-potrebbe replicare con la stessa affidabilità.
-Per questa ragione il progetto non tenta di costruire un archivio proprio e assume queste sorgenti come dato di partenza,
-concentrando il proprio contributo su ciò che manca a valle, cioè l'accesso mobile e georeferenziato.
+Entrambe risolvono la parte più complessa del problema, ossia il censimento.
+Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, di cui la nostra tesi
+non si occupa di replicare. %con la stessa affidabilità.
+Per questa ragione il progetto non tenta di costruire un proprio archivio e assume queste sorgenti come dato di partenza,
+concentrando i propri sforzi su ciò che manca, cioè l'accesso mobile e georeferenziato.
 
 \subsection{Limiti degli strumenti attuali}\label{subsec:limiti-strumenti}
 
-Dall'analisi dei due portali emergono alcuni limiti ricorrenti, che hanno orientato in modo diretto i requisiti del
+Dall'analisi dei due portali emergono alcuni limiti, che hanno influito sulla definizione dei requisiti del
 capitolo \ref{ch:analisi-dei-requisiti}.
 
-La navigazione è organizzata per suddivisione amministrativa e non per prossimità.
-L'utente sceglie una regione o una provincia e ottiene un elenco; se abita al confine tra due province, deve ripetere la ricerca.
-La domanda originaria, cioè quale sia il centro più vicino, non ha una risposta diretta.
-
-La posizione dell'utente non viene utilizzata.
-Nessuno dei due strumenti chiede o impiega le coordinate del dispositivo, quindi non esiste ordinamento per distanza né filtro per raggio.
-
-L'esperienza sui piccoli schermi è penalizzata.
-Le tabelle a più colonne richiedono lo scorrimento orizzontale, e le azioni successive alla consultazione, come chiamare la
-struttura o avviare la navigazione, richiedono la copia manuale del dato.
-
-Non esiste alcun funzionamento offline.
-Ogni consultazione richiede una connessione attiva, condizione non garantita quando la ricerca avviene in viaggio.
-
-Infine, non è previsto alcun contributo da parte dell'utente.
-Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo di annotarlo e ritrovarlo insieme agli altri.
-Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli
-remoti nella stessa mappa e negli stessi filtri.
+\begin{itemize}
+  \item La navigazione è organizzata per suddivisione amministrativa e non per prossimità.
+  L'utente sceglie una regione o una provincia e ottiene un elenco, tuttavia se abita al confine tra due province, deve ripetere la ricerca.
+  La domanda principale, cioè quale sia il centro più vicino, non ha una risposta diretta.
+  \item La posizione dell'utente non viene utilizzata.
+  Nessuno dei due strumenti chiede o impiega le coordinate del dispositivo, quindi non esiste ordinamento per distanza né filtro per raggio.
+  \item L'esperienza sugli schermi più piccoli è penalizzata.
+  Le tabelle con più colonne richiedono scorrimento orizzontale, e le azioni successive alla consultazione, come chiamare la
+  struttura o avviare la navigazione, richiedono la copia manuale del dato.
+  \item Non esiste alcuna modalità offline.
+  Ogni consultazione richiede una connessione attiva, condizione non garantita quando la ricerca avviene in movimento.
+  \item Non è previsto alcun contributo da parte dell'utente.
+  Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo di annotarlo e ritrovarlo successivamente.
+  Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli
+  remoti nella stessa mappa.
+\end{itemize}
 
 %\begin{table}[H]
 %\centering
@@ -113,10 +111,10 @@ remoti nella stessa mappa e negli stessi filtri.
 %\label{tab:limiti-strumenti}
 %\end{table}
 
-\section{Provider di mappe per applicazioni mobili}\label{sec:piattaforme-cartografiche}
+\section{Provider delle mappe mobile}\label{sec:piattaforme-cartografiche}
 
-La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice, quindi va affrontata prima
-di scrivere l'applicazione.
+La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice.%, quindi va affrontata prima
+%di scrivere l'applicazione.
 Sono state valutate tre alternative.
 
 \begin{enumerate}
@@ -157,18 +155,19 @@ Vincoli d'uso & Contrattuali & Contrattuali & Policy di utilizzo dei tile \tabul
 
 A seguito di un'attenta valutazione, la scelta migliore è risultata OpenStreetMap con \texttt{flutter\_map}.
 I fattori determinanti non sono stati solamente i costi, ma anche il fatto che i marker siano widget Flutter
-a tutti gli effetti: questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
+a tutti gli effetti.
+Questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
 con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un layer nativo.
 
-Tuttavia, esiste un compromesso da questa scelta.
+Tuttavia, ci sono dei compromessi da accettare.
 I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
-identificare l'applicazione richiedente e richiede di rispettare le direttive di caching \cite{osmTilePolicy}: sono vincoli che vanno rispettati
-e che andrebbero gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
-In secondo luogo, la grafica dei \textit{tile} raster è meno rifinita di quella vettoriale offerta dai concorrenti commerciali.
+identificare l'applicazione richiedente e di rispettare le direttive di caching \cite{osmTilePolicy}.
+Sono vincoli che vanno rispettati e gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
+In secondo luogo, la grafica dei \textit{tile} raster non è agli stessi livelli qualitativi di quella vettoriale offerta dai concorrenti commerciali.
 
-Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}: la superficie terrestre è proiettata secondo Web Mercator
-(standard per le mappe digitiali web) e suddivisa,
-a ogni livello di zoom, in una griglia di immagini quadrate indicizzate da tre valori, cioè zoom, colonna e riga \cite{slippyMap}.
+Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}, ove la superficie terrestre è proiettata secondo Web Mercator
+(standard per le mappe digitali web) e suddivisa, a ogni livello di zoom, in una griglia di immagini quadrate indicizzate
+da tre valori: zoom, colonna e riga \cite{slippyMap}.
 Ogni incremento dello zoom raddoppia il numero di tile per lato, come illustrato nella figura \ref{fig:tasselli}.
 Questa relazione esponenziale viene trattata anche nella formula che dimensiona le celle dell'algoritmo di clustering.
 
@@ -207,12 +206,12 @@ Ogni incremento dello zoom raddoppia il numero di tile per lato e ogni tile è i
 
 \subsection{Geocodifica e ricerca per indirizzo}\label{subsec:geocodifica}
 
-Una mappa senza barra di ricerca è utile soltanto a chi sa già dove guardare.
-Serve quindi una geocodifica diretta, cioè la traduzione di un testo libero in coordinate, come una barra di ricerca per l'indirizzo.
+Una mappa senza barra di ricerca è utile soltanto per chi sa già dove guardare.
+Serve quindi una geocodifica diretta, cioè la traduzione di un testo in coordinate, come una barra di ricerca per l'indirizzo.
 Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON\@.
 
 Anche qui valgono vincoli precisi, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
-divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (caching) per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
+divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (caching) per non ripetere più interrogazioni identiche \cite{nominatimPolicy}.
 %Sono condizioni che influenzano la progettazione dell'interfaccia più di quanto sembri: un campo di ricerca che interrogasse il
 %servizio a ogni carattere digitato violerebbe la policy dopo poche lettere.
 La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
@@ -220,23 +219,23 @@ nasce proprio da questo vincolo. %e non da una preferenza estetica.
 
 \section{Framework per lo sviluppo cross-platform}\label{sec:framework-cross-platform}
 
-Il requisito di una singola base di codice per Android e iOS è molto importante.
+Il requisito di una singola base di codice per Android e iOS restringe di molto la scelta.
 Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta
-due implementazioni parallele dell'interfaccia, serve quindi una soluzione alternativa.
+due implementazioni parallele dell'interfaccia.%, serve quindi una soluzione alternativa.
 
-React Native adotta un approccio a componenti pilotati da JavaScript \cite{reactNative}, ed è una buona scelta
+React Native adotta un approccio a componenti pilotati da JavaScript \cite{reactNative}, ed è una buona alternativa
 quando si dispone già di competenze nell'ecosistema web.
 
-Infine, Flutter segue una strada diversa: compila codice Dart in binario e disegna l'interfaccia con un proprio motore
-grafico, ottenendo un controllo completo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
+Infine, Flutter segue una strada diversa, ossia compilare codice Dart in binario e disegnare l'interfaccia con un proprio motore
+grafico, ottenendo completo controllo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
 
-Per questo progetto quindi, Flutter presentava due vantaggi principali.
+Per questo progetto, Flutter presentava due vantaggi principali:
 \begin{enumerate}
-  \item Il primo è il controllo totale sul rendering, indispensabile quando i marker della mappa devono cambiare forma e dimensione
+  \item Il totale controllo sul rendering, indispensabile quando i marker della mappa devono cambiare forma e dimensione
   in funzione del livello di zoom.
-  \item Il secondo è la disponibilità di Material 3 come design system già implementato \cite{material3}, che ha permesso di
-  ottenere un'interfaccia coerente senza costruire da zero i componenti.
+  \item La disponibilità di Material 3 come design system già implementato \cite{material3}, che permette di
+  ottenere un'interfaccia coerente senza costruire da zero tutti i componenti.
 \end{enumerate}
 
-A questi si aggiunge un ecosistema di package che copre già le esigenze del progetto, dalla geolocalizzazione alla
-persistenza dei dati in locale, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
+Si aggiunge un ecosistema di package che copre esattamente le esigenze del progetto, dalla geolocalizzazione alla
+persistenza dei dati, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.
