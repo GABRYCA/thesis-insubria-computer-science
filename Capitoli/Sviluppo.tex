@@ -101,7 +101,7 @@ Questo crea un compromesso, in parte trascurabile, in quanto una parte considere
 %Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
 %il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
 
-Ogni richiesta ha un \textit{timeout} di quarantacinque secondi, come previsto dal requisito RNF-08.
+Ogni richiesta ha un \textit{timeout} di quarantacinque secondi, come previsto dal requisito RNF-06.
 %Il valore è volutamente alto: le due fonti sono servizi pubblici gratuiti, con tempi di risposta potenzialmente lunghi,
 %e un limite minore avrebbe trasformato una risposta lenta in un errore, facendo ricorrere l'applicazione sulla cache quando
 %l'aggiornamento sarebbe arrivato pochi secondi dopo.
@@ -160,7 +160,7 @@ La normalizzazione ha tre compiti distinti:
 \begin{enumerate}
   \item Ricondurre a un nome unico i campi che le due fonti ritornano in formati diversi
   \item Recuperare le informazioni, specialmente quando una delle due non le ritorna in forma strutturata
-  \item Riconoscere i record inutilizzabili scartandoli senza interrompere l'elaborazione degli altri, come da requisito RNF-09.
+  \item Riconoscere i record inutilizzabili scartandoli senza interrompere l'elaborazione degli altri, come da requisito RF-04.
 \end{enumerate}
 
 La figura \ref{fig:pipeline-normalizzazione} mostra la pipeline che ne risulta: ogni record attraversa in sequenza i tre
@@ -193,7 +193,7 @@ degli altri.
 \draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (ok.north);
 \end{tikzpicture}
 \caption{Pipeline di normalizzazione di un record: i tre compiti in sequenza e lo scarto per coordinate invalide,
-che non interrompe l'elaborazione degli altri record (requisito RNF-09).}
+che non interrompe l'elaborazione degli altri record (requisito RF-04).}
 \label{fig:pipeline-normalizzazione}
 \end{figure}
 
@@ -332,7 +332,7 @@ Non tutti gli eventi della mappa provocano un ricalcolo.
 Vengono considerati solo quelli che segnalano la conclusione di un movimento, uno spostamento, uno zoom per doppio
 tocco, l'utilizzo di un controllo; gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora
 sullo schermo, vengono ignorati.
-È la realizzazione del requisito RNF-06.
+È la realizzazione del requisito RNF-04.
 La figura \ref{fig:aggiornamento-marker} riassume l'intera catena, dal tipo di evento al ridisegno del solo livello dei marker.
 
 \begin{figure}[H]
@@ -561,7 +561,7 @@ cella per rendere la lettura indipendente dal livello di zoom.
 %La stabilità del risultato mi è sembrata un requisito più importante della completezza dell'aggregazione.
 
 La selezione della bolla, per esempio tramite tocco, provoca un avvicinamento di due livelli di zoom; il limite massimo è il diciottesimo livello.
-Il valore rispetta il requisito RF-10, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
+Il valore rispetta il requisito RF-09, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
 Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di
 partenza in un massimo di sedici nuove celle.
 Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
@@ -571,14 +571,15 @@ bolla; tre avrebbero fatto perdere il contesto circostante.
 
 La posizione dell'utente serve a tre cose: centrare la mappa all'apertura, calcolare le distanze e valutare il filtro per raggio.
 Nessuna delle tre è indispensabile al funzionamento del modulo, e questa è la premessa che ha guidato l'intera gestione dei permessi:
-l'applicazione deve restare utilizzabile anche quando la posizione non c'è, come prevede il requisito RF-14.
+l'applicazione deve restare utilizzabile anche quando la posizione non c'è, come prevede il requisito RF-12.
 
 Il permesso non viene richiesto all'avvio.
 La schermata riceve dalla vista precedente la posizione, se questa è già disponibile, e in quel caso si limita ad avviare il flusso di
 aggiornamento senza alcuna richiesta all'utente; quando invece la posizione non arriva, la richiesta viene rinviata al momento in cui
 l'utente attiva una funzione che ne ha bisogno, cioè il ritorno alla propria posizione, il centro più vicino o l'elenco dei centri vicini.
-Traduce il requisito RF-12, ed è anche una scelta di merito: un permesso chiesto prima che ne sia evidente il motivo viene negato con maggiore
-frequenza di uno chiesto in risposta a un comando esplicito.
+Soddisfa il requisito RF-10.
+%Un permesso chiesto prima che ne sia evidente il motivo viene negato con maggiore
+%frequenza di uno chiesto in risposta a un comando esplicito.
 
 La procedura di acquisizione attraversa gli stati riportati nella figura \ref{fig:permessi}.
 I casi da distinguere sono quattro e non uno, e ciascuno richiede una risposta diversa: il servizio di localizzazione del
@@ -621,7 +622,7 @@ la seconda nella scheda dell'applicazione.
 Portare l'utente nella schermata sbagliata equivale a non aiutarlo: l'interruttore che cerca non si trova lì.
 Il negato permanente, in particolare, si riconosce dal fatto che da quello stato il sistema operativo non ripresenta più la richiesta:
 insistere con una nuova domanda non produrrebbe alcuna finestra e l'utente vedrebbe un comando che non fa nulla.
-In quel caso l'unica strada è il collegamento diretto alle impostazioni, come richiesto dal requisito RF-15.
+In quel caso l'unica strada è il collegamento diretto alle impostazioni.
 
 L'acquisizione riuscita procede in due tempi, e la ragione è la reattività percepita.
 La posizione di alta precisione richiede alcuni secondi, durante i quali l'interfaccia non avrebbe nulla da mostrare; l'ultima posizione
@@ -648,7 +649,7 @@ Il vincolo che governa questa parte non è tecnico ma di conformità.
 La politica d'uso del servizio ammette al massimo una richiesta al secondo, richiede che l'applicazione si identifichi e
 invita a conservare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
 Una barra di ricerca che interrogasse il servizio a ogni carattere digitato supererebbe quel limite dopo poche lettere, e
-il requisito RF-17 nasce proprio da questa considerazione.
+il requisito RF-14 nasce proprio da questa considerazione.
 
 L'interrogazione è quindi rinviata di mezzo secondo dall'ultimo carattere digitato, e ogni nuovo carattere annulla il rinvio
 pendente e ne programma un altro.
@@ -716,7 +717,7 @@ intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile
 
 \subsection{Distanze geodetiche e filtro per raggio}\label{subsec:impl-filtraggio}
 
-Il requisito RF-22 chiede che il calcolo delle distanze tenga conto della curvatura terrestre, e la richiesta non è un eccesso di rigore.
+Il requisito RF-19 chiede che il calcolo delle distanze tenga conto della curvatura terrestre, e la richiesta non è un eccesso di rigore.
 Trattare latitudine e longitudine come coordinate cartesiane, cioè applicare il teorema di Pitagora ai gradi, produce un errore che
 dipende dalla latitudine e che alle latitudini italiane è dell'ordine del trenta per cento sulle distanze in direzione est-ovest,
 perché un grado di longitudine misura circa settantotto chilometri a Milano e centoundici all'equatore.
@@ -792,11 +793,11 @@ Valori discreti si selezionano con un tocco solo e coprono le tre domande effett
 
 L'attivazione del filtro produce tre effetti coordinati: la selezione dei centri visibili scarta quelli oltre la distanza, l'elenco
 dei centri vicini si restringe di conseguenza, e sulla mappa compare il cerchio che ne rappresenta l'estensione.
-Il terzo effetto è quello che rende comprensibili i primi due, e non a caso il requisito RF-24 lo prevede: senza una rappresentazione
-grafica del raggio l'utente non ha modo di collegare la scomparsa di alcuni marker al filtro che ha appena impostato, e la mappa
-sembra semplicemente aver perso dei dati.
+Il terzo effetto è quello che rende comprensibili i primi due.
+Senza una rappresentazione grafica del raggio l'utente non ha modo di collegare la scomparsa di alcuni marker al
+filtro che ha appena impostato, e la mappa sembra semplicemente aver perso dei dati.
 
-Il filtro si applica anche ai centri inseriti dall'utente, come impone il requisito RF-23, ma per una via diversa.
+Il filtro si applica anche ai centri inseriti dall'utente, come impone il requisito RF-20, ma per una via diversa.
 I centri pubblici lo attraversano nella selezione per viewport descritta al paragrafo \ref{subsec:impl-marker}, dove il controllo
 sulla distanza è valutato nello stesso attraversamento; i centri personalizzati, che quella selezione non attraversano, sono
 filtrati per raggio soltanto nell'elenco dei centri vicini.
@@ -830,7 +831,7 @@ Il ritardo è voluto, per dare il tempo alla mappa e all'animazione di spostarsi
 
 \section{Inserimento dei centri personalizzati}\label{subsec:impl-validazione}
 
-L'inserimento di un centro personalizzato parte da un vincolo di interfaccia dichiarato nel requisito RF-26, ossia che le coordinate non si digitano.
+L'inserimento di un centro personalizzato parte da un vincolo di interfaccia dichiarato nel requisito RF-22, ossia che le coordinate non si digitano.
 Chiedere a un utente di scrivere latitudine e longitudine significa chiedergli un dato che potenzialmente non conosce, in un formato
 che potrebbe sbagliare poco intuitivo, e per un punto che sta guardando sullo schermo; la posizione viene quindi acquisita dalla mappa.
 
@@ -856,7 +857,7 @@ La verifica dei campi avviene mentre l'utente scrive e non soltanto alla conferm
 La differenza è sostanziale sul piano dell'esperienza: un modulo che segnala tutti gli errori al termine della
 compilazione obbliga a ricostruire quale campo abbia prodotto quale messaggio, mentre una segnalazione immediata collega
 l'errore al campo nel momento in cui vi si sta lavorando.
-È anche una risposta al requisito RNF-03, che chiede un riscontro visivo immediato per ogni azione.
+È anche una risposta al requisito RNF-02, che chiede un riscontro visivo immediato per ogni azione.
 
 Il controllo sul numero di telefono, riportato nel listato \ref{lst:telefono}, vale una spiegazione: la sua struttura
 riflette il formato reale della numerazione italiana e non una convenzione generica.

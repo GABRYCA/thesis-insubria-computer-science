@@ -65,20 +65,20 @@ La tabella \ref{tab:test-unitari} elenca gli Unit Test con esito e requisito a c
 \toprule
 \textbf{N.} & \textbf{Caso di test} & \textbf{Esito} \tabularnewline
 \midrule
-\multicolumn{3}{@{}l}{\textbf{Serializzazione dei centri personalizzati} (RF-29)} \tabularnewline
+\multicolumn{3}{@{}l}{\textbf{Serializzazione dei centri personalizzati} (RF-25)} \tabularnewline
 1 & La conversione in JSON e il valore letto contengono tutti i campi & Superato \tabularnewline
 2 & I campi vuoti opzionali o di soli spazi diventano \textit{null} & Superato \tabularnewline
 3 & In assenza dell'elenco delle patologie vengono assegnate entrambe & Superato \tabularnewline
 4 & Coordinate mancanti vengono azzerate senza sollevare errori & Superato \tabularnewline
 5 & La copia con modifica altera solamente i campi richiesti e conserva l'identificatore & Superato \tabularnewline
 \addlinespace
-\multicolumn{3}{@{}l}{\textbf{Archiviazione locale dei centri personalizzati} (RF-29, RNF-11)} \tabularnewline
+\multicolumn{3}{@{}l}{\textbf{Archiviazione locale dei centri personalizzati} (RF-25, RNF-08)} \tabularnewline
 6 & Un archivio vuoto restituisce un elenco vuoto & Superato \tabularnewline
 7 & Scrittura e successiva lettura mantengono i centri e nell'ordine corretto & Superato \tabularnewline
 8 & Un contenuto corrotto non propaga l'errore e restituisce un elenco vuoto & Superato \tabularnewline
 9 & Un documento JSON valido ma di forma diversa da un elenco viene ignorato & Superato \tabularnewline
 \addlinespace
-\multicolumn{3}{@{}l}{\textbf{Calcolo geodetico delle distanze} (RF-21, RF-22) } \tabularnewline
+\multicolumn{3}{@{}l}{\textbf{Calcolo geodetico delle distanze} (RF-18, RF-19) } \tabularnewline
 10 & La distanza Milano-Roma corrisponde al valore noto & Superato \tabularnewline
 11 & La distanza di un punto da se stesso è nulla & Superato \tabularnewline
 12 & La distanza è simmetrica rispetto agli estremi & Superato \tabularnewline
@@ -95,7 +95,7 @@ oppure un archivio manomesso.
 Sono percorsi che senza un test automatico resterebbero non esercitati fino al momento in cui, sul dispositivo di un utente,
 provocherebbero un errore all'avvio.
 
-Lo stesso vale per i casi 8 e 9, che riguardano il requisito RNF-11.
+Lo stesso vale per i casi 8 e 9, che riguardano il requisito RNF-08.
 Il caso 8 inietta nell'archivio una stringa non interpretabile e verifica che la lettura restituisca un elenco vuoto invece di
 propagare l'errore.
 Il caso 9 è la variante meno evidente e più insidiosa: il contenuto è un documento JSON perfettamente valido, ma rappresenta un

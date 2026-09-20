@@ -421,7 +421,7 @@ diversi che convergono sullo stesso effetto per l'utente, cioè vedere sulla map
 
 \subsection{Strategia di caching e funzionamento offline}\label{subsec:strategia-cache}
 
-Il requisito RNF-10 chiede che l'applicazione resti utilizzabile in assenza di connessione.
+Il requisito RNF-07 chiede che l'applicazione resti utilizzabile in assenza di connessione.
 Non è una richiesta di comodo: la ricerca di un centro avviene tipicamente in viaggio, cioè nella condizione in cui
 la copertura di rete è meno affidabile, e uno strumento che in quel momento mostra una schermata vuota non è utile.
 
@@ -441,7 +441,7 @@ remoto non possa in nessun caso sovrascrivere ciò che l'utente ha inserito a ma
 Sul deposito persistente è stata adottata una politica che privilegia la reattività: all'avvio l'elenco conservato viene letto e
 mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
 si limita a sostituire i dati con la versione aggiornata.
-È la stessa idea del requisito RNF-07, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
+È la stessa idea del requisito RNF-05, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
 
 %Questa politica ha però una contropartita.
 Se l'elenco della patologia richiesta è già presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono
@@ -490,7 +490,7 @@ La scelta ha una motivazione precisa: conservare la forma normalizzata renderebb
 l'originale ha però il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione,
 che può cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
 
-Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-11.
+Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-08.
 Un archivio locale può essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un
 contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cioè nel momento peggiore.
 Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto

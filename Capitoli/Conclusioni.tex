@@ -192,7 +192,7 @@ Un servizio di questo genere risolverebbe tre limiti distinti:
 
 \begin{enumerate}
     \item Renderebbe superflue le catene di alias nel codice, perché l'applicazione riceverebbe record già omogenei e
-    i nomi dei campi resterebbero confinati nel servizio, che è il luogo dove il requisito RNF-17 li voleva.
+    i nomi dei campi resterebbero confinati nel servizio.
     \item Sul lato del servizio permetterebbe di riconoscere i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
     sul dispositivo dell'utente e sotto forma di elenco vuoto o malformato.
     \item Ridurrebbe drasticamente le richieste dirette ai servizi pubblici: le interrogazioni verrebbero effettuate da
@@ -219,7 +219,7 @@ e un identificatore stabile, ossia i tre requisiti principali di un sistema tale
 
 Un aspetto delicato non è la sincronizzazione ma ciò che essa comporta sul piano della riservatezza.
 L'applicazione, nella versione attuale, non richiede alcuna registrazione e non trasmette all'esterno alcun dato personale,
-come stabiliscono i requisiti RNF-14 e RNF-15; l'elenco dei centri dermatologici che una persona salva è un'informazione
+come stabiliscono i requisiti RNF-10 e RNF-11; l'elenco dei centri dermatologici che una persona salva è un'informazione
 da cui si potrebbe presumere la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato
 sanitario personale custodito da terzi, con le conseguenze normative che ne derivano.
 Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
