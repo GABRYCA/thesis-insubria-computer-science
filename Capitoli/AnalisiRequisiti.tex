@@ -272,9 +272,11 @@ indicazioni e contatti delegano il compito ad applicazioni installate sul dispos
 \end{figure}
 
 I casi d'uso sono numerati da UC-01 a UC-08 seguendo l'ordine con cui compaiono nel diagramma, dall'alto verso il basso.
-Le schede che seguono ne mostrano nel dettaglio sei: sono esclusi il filtro per patologia e la gestione dei preferiti,
+Le schede che seguono ne mostrano nel dettaglio tre (UC-01, UC-04, UC-06).
+Sono esclusi il filtro per patologia e la gestione dei preferiti,
 il cui svolgimento si riduce all'attivazione di un comando e all'aggiornamento della vista (\textit{view}),
-senza azioni particolari.
+senza azioni particolari, così come la ricerca per indirizzo (UC-02), le indicazioni stradali (UC-07) e il contatto (UC-08),
+descritti dai requisiti e dall'implementazione.
 %Per gli altri la sequenza di interazione non è immediata, oppure il comportamento in caso di errore conviene definirlo per iscritto.
 L'ultima riga di ogni scheda richiama i requisiti funzionali (RF) corrispondenti.%, così da rendere verificabile la copertura della specifica.
 
@@ -291,10 +293,10 @@ Nessun permesso necessario. \tabularnewline
 Postcondizioni & La mappa mostra i centri disponibili nell'area visibile. \tabularnewline
 Scenario principale & 1.
 L'utente apre l'applicazione.
-\newline 2. Il sistema mostra la mappa su una viewport iniziale predefinita e carica i centri dalla cache locale, se presente.
+\newline 2. Il sistema mostra la mappa su una schermata iniziale predefinita e carica i centri dalla cache locale, se presente.
 \newline 3. Il sistema richiede l'elenco aggiornato al servizio remoto, normalizza i record e aggiorna la cache.
 \newline 4. Il sistema seleziona i centri compresi nell'area visibile, li raggruppa in base al livello di zoom e disegna marker e cluster.
-\newline 5. L'utente sposta la viewport oppure ne modifica lo zoom.
+\newline 5. L'utente sposta la schermata oppure ne modifica lo zoom.
 \newline 6. Il sistema ricalcola selezione e cluster al termine del gesto e aggiorna il disegno. \tabularnewline
 Scenari alternativi & 3a.
 Il servizio principale non risponde oppure restituisce dati invalidi: il sistema interroga la fonte alternativa e prosegue dal passo 4.
@@ -311,37 +313,37 @@ Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09 \tabul
 \label{tab:uc-01}
 \end{table}
 
-\begin{table}[H]
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
-\toprule
-\multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Ricerca località per indirizzo}} \tabularnewline
-\midrule
-Attore primario & Utente \tabularnewline
-Attori secondari & Servizio di geocodifica \tabularnewline
-Precondizioni & La mappa è visualizzata ed è disponibile una connessione di rete. \tabularnewline
-Postcondizioni & La vista è centrata sulla località scelta. \tabularnewline
-Scenario principale & 1.
-L'utente tocca il campo di ricerca e digita un indirizzo oppure il nome di una località.
-\newline 2. Il sistema attende una pausa nella digitazione, quindi interroga il servizio di geocodifica con il testo inserito.
-\newline 3. Il sistema mostra l'elenco dei risultati sotto il campo di ricerca.
-\newline 4. L'utente seleziona un risultato.
-\newline 5. Il sistema chiude l'elenco, sposta la vista sulle coordinate corrispondenti e ricalcola i marker visibili. \tabularnewline
-Scenari alternativi & 2a.
-L'utente continua a digitare prima della scadenza del timeout (attesa): il sistema annulla la query in corso e ne pianifica
-una nuova, così da evitare multiple richieste per ogni carattere inserito.
-\newline 3a.
-Il servizio non restituisce alcun risultato: il sistema segnala l'esito e lascia il testo inserito.
-\newline 3b.
-Il servizio è irraggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
-\newline 4a.
-L'utente annulla la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
-Requisiti & RF-13, RF-14, RF-15 \tabularnewline
-\bottomrule
-\end{tabularx}
-\caption{Scheda caso d'uso UC-02.}
-\label{tab:uc-02}
-\end{table}
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Ricerca località per indirizzo}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Servizio di geocodifica \tabularnewline
+%Precondizioni & La mappa è visualizzata ed è disponibile una connessione di rete. \tabularnewline
+%Postcondizioni & La vista è centrata sulla località scelta. \tabularnewline
+%Scenario principale & 1.
+%L'utente tocca il campo di ricerca e digita un indirizzo oppure il nome di una località.
+%\newline 2. Il sistema attende una pausa nella digitazione, quindi interroga il servizio di geocodifica con il testo inserito.
+%\newline 3. Il sistema mostra l'elenco dei risultati sotto il campo di ricerca.
+%\newline 4. L'utente seleziona un risultato.
+%\newline 5. Il sistema chiude l'elenco, sposta la vista sulle coordinate corrispondenti e ricalcola i marker visibili. \tabularnewline
+%Scenari alternativi & 2a.
+%L'utente continua a digitare prima della scadenza del timeout (attesa): il sistema annulla la query in corso e ne pianifica
+%una nuova, così da evitare multiple richieste per ogni carattere inserito.
+%\newline 3a.
+%Il servizio non restituisce alcun risultato: il sistema segnala l'esito e lascia il testo inserito.
+%\newline 3b.
+%Il servizio è irraggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
+%\newline 4a.
+%L'utente annulla la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
+%Requisiti & RF-13, RF-14, RF-15 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-02.}
+%\label{tab:uc-02}
+%\end{table}
 
 \begin{table}[H]
 \footnotesize
@@ -365,7 +367,7 @@ ordinati per distanza crescente. \tabularnewline
 Scenari alternativi & 2a.
 Il permesso non viene concesso: il sistema lo richiede e prosegue dal passo 3 se viene dato.
 \newline 2b.
-Il permesso viene negato: il sistema mantiene la viewport predefinita, avvisa che la funzione richiede la posizione e chiede
+Il permesso viene negato: il sistema mantiene la schermata predefinita, avvisa che la funzione richiede la posizione e chiede
 di riprovare più tardi.
 \newline 2c.
 Il permesso viene negato in modo permanente: il sistema offre un collegamento alle impostazioni di sistema, poichè da
@@ -402,15 +404,15 @@ email, e seleziona le patologie trattate.
 \newline 6. Il sistema assegna al centro un identificatore, lo aggiunge all'archivio locale e lo disegna sulla mappa. \tabularnewline
 Scenari alternativi & 1a.
 L'utente apre il modulo dall'elenco dei centri personalizzati invece che dalla mappa: il sistema propone come posizione il centro
-della viewport attiva, che l'utente può visualizzare sulla viewport aggiornata prima di salvare.
-\newline 5a.
-Nome, indirizzo oppure città sono vuoti: il sistema segnala il campo mancante e resta sul modulo, conservando quanto già inserito.
-\newline 5b.
-Né il telefono né l'email sono stati inseriti: il sistema chiede l'inserimento di almeno un contatto.
-\newline 5c.
-Il numero di telefono non rispetta il formato nazionale oppure l'indirizzo email non è sintatticamente corretto: il sistema segnala l'errore sul campo interessato.
-\newline 5d.
-Nessuna patologia selezionata: il sistema lo segnala e lo richiede.
+della schermata attiva, che l'utente può visualizzare sulla vista aggiornata prima di salvare.
+%\newline 5a.
+%Nome, indirizzo oppure città sono vuoti: il sistema segnala il campo mancante e resta sul modulo, conservando quanto già inserito.
+%\newline 5b.
+%Né il telefono né l'email sono stati inseriti: il sistema chiede l'inserimento di almeno un contatto.
+%\newline 5c.
+%Il numero di telefono non rispetta il formato nazionale oppure l'indirizzo email non è sintatticamente corretto: il sistema segnala l'errore sul campo interessato.
+%\newline 5d.
+%Nessuna patologia selezionata: il sistema lo segnala e lo richiede.
 \newline 4a.
 L'utente annulla: il sistema chiude il modulo senza memorizzare. \tabularnewline
 Requisiti & RF-21, RF-22, RF-23, RF-24, RF-25 \tabularnewline
@@ -420,76 +422,76 @@ Requisiti & RF-21, RF-22, RF-23, RF-24, RF-25 \tabularnewline
 \label{tab:uc-06}
 \end{table}
 
-\begin{table}[H]
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
-\toprule
-\multicolumn{2}{@{}l}{\textbf{UC-07 \textemdash{} Ottenere le indicazioni stradali}} \tabularnewline
-\midrule
-Attore primario & Utente \tabularnewline
-Attori secondari & Applicazioni di navigazione installate sul dispositivo \tabularnewline
-Precondizioni & La scheda di un centro è aperta e il centro dispone di coordinate valide. \tabularnewline
-Postcondizioni & Il percorso verso il centro è aperto in un'applicazione di navigazione esterna. \tabularnewline
-Scenario principale & 1.
-L'utente richiede le indicazioni dalla scheda del centro.
-\newline 2. Il sistema propone la scelta di un mezzo di trasporto tra automobile, mezzi pubblici, bicicletta e a piedi.
-\newline 3. L'utente seleziona il mezzo desiderato.
-\newline 4. Il sistema propone le applicazioni di navigazione.
-\newline 5. L'utente seleziona un'applicazione.
-\newline 6. Il sistema crea il collegamento verso quell'applicazione, inserendo le coordinate del centro come destinazione e
-il mezzo prescelto, e ne delega l'apertura al sistema operativo. \tabularnewline
-Scenari alternativi & 4a.
-Dispositivo Android: il sistema propone Google Maps e Waze.
-\newline 4b.
-Dispositivo iOS: il sistema propone anche Apple Maps.
-\newline 6a.
-Viene scelta come applicazione Waze, che accetta nel collegamento la destinazione ma non il mezzo di trasporto: il sistema avvia la
-navigazione lasciando all'applicazione la sua modalità predefinita.
-\newline 6b.
-Viene scelta come applicazione Apple Maps e il mezzo selezionato è la bicicletta, che il collegamento non riconosce: il sistema
-mostra allora il percorso con un mezzo alternativo, ossia in auto.
-\newline 6c.
-Nessuna applicazione è in grado di gestire il collegamento oppure l'apertura fallisce: il sistema avvisa che le indicazioni
-non possono essere aperte e mantiene la scheda del centro. \tabularnewline
-Requisiti & RF-28 \tabularnewline
-\bottomrule
-\end{tabularx}
-\caption{Scheda caso d'uso UC-07.}
-\label{tab:uc-07}
-\end{table}
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-07 \textemdash{} Ottenere le indicazioni stradali}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Applicazioni di navigazione installate sul dispositivo \tabularnewline
+%Precondizioni & La scheda di un centro è aperta e il centro dispone di coordinate valide. \tabularnewline
+%Postcondizioni & Il percorso verso il centro è aperto in un'applicazione di navigazione esterna. \tabularnewline
+%Scenario principale & 1.
+%L'utente richiede le indicazioni dalla scheda del centro.
+%\newline 2. Il sistema propone la scelta di un mezzo di trasporto tra automobile, mezzi pubblici, bicicletta e a piedi.
+%\newline 3. L'utente seleziona il mezzo desiderato.
+%\newline 4. Il sistema propone le applicazioni di navigazione.
+%\newline 5. L'utente seleziona un'applicazione.
+%\newline 6. Il sistema crea il collegamento verso quell'applicazione, inserendo le coordinate del centro come destinazione e
+%il mezzo prescelto, e ne delega l'apertura al sistema operativo. \tabularnewline
+%Scenari alternativi & 4a.
+%Dispositivo Android: il sistema propone Google Maps e Waze.
+%\newline 4b.
+%Dispositivo iOS: il sistema propone anche Apple Maps.
+%\newline 6a.
+%Viene scelta come applicazione Waze, che accetta nel collegamento la destinazione ma non il mezzo di trasporto: il sistema avvia la
+%navigazione lasciando all'applicazione la sua modalità predefinita.
+%\newline 6b.
+%Viene scelta come applicazione Apple Maps e il mezzo selezionato è la bicicletta, che il collegamento non riconosce: il sistema
+%mostra allora il percorso con un mezzo alternativo, ossia in auto.
+%\newline 6c.
+%Nessuna applicazione è in grado di gestire il collegamento oppure l'apertura fallisce: il sistema avvisa che le indicazioni
+%non possono essere aperte e mantiene la scheda del centro. \tabularnewline
+%Requisiti & RF-28 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-07.}
+%\label{tab:uc-07}
+%\end{table}
 
-\begin{table}[H]
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
-\toprule
-\multicolumn{2}{@{}l}{\textbf{UC-08 \textemdash{} Contattare il centro}} \tabularnewline
-\midrule
-Attore primario & Utente \tabularnewline
-Attori secondari & Applicazione telefonica, client di posta elettronica, applicazioni di condivisione \tabularnewline
-Precondizioni & È aperta la scheda di un centro. \tabularnewline
-Postcondizioni & L'applicazione assegnata viene aperta con il contatto e/o con il testo da condividere già predisposto. \tabularnewline
-Scenario principale & 1.
-L'utente seleziona il marker di un centro.
-\newline 2. Il sistema apre la scheda con nome, indirizzo e contatti disponibili, mostrando i comandi per chiamare,
-inviare un'email e condividere.
-\newline 3. L'utente richiede la chiamata.
-\newline 4. Il sistema individua il primo numero fra quelli elencati nel campo: ne rimuove i divisori e apre
-l'applicazione telefonica con il numero già composto, senza avviare la chiamata. \tabularnewline
-Scenari alternativi & 3a.
-L'utente richiede l'invio di un'email: il sistema individua l'indirizzo e apre il client di posta
-elettronica con il destinatario scelto.
-\newline 3b.
-L'utente richiede la condivisione: il sistema compone un testo con i dati del centro e un collegamento alla posizione sulla
-mappa, quindi apre il pannello di condivisione del dispositivo.
-\newline 4a.
-Il campo contiene più recapiti separati da virgole o barre: il sistema ne utilizza il primo.
-\newline 4b.
-Dopo la rimozione dei caratteri non ammessi il numero risulta vuoto: il sistema non effettua alcuna azione.
-\newline 4c.
-Nessuna applicazione è in grado di gestire il collegamento: l'operazione viene annullata rimanendo sulla scheda corrente. \tabularnewline
-Requisiti & RF-27, RF-29 \tabularnewline
-\bottomrule
-\end{tabularx}
-\caption{Scheda caso d'uso UC-08.}
-\label{tab:uc-08}
-\end{table}
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-08 \textemdash{} Contattare il centro}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Applicazione telefonica, client di posta elettronica, applicazioni di condivisione \tabularnewline
+%Precondizioni & È aperta la scheda di un centro. \tabularnewline
+%Postcondizioni & L'applicazione assegnata viene aperta con il contatto e/o con il testo da condividere già predisposto. \tabularnewline
+%Scenario principale & 1.
+%L'utente seleziona il marker di un centro.
+%\newline 2. Il sistema apre la scheda con nome, indirizzo e contatti disponibili, mostrando i comandi per chiamare,
+%inviare un'email e condividere.
+%\newline 3. L'utente richiede la chiamata.
+%\newline 4. Il sistema individua il primo numero fra quelli elencati nel campo: ne rimuove i divisori e apre
+%l'applicazione telefonica con il numero già composto, senza avviare la chiamata. \tabularnewline
+%Scenari alternativi & 3a.
+%L'utente richiede l'invio di un'email: il sistema individua l'indirizzo e apre il client di posta
+%elettronica con il destinatario scelto.
+%\newline 3b.
+%L'utente richiede la condivisione: il sistema compone un testo con i dati del centro e un collegamento alla posizione sulla
+%mappa, quindi apre il pannello di condivisione del dispositivo.
+%\newline 4a.
+%Il campo contiene più recapiti separati da virgole o barre: il sistema ne utilizza il primo.
+%\newline 4b.
+%Dopo la rimozione dei caratteri non ammessi il numero risulta vuoto: il sistema non effettua alcuna azione.
+%\newline 4c.
+%Nessuna applicazione è in grado di gestire il collegamento: l'operazione viene annullata rimanendo sulla scheda corrente. \tabularnewline
+%Requisiti & RF-27, RF-29 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-08.}
+%\label{tab:uc-08}
+%\end{table}

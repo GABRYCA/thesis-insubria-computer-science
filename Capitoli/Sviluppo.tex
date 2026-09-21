@@ -2,7 +2,7 @@
 
 Questo capitolo ripercorre la realizzazione dell'App.
 L'ordine segue il percorso dei dati, prima l'ambiente e i package, poi l'acquisizione dalle fonti remote e la loro
-successiva normalizzazione, quindi la memorizzazione in \textit{cache} sul dispositivo, la resa sulla mappa con il
+successiva normalizzazione, quindi la memorizzazione in \textit{cache} sul dispositivo, la visualizzazione sulla mappa con il
 clustering dei marker, la localizzazione, la ricerca, i filtri, i centri personalizzati inseriti dall'utente e infine
 la delega ai servizi del dispositivo.
 Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno illustrate prima le ragioni e poi il meccanismo.
@@ -38,33 +38,33 @@ La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'app,
 \end{table}
 
 Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
-condivisione, fissata a una versione esatta.
+condivisione, fissata a una versione specifica.
 %Questo perché quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
 %diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
 %innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
 
-Sul fronte del supporto multipiattaforma, sia per Android sia per iOS, l'app richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
-Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
-degli schemi di collegamento che l'applicazione intende interrogare, introdotta nelle ultime versioni del sistema, senza la quale
-la verifica della disponibilità di un'applicazione esterna (per esempio, Google Maps) fallirebbe anche quando l'applicazione è installata.
-Su iOS occorre invece motivare testualmente l'uso della posizione, mostrata all'utente nel momento in cui viene richiesta \cite{androidLocation, appleLocation}.
-
-\begin{table}[H]
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}P{2.5cm} P{4.4cm} L@{}}
-\toprule
-\textbf{Piattaforma} & \textbf{Dichiarazione} & \textbf{Motivo} \tabularnewline
-\midrule
-Android & \texttt{INTERNET} & Richieste verso elenchi, \textit{endpoint} di tipo \textit{GET}, geocodifica e tile \tabularnewline
-Android & \texttt{ACCESS\_FINE\_LOCATION} & Posizione precisa \tabularnewline
-Android & \texttt{ACCESS\_COARSE\_LOCATION} & Alternativa quando l'utente concede l'accesso solamente alla posizione approssimativa \tabularnewline
-Android & schemi \texttt{https}, \texttt{tel}, \texttt{mailto} & Verifica della disponibilità delle applicazioni esterne da interrogare \tabularnewline
-iOS & \texttt{NSLocationWhenInUse\-UsageDescription} & Testo mostrato all'utente alla richiesta del permesso per l'accesso alla posizione \tabularnewline
-\bottomrule
-\end{tabularx}
-\caption{Permessi richiesti dalle due piattaforme e relativa motivazione.}
-\label{tab:permessi}
-\end{table}
+%Sul fronte del supporto multipiattaforma, sia per Android sia per iOS, l'app richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
+%Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
+%degli schemi di collegamento che l'applicazione intende interrogare, introdotta nelle ultime versioni del sistema, senza la quale
+%la verifica della disponibilità di un'applicazione esterna (per esempio, Google Maps) fallirebbe anche quando l'applicazione è installata.
+%Su iOS occorre invece motivare testualmente l'uso della posizione, mostrata all'utente nel momento in cui viene richiesta \cite{androidLocation, appleLocation}.
+%
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}P{2.5cm} P{4.4cm} L@{}}
+%\toprule
+%\textbf{Piattaforma} & \textbf{Dichiarazione} & \textbf{Motivo} \tabularnewline
+%\midrule
+%Android & \texttt{INTERNET} & Richieste verso elenchi, \textit{endpoint} di tipo \textit{GET}, geocodifica e tile \tabularnewline
+%Android & \texttt{ACCESS\_FINE\_LOCATION} & Posizione precisa \tabularnewline
+%Android & \texttt{ACCESS\_COARSE\_LOCATION} & Alternativa quando l'utente concede l'accesso solamente alla posizione approssimativa \tabularnewline
+%Android & schemi \texttt{https}, \texttt{tel}, \texttt{mailto} & Verifica della disponibilità delle applicazioni esterne da interrogare \tabularnewline
+%iOS & \texttt{NSLocationWhenInUse\-UsageDescription} & Testo mostrato all'utente alla richiesta del permesso per l'accesso alla posizione \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Permessi richiesti dalle due piattaforme e relativa motivazione.}
+%\label{tab:permessi}
+%\end{table}
 
 Il modulo è realizzato come un albero di widget, che mantiene l'elenco dei centri, la posizione dell'utente, i filtri attivi e i
 riferimenti ai controller della mappa e del campo per la ricerca.
@@ -95,9 +95,9 @@ rimanendo come primo carattere della stringa, rende l'intero documento non inter
 La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
 e rimozione del BOM iniziale quando presente.
 
-Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
-si ferma ma passa in \textit{fallback} (\textit{asset} di riserva) sull'altra fonte.
-Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
+%Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
+%si ferma ma passa in \textit{fallback} (\textit{asset} di riserva) sull'altra fonte.
+%Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
 %Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
 %il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
 
@@ -110,7 +110,7 @@ Un ultimo accorgimento riguarda il precaricamento.
 Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvia in \textit{background} il recupero dell'altra, senza
 attenderne il risultato e senza segnalarne l'operazione.
 Il passaggio da una patologia all'altra avviene infatti con un comando a due sole posizioni, e senza
-precaricamento comporterebbe un'attesa della risposta dalla rete a ogni cambio; con il precaricamento il passaggio è istantaneo dopo la prima volta.
+precaricamento comporterebbe un'attesa della risposta dalla rete a ogni passaggio; con il precaricamento l'esperienza è istantanea. %dopo la prima volta.
 L'eventuale errore del precaricamento viene ignorato, perché riguarda dati che l'utente non ha ancora richiesto di vedere.
 
 La figura \ref{fig:sequenza-endpoint} riassume la sequenza di interrogazione appena descritta, e mostra i tre punti
@@ -236,12 +236,12 @@ double? _parseCoordinate(dynamic value) {
 \label{lst:coordinate}
 \end{listing}
 
-La funzione restituisce un valore nullo quando la conversione non è possibile.
-Non è previsto un valore predefinito.
-Questo per un buon motivo: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro in una posizione totalmente errata,
-dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inutile.
-Restituire un valore nullo invece obbliga ogni chiamante, nel nostro caso, a ignorare il record.
-È l'applicazione pratica del requisito RF-04.
+%La funzione restituisce un valore nullo quando la conversione non è possibile.
+%Non è previsto un valore predefinito.
+%Questo per un buon motivo: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro in una posizione totalmente errata,
+%dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inutile.
+%Restituire un valore nullo invece obbliga ogni chiamante, nel nostro caso, a ignorare il record.
+%È l'applicazione pratica del requisito RF-04.
 
 %Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
 %il clustering e il calcolo delle distanze la richiamano ciascuno per conto proprio.
@@ -269,13 +269,13 @@ Centri personalizzati & Chiave fissa con suffisso di versione (\textit{version t
 \label{tab:chiavi-cache}
 \end{table}
 
-Il \textit{version tag} nella chiave dei centri personalizzati è necessario per il seguente motivo.
-L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
-dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
-sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
-È lo stesso ragionamento che si applica alla migrazione di uno schema di database,
+%Il \textit{version tag} nella chiave dei centri personalizzati è necessario per il seguente motivo.
+%L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
+%dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
+%sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
+%È lo stesso ragionamento che si applica alla migrazione di uno schema di database,
 %(che è stato anche trattato in un tirocinio esterno),
-ridotto alla scala dell'app.
+%ridotto alla scala dell'app.
 
 All'avvio vengono eseguite le operazioni definite al paragrafo \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
 Vengono prima letti i \textit{record} salvati sul dispositivo per entrambe le patologie e riportate nella mappa,
@@ -284,15 +284,15 @@ Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'a
 l'interazione; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
 sempre basandosi su questo meccanismo.
 
-Il salvataggio in locale viene avviato subito prima di aggiornare lo stato da cui dipende il ridisegno della mappa.
-In questo modo l'utente vede subito i marker senza dover aspettare che vengano prima scritti su disco, e un eventuale
-errore di scrittura non ha conseguenze sulla sessione in corso, poiché i dati sono comunque presenti in memoria.
-L'errore viene comunque registrato nei \textit{log}, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
+%Il salvataggio in locale viene avviato subito prima di aggiornare lo stato da cui dipende il ridisegno della mappa.
+%In questo modo l'utente vede subito i marker senza dover aspettare che vengano prima scritti su disco, e un eventuale
+%errore di scrittura non ha conseguenze sulla sessione in corso, poiché i dati sono comunque presenti in memoria.
+%L'errore viene comunque registrato nei \textit{log}, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
 
 Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o d'errore, restituisce un elenco vuoto.
 La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perché un documento JSON sintatticamente
 valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
-I due casi sono verificati fra i test descritti al paragrafo \ref{sec:test-unitari}.
+I due casi sono verificati nei test descritti al paragrafo \ref{sec:test-unitari}.
 
 \section{Caricamento mappa e gestione dei marker}\label{sec:impl-mappe}
 
@@ -313,26 +313,27 @@ A livello pratico l'unica conseguenza è che l'aggiornamento dell'elenco dei cen
 i tile non vengono nuovamente richiesti, i comandi non vengono ricostruiti, e il costo del ridisegno resta
 proporzionale al numero di marker e non alla complessità dell'intera schermata.
 
-La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport attiva,
-allargati di metà della loro estensione su ciascun lato.
-se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
-spostamento, producendo un effetto di comparsa improvvisa lungo i lati dello schermo.
-Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha una superficie più ampia:
-si disegnano più marker di quelli necessari, in cambio di un ingresso graduale ai bordi.
-Inoltre, quando il filtro per raggio è attivo, viene scartato ciò che si trova al di fuori della distanza ammessa, così che le due
-condizioni siano valutate in un'unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
-
-L'aggiornamento è governato da due meccanismi che agiscono in sequenza.
-Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi invece
-di aggiornarla a ogni movimento viene avviato un timer e alla sua scadenza la mappa viene aggiornata.
-Il secondo è il confronto con il risultato precedente: se l'elenco aggiornato coincide con quello già in uso, ne viene
-annullato l'aggiornamento.
+La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport attiva.
+%allargati di metà della loro estensione su ciascun lato.
+%se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
+%spostamento, producendo un effetto di comparsa improvvisa lungo i lati dello schermo.
+%Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha una superficie più ampia:
+%si disegnano più marker di quelli necessari, in cambio di un ingresso graduale ai bordi.
+%Inoltre, quando il filtro per raggio è attivo, viene scartato ciò che si trova al di fuori della distanza ammessa, così che le due
+%condizioni siano valutate in un'unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
+%
+%L'aggiornamento è governato da due meccanismi che agiscono in sequenza.
+%Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi invece
+%di aggiornarla a ogni movimento viene avviato un timer e alla sua scadenza la mappa viene aggiornata.
+%Il secondo è il confronto con il risultato precedente: se l'elenco aggiornato coincide con quello già in uso, ne viene
+%annullato l'aggiornamento.
 
 Non tutti gli eventi della mappa provocano un ricalcolo.
 Vengono considerati solo quelli che segnalano la conclusione di un movimento, uno spostamento, uno zoom per doppio
 tocco, l'utilizzo di un controllo; gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora
 sullo schermo, vengono ignorati.
 È la realizzazione del requisito RNF-04.
+
 La figura \ref{fig:aggiornamento-marker} riassume l'intera catena, dal tipo di evento al ridisegno del solo livello dei marker.
 
 \begin{figure}[H]
@@ -373,28 +374,27 @@ Un controllo particolare della mappa è la bussola, in particolare per quanto ri
 predefinito dopo una rotazione.
 Il comando compare soltanto quando si ruota la mappa di oltre due gradi, per questione pratica ed estetica,
 e la rotazione viene registrata nello stato solo quando si discosta di oltre mezzo grado dall'ultimo valore noto, per non provocare un
-aggiornamento sulla schermata a ogni fotogramma della rotazione.
-
-Per far ruotare la mappa a nord, non viene spostata istantaneamente a zero, ma viene interpolata seguendo il percorso
-più breve.
-Se la mappa è ruotata di, per esempio, trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
-trecentocinquanta all'indietro, e senza un controllo esplicito a livello di codice l'animazione compierebbe il giro lungo.
-Viene quindi calcolato prima di essere animato lo scarto basandosi sull'intervallo fra meno e più centottanta gradi, con l'espressione
-riportata in \ref{lst:bussola}.
-
-\begin{listing}[H]
-\begin{minted}{dart}
-final double start = _mapController.camera.rotation;
-double delta = -start;
-delta = ((delta + 180) % 360) - 180;
-final double target = start + delta;
-\end{minted}
-\caption{Calcolo percorso più breve della bussola per puntare a nord.}
-\label{lst:bussola}
-\end{listing}
-
-L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (interpolazione),
-al termine della quale la rotazione viene impostata esattamente a zero.
+aggiornamento sulla schermata a ogni fotogramma durante la rotazione.
+%Per far ruotare la mappa a nord, non viene spostata istantaneamente a zero, ma viene interpolata seguendo il percorso
+%più breve.
+%Se la mappa è ruotata di, per esempio, trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
+%trecentocinquanta all'indietro, e senza un controllo esplicito a livello di codice l'animazione compierebbe il giro lungo.
+%Viene quindi calcolato prima di essere animato lo scarto basandosi sull'intervallo fra meno e più centottanta gradi, con l'espressione
+%riportata in \ref{lst:bussola}.
+%
+%\begin{listing}[H]
+%\begin{minted}{dart}
+%final double start = _mapController.camera.rotation;
+%double delta = -start;
+%delta = ((delta + 180) % 360) - 180;
+%final double target = start + delta;
+%\end{minted}
+%\caption{Calcolo percorso più breve della bussola per puntare a nord.}
+%\label{lst:bussola}
+%\end{listing}
+%
+%L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (interpolazione),
+%al termine della quale la rotazione viene impostata esattamente a zero.
 
 \subsection{Algoritmo di clustering dei marker}\label{subsec:impl-clustering}
 
@@ -430,13 +430,13 @@ lato, il lato della cella deve dimezzarsi allo stesso modo perché il suo effett
 %\label{eq:cella-px}
 %\end{equation}
 
-Gli errori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
-È questa la proprietà per cui si rende necessaria la formula; la cella non è una distanza geografica ma una distanza sullo schermo, di
-circa sessanta punti, cioè circa un quarto del lato di un tile.
-La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero di gradi che a ogni zoom corrisponde a
-quella distanza sullo schermo.
-
-L'asse verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
+%Gli errori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
+%È questa la proprietà per cui si rende necessaria la formula; la cella non è una distanza geografica ma una distanza sullo schermo, di
+%circa sessanta punti, cioè circa un quarto del lato di un tile.
+%La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero di gradi che a ogni zoom corrisponde a
+%quella distanza sullo schermo.
+%
+%L'asse verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
 %La scala della latitudine in \textit{Mercator} cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
 %in punti vale $w(z)/\cos\varphi$: alle latitudini italiane, comprese fra circa trentasei e quarantasette gradi, si ottengono valori fra
 %settantaquattro e ottantotto punti.
@@ -564,8 +564,8 @@ La selezione della bolla, per esempio tramite tocco, provoca un avvicinamento di
 Il valore rispetta il requisito RF-09, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
 Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di
 partenza in un massimo di sedici nuove celle.
-Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
-bolla; tre avrebbero fatto perdere il contesto circostante.
+%Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
+%bolla; tre avrebbero fatto perdere il contesto circostante.
 
 \section{Localizzazione e gestione dei permessi}\label{sec:impl-localizzazione}
 
@@ -616,26 +616,26 @@ volta, oppure può essere stato negato in modo permanente.
   \label{fig:permessi}
 \end{figure}
 
-La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perché le due
-condizioni si risolvono in schermate di sistema diverse: la prima nelle impostazioni di localizzazione del dispositivo,
-la seconda nella scheda dell'applicazione.
-Portare l'utente nella schermata sbagliata equivale a non aiutarlo: l'interruttore che cerca non si trova lì.
-Il negato permanente, in particolare, si riconosce dal fatto che da quello stato il sistema operativo non ripresenta più la richiesta:
-insistere con una nuova domanda non produrrebbe alcuna finestra e l'utente vedrebbe un comando che non fa nulla.
-In quel caso l'unica strada è il collegamento diretto alle impostazioni.
-
-L'acquisizione riuscita procede in due tempi, e la ragione è la reattività percepita.
-La posizione di alta precisione richiede alcuni secondi, durante i quali l'interfaccia non avrebbe nulla da mostrare; l'ultima posizione
-nota, conservata dal sistema operativo, è invece disponibile immediatamente ed è sufficiente per centrare la mappa in modo approssimativo.
-Viene quindi impiegata subito, se presente, e sostituita dalla posizione precisa quando questa arriva.
-Al termine viene attivato un flusso di aggiornamento con una soglia di venticinque metri, valore scelto per aggiornare
-l'indicatore durante uno spostamento reale senza reagire alle oscillazioni del rilevamento a utente fermo.
-
-Un accorgimento minore ma necessario riguarda le richieste sovrapposte.
-I comandi che necessitano della posizione sono tre e sono tutti raggiungibili in rapida successione; senza una protezione, due
-pressioni ravvicinate avvierebbero due procedure concorrenti, con la possibilità di presentare all'utente due finestre di
-richiesta sovrapposte.
-Un indicatore di procedura in corso impedisce l'avvio di una seconda acquisizione mentre la prima non si è conclusa.
+%La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perché le due
+%condizioni si risolvono in schermate di sistema diverse: la prima nelle impostazioni di localizzazione del dispositivo,
+%la seconda nella scheda dell'applicazione.
+%Portare l'utente nella schermata sbagliata equivale a non aiutarlo: l'interruttore che cerca non si trova lì.
+%Il negato permanente, in particolare, si riconosce dal fatto che da quello stato il sistema operativo non ripresenta più la richiesta:
+%insistere con una nuova domanda non produrrebbe alcuna finestra e l'utente vedrebbe un comando che non fa nulla.
+%In quel caso l'unica strada è il collegamento diretto alle impostazioni.
+%
+%L'acquisizione riuscita procede in due tempi, e la ragione è la reattività percepita.
+%La posizione di alta precisione richiede alcuni secondi, durante i quali l'interfaccia non avrebbe nulla da mostrare; l'ultima posizione
+%nota, conservata dal sistema operativo, è invece disponibile immediatamente ed è sufficiente per centrare la mappa in modo approssimativo.
+%Viene quindi impiegata subito, se presente, e sostituita dalla posizione precisa quando questa arriva.
+%Al termine viene attivato un flusso di aggiornamento con una soglia di venticinque metri, valore scelto per aggiornare
+%l'indicatore durante uno spostamento reale senza reagire alle oscillazioni del rilevamento a utente fermo.
+%
+%Un accorgimento minore ma necessario riguarda le richieste sovrapposte.
+%I comandi che necessitano della posizione sono tre e sono tutti raggiungibili in rapida successione; senza una protezione, due
+%pressioni ravvicinate avvierebbero due procedure concorrenti, con la possibilità di presentare all'utente due finestre di
+%richiesta sovrapposte.
+%Un indicatore di procedura in corso impedisce l'avvio di una seconda acquisizione mentre la prima non si è conclusa.
 
 \section{Ricerca per indirizzo e geocodifica}\label{subsec:impl-ricerca}
 
@@ -652,11 +652,11 @@ Una barra di ricerca che interrogasse il servizio a ogni carattere digitato supe
 il requisito RF-14 nasce proprio da questa considerazione.
 
 L'interrogazione è quindi rinviata di mezzo secondo dall'ultimo carattere digitato, e ogni nuovo carattere annulla il rinvio
-pendente e ne programma un altro.
-La conseguenza è che una digitazione fluida non produce alcuna richiesta fino alla prima pausa, e che il numero di richieste
+in coda e ne programma un altro.
+Il risultato è che una digitazione continua non produce alcuna richiesta fino alla prima pausa, e che il numero di richieste
 dipende dal numero di pause invece che dal numero di caratteri.
-Il valore di mezzo secondo è il doppio di quello impiegato per il ricalcolo dei marker descritto al paragrafo \ref{subsec:impl-marker},
-e la differenza è voluta: nel primo caso si tratta di rispettare un limite d'uso esterno, nel secondo soltanto di non sprecare calcolo locale.
+%Il valore di mezzo secondo è il doppio di quello impiegato per il ricalcolo dei marker descritto al paragrafo \ref{subsec:impl-marker},
+%e la differenza è voluta: nel primo caso si tratta di rispettare un limite d'uso esterno, nel secondo soltanto di non sprecare calcolo locale.
 La figura \ref{fig:debounce} mostra il comportamento della digitazione con il rinvio: ogni nuovo carattere annulla il rinvio
 pendente e ne programma uno nuovo, quindi la richiesta parte solo alla prima pausa.
 
@@ -706,12 +706,9 @@ per mezzo secondo, quindi il numero di richieste dipende dalle pause e non dai c
 %Sono due debolezze note e non risolte, ridimensionate soltanto dal fatto che si tratta di un'applicazione dimostrativa con un unico
 %utilizzatore.
 
-Sul piano dell'interfaccia la ricerca ha imposto la soluzione del problema di sovrapposizione descritto al paragrafo \ref{subsec:design-mappa-centri}.
-%La condizione che nasconde i comandi della mappa verifica tre fatti indipendenti, cioè la presenza della tastiera, la presenza
-%di suggerimenti aperti e il possesso del fuoco da parte del campo di ricerca; la scomparsa avviene con uno scorrimento verso
-%destra accompagnato da una dissolvenza, e nel frattempo i comandi vengono resi insensibili al tocco.
-Mentre i comandi sono nascosti vengono anche resi insensibili al tocco: un elemento reso trasparente resta altrimenti capace di
-intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
+Sul piano dell'interfaccia la ricerca rappresenta la soluzione del problema di sovrapposizione descritto al paragrafo \ref{subsec:design-mappa-centri}.
+%Mentre i comandi sono nascosti vengono anche resi insensibili al tocco: un elemento reso trasparente resta altrimenti capace di
+%intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
 
 \section{Filtri e ricerca per prossimità}\label{sec:impl-filtri}
 
@@ -779,17 +776,17 @@ all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
 \end{figure}
 
 %Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
-Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
-territorio montano o attraverso un centro urbano può essere notevolmente più lungo.
-Un calcolo su rete stradale richiederebbe un servizio di instradamento, cioè un'altra dipendenza esterna con i propri limiti d'uso,
-e non è stato introdotto; l'ordinamento per distanza in linea d'aria resta comunque una approssimazione utile del più vicino, e la
-distanza reale viene poi mostrata dall'applicazione di navigazione a cui il percorso viene delegato.
+%Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
+%territorio montano o attraverso un centro urbano può essere notevolmente più lungo.
+%Un calcolo su rete stradale richiederebbe un servizio di instradamento, cioè un'altra dipendenza esterna con i propri limiti d'uso,
+%e non è stato introdotto; l'ordinamento per distanza in linea d'aria resta comunque una approssimazione utile del più vicino, e la
+%distanza reale viene poi mostrata dall'applicazione di navigazione a cui il percorso viene delegato.
 
-Il filtro per raggio ammette quattro valori, cioè nessun limite, venticinque, cinquanta e cento chilometri, presentati come
-scelte a chip invece che con un selettore continuo.
-La decisione risponde al contesto d'uso: un selettore a scorrimento richiede una regolazione fine con il pollice e restituisce
-valori arbitrari come trentasette chilometri, che non corrispondono a nessuna domanda che l'utente si ponga davvero.
-Valori discreti si selezionano con un tocco solo e coprono le tre domande effettive, cioè la città, la provincia e la regione.
+Il filtro per raggio ammette quattro valori: nessun limite, venticinque, cinquanta e cento chilometri, presentati come
+scelte a \textit{chip}. %invece che con un selettore continuo.
+%La decisione risponde al contesto d'uso: un selettore a scorrimento richiede una regolazione fine con il pollice e restituisce
+%valori arbitrari come trentasette chilometri, che non corrispondono a nessuna domanda che l'utente si ponga davvero.
+%Valori discreti si selezionano con un tocco solo e coprono le tre domande effettive, cioè la città, la provincia e la regione.
 
 L'attivazione del filtro produce tre effetti coordinati: la selezione dei centri visibili scarta quelli oltre la distanza, l'elenco
 dei centri vicini si restringe di conseguenza, e sulla mappa compare il cerchio che ne rappresenta l'estensione.
@@ -797,37 +794,31 @@ Il terzo effetto è quello che rende comprensibili i primi due.
 Senza una rappresentazione grafica del raggio l'utente non ha modo di collegare la scomparsa di alcuni marker al
 filtro che ha appena impostato, e la mappa sembra semplicemente aver perso dei dati.
 
-Il filtro si applica anche ai centri inseriti dall'utente, come impone il requisito RF-20, ma per una via diversa.
-I centri pubblici lo attraversano nella selezione per viewport descritta al paragrafo \ref{subsec:impl-marker}, dove il controllo
-sulla distanza è valutato nello stesso attraversamento; i centri personalizzati, che quella selezione non attraversano, sono
-filtrati per raggio soltanto nell'elenco dei centri vicini.
+%Il filtro si applica anche ai centri inseriti dall'utente, come impone il requisito RF-20, ma per una via diversa.
+%I centri pubblici lo attraversano nella selezione per viewport descritta al paragrafo \ref{subsec:impl-marker}, dove il controllo
+%sulla distanza è valutato nello stesso attraversamento; i centri personalizzati, che quella selezione non attraversano, sono
+%filtrati per raggio soltanto nell'elenco dei centri vicini.
 %Ne segue una differenza di comportamento che va registrata: con un filtro per raggio attivo, un centro personalizzato fuori dal
 %raggio scompare dall'elenco ma resta disegnato sulla mappa.
 %è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
 
 \subsection{Individuazione del centro più vicino}\label{subsec:impl-piu-vicino}
 
-La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, sia quello remoto che quello personale.%, mantenendo
+La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, sia quello remoto che quello personale. %, mantenendo
 %il minimo corrente insieme all'azione che ne aprirà la scheda.
 Funziona tramite una singola lettura dell'intero elenco, e salvando quello alla distanza minore trovato.
-Di fatto, in questo scenario sarebbe inutile un ordinamento dell'intero insieme, e comporterebbe solamente un costo evitabile.
-%La ricerca del minimo procede in un unico attraversamento, ed è quindi lineare; un ordinamento completo dell'elenco, che sarebbe
-%costato un fattore logaritmico in più, non serve, perché di quell'ordinamento interessa soltanto il primo elemento.
-
-Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata.%, coerentemente con quanto
-%disegnato sulla mappa.
-Sui centri remoti il filtro per patologia è implicito nell'insieme stesso, secondo l'asimmetria discussa al
-paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono scartati.
-
-Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perché comprenda sia la posizione
-dell'utente sia quella del centro trovato.%, con un margine di ottanta punti sui bordi e un limite superiore di ingrandimento al quindicesimo livello.
-Questo perchè l'utente che chiede il centro più vicino non vuole solamente vederlo,
-vuole vedere quanto è lontano, e una viewport centrata sul solo centro perderebbe tale informazione.
-%Il limite di ingrandimento evita l'effetto opposto, cioè un avvicinamento eccessivo quando il centro trovato è a poche centinaia di metri.
-
-La scheda del centro viene aperta poco dopo l'inizio dello spostamento su di esso.
-Il ritardo è voluto, per dare il tempo alla mappa e all'animazione di spostarsi sul centro prima di aprirne la scheda.
-%è una soluzione fragile, perché su un dispositivo molto lento lo spostamento potrebbe non essere terminato, e va annoverata fra i punti da irrobustire.
+%Di fatto, in questo scenario sarebbe inutile un ordinamento dell'intero insieme, e comporterebbe solamente un costo evitabile.
+%Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata.
+%Sui centri remoti il filtro per patologia è implicito nell'insieme stesso, secondo l'asimmetria discussa al
+%paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono scartati.
+%
+%Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perché comprenda sia la posizione
+%dell'utente sia quella del centro trovato.
+%Questo perchè l'utente che chiede il centro più vicino non vuole solamente vederlo,
+%vuole vedere quanto è lontano, e una viewport centrata sul solo centro perderebbe tale informazione.
+%
+%La scheda del centro viene aperta poco dopo l'inizio dello spostamento su di esso.
+%Il ritardo è voluto, per dare il tempo alla mappa e all'animazione di spostarsi sul centro prima di aprirne la scheda.
 
 \section{Inserimento dei centri personalizzati}\label{subsec:impl-validazione}
 
@@ -859,8 +850,8 @@ compilazione obbliga a ricostruire quale campo abbia prodotto quale messaggio, m
 l'errore al campo nel momento in cui vi si sta lavorando.
 È anche una risposta al requisito RNF-02, che chiede un riscontro visivo immediato per ogni azione.
 
-Il controllo sul numero di telefono, riportato nel listato \ref{lst:telefono}, vale una spiegazione: la sua struttura
-riflette il formato reale della numerazione italiana e non una convenzione generica.
+Il controllo sul numero di telefono, riportato in \ref{lst:telefono},
+riflette il formato della numerazione italiana. %e non una convenzione generica.
 
 \begin{listing}[H]
 \begin{minted}{dart}
@@ -884,17 +875,17 @@ String? _validateItalianPhone(String? value) {
 \label{lst:telefono}
 \end{listing}
 
-Il controllo procede in tre passi.
-Prima rimuove ogni carattere che non sia una cifra, perché i recapiti vengono scritti nei modi più vari, con spazi,
-punti, barre e prefissi fra parentesi, e nessuna di quelle forme è sbagliata dal punto di vista dell'utente.
-Poi riconosce e rimuove il prefisso internazionale, ma soltanto quando la lunghezza residua lo giustifica: la condizione
-sulla lunghezza evita di scambiare per prefisso internazionale le prime due cifre di un numero di cellulare che cominci
-per trentanove, che altrimenti verrebbe privato di quel frammento.
-Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
-rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
+%Il controllo procede in tre passi.
+%Prima rimuove ogni carattere che non sia una cifra, perché i recapiti vengono scritti nei modi più vari, con spazi,
+%punti, barre e prefissi fra parentesi, e nessuna di quelle forme è sbagliata dal punto di vista dell'utente.
+%Poi riconosce e rimuove il prefisso internazionale, ma soltanto quando la lunghezza residua lo giustifica: la condizione
+%sulla lunghezza evita di scambiare per prefisso internazionale le prime due cifre di un numero di cellulare che cominci
+%per trentanove, che altrimenti verrebbe privato di quel frammento.
+%Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
+%rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
 
 La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, e rende
-visibile il punto in cui il valore vuoto imbocca un percorso separato che non applica alcun rifiuto di campo.
+visibile il punto in cui il valore vuoto imbocca un percorso separato. %che non applica alcun rifiuto di campo.
 
 \begin{figure}[H]
 \centering
@@ -943,9 +934,9 @@ visibile il punto in cui il valore vuoto imbocca un percorso separato che non ap
 \label{fig:validazione-telefono}
 \end{figure}
 
-Un valore vuoto restituisce esito positivo, e non è una dimenticanza: il telefono è opzionale, ed è la verifica di secondo
+Un valore vuoto restituisce esito positivo, di fatto il telefono è opzionale, ed è la verifica di secondo
 livello a stabilire che almeno un contatto sia presente.
-Se il validatore di campo rifiutasse il vuoto, un centro con la sola posta elettronica diventerebbe impossibile da salvare.
+Se il controllo di campo rifiutasse il valore vuoto, un centro con il solo indirizzo di posta elettronica diventerebbe impossibile da salvare.
 
 %L'intervallo ammesso fra sei e undici cifre è volutamente ampio, e comprende numerazioni che nella pratica non appartengono a
 %un centro sanitario.
@@ -986,18 +977,17 @@ Apple Maps & solo iOS & Automobile, piedi e mezzi pubblici; la bicicletta ricade
 \label{tab:navigazione}
 \end{table}
 
-I due \textit{fallback} riportati nella terza colonna corrispondono agli scenari alternativi del caso d'uso UC-07 e sono stati
-verificati sui rispettivi collegamenti.
-Nessuna delle due produce un errore visibile: l'applicazione si apre con la destinazione corretta e una modalità di percorso
-diversa da quella richiesta, che l'utente può cambiare sul posto.
-Si è preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
-che avrebbe reso incomprensibile la scomparsa di una voce dall'elenco.
+%I due \textit{fallback} riportati nella terza colonna corrispondono agli scenari alternativi del caso d'uso UC-07 e sono stati
+%verificati sui rispettivi collegamenti.
+%Nessuna delle due produce un errore visibile: l'applicazione si apre con la destinazione corretta e una modalità di percorso
+%diversa da quella richiesta, che l'utente può cambiare sul posto.
+%Si è preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
+%che avrebbe reso incomprensibile la scomparsa di una voce dall'elenco.
 
-Per la chiamata e per la posta il collegamento è composto con gli schemi dedicati, e la richiesta si arresta all'apertura del
-programma con il recapito già inserito, senza avviare la chiamata: la conferma resta all'utente, com'è giusto che sia per un'azione
-che ha un costo.
-I campi dei dati di origine, però, contengono spesso più recapiti nello stesso campo, ed è necessario isolarne uno; viene
-preso il primo, separando la stringa sui caratteri che nei dati fungono da separatore.
+Per la chiamata e per l'indirizzo di posta elettronica il collegamento è composto da schemi dedicati, e la richiesta si arresta all'apertura del
+programma con il recapito già inserito, successivamente la conferma resta all'utente.
+%I campi dei dati di origine, però, contengono spesso più recapiti nello stesso campo, ed è necessario isolarne uno; viene
+%preso il primo, separando la stringa sui caratteri che nei dati fungono da separatore.
 
 %Su questo punto c'è un difetto da segnalare, emerso durante la stesura del capitolo e non prima.
 %La composizione dei recapiti estratti dalla sorgente li unisce con un trattino, e la separazione in lettura divide di conseguenza
@@ -1013,12 +1003,11 @@ La condivisione compone un testo con la denominazione, l'indirizzo, il recapito 
 alla posizione sulla mappa, e lo consegna al pannello di condivisione del sistema.
 Il collegamento alla posizione è la parte che rende utile la condivisione: un messaggio con il solo nome della struttura obbliga
 il destinatario a cercarla, mentre un collegamento apre direttamente il punto sulla mappa.
-
-Tutte le aperture di collegamento sono racchiuse in una gestione degli errori che copre due casi distinti, cioè il fallimento
-dell'apertura con eccezione e la restituzione di un esito negativo senza eccezione, che si verifica quando nessuna applicazione
-installata dichiara di saper gestire quello schema.
-In entrambi i casi l'utente riceve un avviso testuale e la scheda del centro resta aperta, come prevede lo scenario alternativo
-del caso d'uso UC-07.
+%Tutte le aperture di collegamento sono racchiuse in una gestione degli errori che copre due casi distinti, cioè il fallimento
+%dell'apertura con eccezione e la restituzione di un esito negativo senza eccezione, che si verifica quando nessuna applicazione
+%installata dichiara di saper gestire quello schema.
+%In entrambi i casi l'utente riceve un avviso testuale e la scheda del centro resta aperta, come prevede lo scenario alternativo
+%del caso d'uso UC-07.
 
 \section{Il modulo in esecuzione}\label{sec:impl-screenshot}
 
@@ -1049,15 +1038,14 @@ verificare visivamente alcune delle scelte descritte nelle pagine precedenti.
 \label{fig:screen-mappa}
 \end{figure}
 
-Nella figura \ref{fig:sub-cluster} si riconoscono le bolle numerate prodotte dall'algoritmo del paragrafo \ref{subsec:impl-clustering},
-con i marker singoli che convivono con i cluster nella stessa vista: sono le celle con un solo membro, disegnate come marker ordinari.
-Si nota anche la colonna dei comandi sul lato destro, nella metà inferiore dello schermo come richiede il requisito RNF-01.
-%e la mancanza dell'attribuzione cartografica discussa al paragrafo \ref{subsec:impl-marker}.
-
-La figura \ref{fig:sub-raggio} mostra il cerchio del filtro attivo, con il riempimento tenue che delimita senza coprire
-il territorio sottostante.
-La figura \ref{fig:sub-vicini} riporta l'elenco per prossimità, con le scelte discrete del raggio in testa al pannello
-e la distanza formattata secondo gli scaglioni descritti al paragrafo \ref{subsec:impl-filtraggio}.
+%Nella figura \ref{fig:sub-cluster} si riconoscono le bolle numerate prodotte dall'algoritmo del paragrafo \ref{subsec:impl-clustering},
+%con i marker singoli che convivono con i cluster nella stessa vista: sono le celle con un solo membro, disegnate come marker ordinari.
+%Si nota anche la colonna dei comandi sul lato destro, nella metà inferiore dello schermo come richiede il requisito RNF-01.
+%
+%La figura \ref{fig:sub-raggio} mostra il cerchio del filtro attivo, con il riempimento tenue che delimita senza coprire
+%il territorio sottostante.
+%La figura \ref{fig:sub-vicini} riporta l'elenco per prossimità, con le scelte discrete del raggio in testa al pannello
+%e la distanza formattata secondo gli scaglioni descritti al paragrafo \ref{subsec:impl-filtraggio}.
 
 \begin{figure}[H]
 \centering
@@ -1090,11 +1078,11 @@ inserimento ed elenco dei centri personalizzati.}
 \label{fig:screen-schede}
 \end{figure}
 
-I quattro pannelli della figura \ref{fig:screen-schede} rendono evidente la scelta discussa al paragrafo \ref{subsec:flusso-navigazione}:
-nessuno di essi occupa l'intero schermo, e la mappa resta visibile al di sopra, così che il contesto geografico non venga
-perso nel momento in cui si consultano i dettagli.
-Nella figura \ref{fig:sub-indicazioni} si vedono le scelte del mezzo di
-trasporto sopra l'elenco delle applicazioni di navigazione, disposizione che rispecchia l'ordine dei passi del caso d'uso UC-07,
-dove il mezzo viene scelto prima dell'applicazione.
-La figura \ref{fig:sub-form} mostra il modulo di inserimento con il riquadro
-della posizione acquisita dalla mappa e il comando di riallineamento descritto al paragrafo \ref{subsec:impl-validazione}.
+%I quattro pannelli della figura \ref{fig:screen-schede} rendono evidente la scelta discussa al paragrafo \ref{subsec:flusso-navigazione}:
+%nessuno di essi occupa l'intero schermo, e la mappa resta visibile al di sopra, così che il contesto geografico non venga
+%perso nel momento in cui si consultano i dettagli.
+%Nella figura \ref{fig:sub-indicazioni} si vedono le scelte del mezzo di
+%trasporto sopra l'elenco delle applicazioni di navigazione, disposizione che rispecchia l'ordine dei passi del caso d'uso UC-07,
+%dove il mezzo viene scelto prima dell'applicazione.
+%La figura \ref{fig:sub-form} mostra il modulo di inserimento con il riquadro
+%della posizione acquisita dalla mappa e il comando di riallineamento descritto al paragrafo \ref{subsec:impl-validazione}.

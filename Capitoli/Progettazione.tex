@@ -150,36 +150,35 @@ La tabella \ref{tab:stato} riassume la distribuzione dello stato e il meccanismo
 \textbf{Elemento di stato} & \textbf{Contenuto} & \textbf{Propagazione} \tabularnewline
 \midrule
 Elenco dei centri visibili & Sottoinsieme dei centri che ricadono nell'area visibile e superano i filtri attivi & Notifica
-puntuale al solo livello dei marker \tabularnewline
-Elenco completo dei centri & Tutti i centri della patologia selezionata, già normalizzati & Ridisegno completo, poco frequente \tabularnewline
-Cache in memoria & Elenchi delle due patologie, indicizzati per nome & Nessuna, è una struttura di servizio \tabularnewline
-Centri personalizzati & Strutture inserite dall'utente e conservate sul dispositivo & Ridisegno completo, su richiesta esplicita \tabularnewline
+al solo livello dei marker \tabularnewline
+Elenco completo dei centri & Tutti i centri della patologia selezionata, già normalizzati & Ridisegno completo \tabularnewline
+%Cache in memoria & Elenchi delle due patologie, indicizzati per nome & Nessuna, è una struttura di servizio \tabularnewline
+%Centri personalizzati & Strutture inserite dall'utente e conservate sul dispositivo & Ridisegno completo, su richiesta esplicita \tabularnewline
 Posizione dell'utente & Ultima posizione nota, aggiornata dal flusso di localizzazione & Ridisegno completo \tabularnewline
 Raggio del filtro & Distanza massima ammessa, oppure nessun limite & Ridisegno completo, seguito da nuova selezione \tabularnewline
-Rotazione della viewport & Orientamento corrente, usato dalla bussola & Ridisegno del solo comando bussola \tabularnewline
-Suggerimenti di ricerca & Proposte restituite dal servizio di geocodifica & Ridisegno completo, limitato alla barra \tabularnewline
+%Rotazione della viewport & Orientamento corrente, usato dalla bussola & Ridisegno del solo comando bussola \tabularnewline
+%Suggerimenti di ricerca & Proposte restituite dal servizio di geocodifica & Ridisegno completo, limitato alla barra \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Distribuzione dello stato del modulo mappa e modalità di propagazione.}
 \label{tab:stato}
 \end{table}
 
-Due scelte accessorie completano il quadro.
-La prima è la conservazione dello stato quando l'utente lascia la mappa e vi ritorna: senza un accorgimento esplicito il widget
-verrebbe ricostruito da zero, con una nuova interrogazione della rete e la perdita della viewport.
-Il modulo dichiara quindi di voler essere mantenuto in vita, e al rientro l'utente ritrova la mappa dove l'aveva lasciata.
+%Per completezza, la conservazione dello stato quando l'utente lascia la mappa e vi ritorna: senza un accorgimento esplicito il widget
+%verrebbe ricostruito da zero, con una nuova interrogazione della rete e la perdita della viewport.
+%Il modulo dichiara quindi di voler essere mantenuto in vita, e al rientro l'utente ritrova la mappa dove l'aveva lasciata.
 
-La seconda riguarda la frequenza dei ricalcoli.
-Durante uno spostamento continuo della viewport gli eventi arrivano a ogni fotogramma, e ricalcolare selezione e cluster a quel
-ritmo sarebbe inutile oltre che oneroso, dato che l'utente vede il risultato solo quando il gesto si ferma.
-Il ricalcolo è perciò rinviato di una frazione di secondo e rimandato ogni volta che arriva un nuovo evento, così da eseguirlo una
-sola volta al termine del movimento.
-Lo stesso accorgimento è applicato, con una pausa più lunga, alle interrogazioni del servizio di geocodifica durante la digitazione,
-dove la motivazione non è soltanto l'efficienza ma il rispetto dei limiti d'uso imposti dal servizio.
+%La seconda riguarda la frequenza dei ricalcoli.
+%Durante uno spostamento continuo della viewport gli eventi arrivano a ogni fotogramma, e ricalcolare selezione e cluster a quel
+%ritmo sarebbe inutile oltre che oneroso, dato che l'utente vede il risultato solo quando il gesto si ferma.
+%Il ricalcolo è perciò rinviato di una frazione di secondo e rimandato ogni volta che arriva un nuovo evento, così da eseguirlo una
+%sola volta al termine del movimento.
+%Lo stesso accorgimento è applicato, con una pausa più lunga, alle interrogazioni del servizio di geocodifica durante la digitazione,
+%dove la motivazione non è soltanto l'efficienza ma il rispetto dei limiti d'uso imposti dal servizio.
 
 \section{Progettazione dell'interfaccia}\label{sec:progettazione-ui-ux}
 
-L'interfaccia è stata pensata attorno a un vincolo semplice: su una mappa il contesto è il contenuto.
+L'interfaccia è stata pensata attorno a un semplice vincolo: su una mappa il contesto è il contenuto.
 Se per leggere i dettagli di una struttura l'utente perde di vista la mappa, perde anche la relazione fra quella struttura
 e le altre, il motivo per cui stava consultando una mappa invece di un elenco.
 Tutte le decisioni descritte in questa sezione derivano da questa considerazione.
@@ -190,21 +189,22 @@ Il modulo occupa una schermata intera,
 %raggiunta da una vista precedente che gli trasmette
 basata su due informazioni: la patologia di
 interesse e, se già disponibile, la posizione dell'utente.
-Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe già essere stato concesso, e consente di
-aprire la mappa direttamente sulla zona utile invece che su una viewport predefinita.
+%Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe già essere stato concesso, e consente di
+%aprire la mappa direttamente sulla zona utile invece che su una viewport predefinita.
+Questa, se disponibile, permette di impostare la visuale sulla posizione attuale piuttosto che su una predefinita.
 
 Da quel punto in avanti la navigazione si ferma.
 Nessuna delle funzioni del modulo apre una nuova schermata: consultazione dei dettagli, scelta del percorso, elenco dei
 centri vicini, inserimento e modifica di una struttura personalizzata avvengono tutte in pannelli che salgono dal basso e
-coprono solo una parte dello schermo, lasciando visibile la mappa sopra di essi. La figura \ref{fig:navigazione} riporta
-il quadro complessivo.
+coprono solo una parte dello schermo, mantenendo visibile la mappa.
+La figura \ref{fig:navigazione} riporta il quadro complessivo.
 
-Questa scelta ha un costo che vale dichiarare.
-I pannelli modali non si impilano: da un pannello non se ne apre un altro, e dove servirebbe una sequenza di due passi il
-primo pannello viene chiuso prima di aprire il secondo.
-Accade nel passaggio dalla scheda di una struttura personalizzata al modulo di modifica, e nella conferma di eliminazione.
-È un compromesso accettato consapevolmente, perché l'alternativa avrebbe portato a pannelli sovrapposti con una gerarchia
-di chiusura difficile da prevedere per l'utente.
+%Questa scelta ha un costo che vale dichiarare.
+%I pannelli modali non si impilano: da un pannello non se ne apre un altro, e dove servirebbe una sequenza di due passi il
+%primo pannello viene chiuso prima di aprire il secondo.
+%Accade nel passaggio dalla scheda di una struttura personalizzata al modulo di modifica, e nella conferma di eliminazione.
+%È un compromesso accettato consapevolmente, perché l'alternativa avrebbe portato a pannelli sovrapposti con una gerarchia
+%di chiusura difficile da prevedere per l'utente.
 
 \begin{figure}[H]
     \centering
@@ -293,21 +293,21 @@ I centri pubblici vengono richiesti al servizio remoto già selezionati per pato
 ciascuna: quando l'utente cambia patologia non viene applicato alcun filtro, viene semplicemente sostituito l'insieme di partenza.
 I centri personalizzati, al contrario, risiedono in un unico archivio locale e portano con sè l'elenco delle patologie a
 cui si riferiscono, perché una struttura inserita a mano può legittimamente trattarne entrambe; per questi il filtro è valutato
-al momento del disegno.
+al momento in cui viene disegnato a schermo.
 
-L'asimmetria è voluta.
-Duplicare i centri personalizzati in due archivi separati per allinearli al comportamento dei centri pubblici avrebbe
-obbligato a inserire due volte la stessa struttura, oppure a mantenere sincronizzate due copie dello stesso dato, con la
-certezza di vederle divergere.
-Trattare la patologia come attributo del centro, e non come partizione dell'archivio, evita il problema alla radice; la
-scelta è discussa insieme al resto del modello nel paragrafo \ref{subsec:modello-centri}.
-
-Una conseguenza pratica riguarda l'inserimento: un nuovo centro personalizzato nasce associato alla patologia correntemente
-selezionata, non a entrambe.
-La preselezione risparmia un tocco nel caso frequente, cioè quando l'utente sta aggiungendo una struttura pertinente a quello
-che sta consultando, e resta comunque modificabile nel modulo di inserimento.
-La scelta opposta, associare per difetto tutte le patologie, avrebbe fatto comparire il marker anche in un contesto in
-cui l'utente non lo aveva richiesto, che è l'errore più fastidioso dei due.
+%L'asimmetria è voluta.
+%Duplicare i centri personalizzati in due archivi separati per allinearli al comportamento dei centri pubblici avrebbe
+%obbligato a inserire due volte la stessa struttura, oppure a mantenere sincronizzate due copie dello stesso dato, con la
+%certezza di vederle divergere.
+%Trattare la patologia come attributo del centro, e non come partizione dell'archivio, evita il problema alla radice; la
+%scelta è discussa insieme al resto del modello nel paragrafo \ref{subsec:modello-centri}.
+%
+%Una conseguenza pratica riguarda l'inserimento: un nuovo centro personalizzato nasce associato alla patologia correntemente
+%selezionata, non a entrambe.
+%La preselezione risparmia un tocco nel caso frequente, cioè quando l'utente sta aggiungendo una struttura pertinente a quello
+%che sta consultando, e resta comunque modificabile nel modulo di inserimento.
+%La scelta opposta, associare per difetto tutte le patologie, avrebbe fatto comparire il marker anche in un contesto in
+%cui l'utente non lo aveva richiesto, che è l'errore più fastidioso dei due.
 
 \section{Modello e persistenza dei dati}\label{sec:modello-dati}
 
@@ -383,13 +383,13 @@ metodo di copia con modifica che conserva l'identificatore.
 \toprule
 \textbf{Campo} & \textbf{Tipo} & \textbf{Comportamento in assenza del dato} \tabularnewline
 \midrule
-Identificatore & testo & Generato dall'istante di creazione espresso in microsecondi \tabularnewline
+Identificatore & testo & Generato dall'istante di creazione \tabularnewline
 Denominazione & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
 Indirizzo & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
 Città & testo opzionale & Le stringhe vuote o di soli spazi diventano assenza di valore \tabularnewline
 Telefono & testo opzionale & Come sopra; almeno un contatto fra telefono e posta è richiesto \tabularnewline
 Posta elettronica & testo opzionale & Come sopra \tabularnewline
-Coordinate & numeri reali & Ricadono a zero in lettura, condizione non producibile dal modulo \tabularnewline
+Coordinate & numerico & Impostati a zero in lettura, condizione non producibile dal modulo \tabularnewline
 Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le patologie \tabularnewline
 \bottomrule
 \end{tabularx}
@@ -404,20 +404,18 @@ Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le
 %    \item Uno spazio vuoto è più intuitivo.
 %\end{enumerate}
 
-
-
 La seconda è l'assegnazione di entrambe le patologie quando il campo manca.
 Il caso si presenta soltanto leggendo un archivio scritto da una versione precedente, che quel campo non prevedeva.
 Fra le due possibilità, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, è stata scelta la
 seconda: un centro inserito dall'utente e poi diventato invisibile sarebbe percepito come una perdita di dati, mentre un
 centro che compare una volta di troppo è al più una imprecisione visibile, e correggibile in due tocchi.
 
-C'è infine un punto in cui i due modelli non si incontrano.
-Per i centri remoti la patologia non è un attributo del record ma una proprietà dell'insieme da cui il record proviene,
-poiché la selezione avviene a monte, all'atto della richiesta; per i centri personalizzati è invece un attributo esplicito e
-multivalore.
-È la stessa asimmetria osservata al paragrafo \ref{subsec:design-mappa-centri}, vista dal lato dei dati: due meccanismi
-diversi che convergono sullo stesso effetto per l'utente, cioè vedere sulla mappa soltanto i centri pertinenti alla patologia scelta.
+%C'è infine un punto in cui i due modelli non si incontrano.
+%Per i centri remoti la patologia non è un attributo del record ma una proprietà dell'insieme da cui il record proviene,
+%poiché la selezione avviene a monte, all'atto della richiesta; per i centri personalizzati è invece un attributo esplicito e
+%multivalore.
+%È la stessa asimmetria osservata al paragrafo \ref{subsec:design-mappa-centri}, vista dal lato dei dati: due meccanismi
+%diversi che convergono sullo stesso effetto per l'utente, cioè vedere sulla mappa soltanto i centri pertinenti alla patologia scelta.
 
 \subsection{Strategia di caching e funzionamento offline}\label{subsec:strategia-cache}
 
@@ -438,21 +436,21 @@ Una cache può essere cancellata senza perdita di informazione, perché il dato 
 Per questo i due usano chiavi separate e non vengono mai scritti dalla stessa procedura, così che un aggiornamento dell'elenco
 remoto non possa in nessun caso sovrascrivere ciò che l'utente ha inserito a mano.
 
-Sul deposito persistente è stata adottata una politica che privilegia la reattività: all'avvio l'elenco conservato viene letto e
+Sull'archivio persistente è stata adottata una politica che privilegia la reattività: all'avvio l'elenco salvato viene letto e
 mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
 si limita a sostituire i dati con la versione aggiornata.
 È la stessa idea del requisito RNF-05, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
 
 %Questa politica ha però una contropartita.
-Se l'elenco della patologia richiesta è già presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono
-quelli dell'ultimo scaricamento, e restano tali finché l'utente non richiede espressamente un aggiornamento con il comando dedicato.
+%Se l'elenco della patologia richiesta è già presente in memoria, la richiesta remota non viene nemmeno tentata: i dati mostrati sono
+%quelli dell'ultimo scaricamento, e restano tali finché l'utente non richiede espressamente un aggiornamento con il comando dedicato.
 %Questo significa che l'applicazione può mostrare un elenco non aggiornatissimo senza segnalarlo, ed è una scelta consapevole a favore
 %della prontezza e del risparmio di richieste verso servizi pubblici gratuiti; una politica più corretta assocerebbe alla cache una scadenza,
 %dopo la quale l'aggiornamento avverrebbe da sé.
 %Il punto è ripreso fra i limiti al paragrafo \ref{sec:limiti-attuali}.
 
-La figura \ref{fig:cascata-dati} riassume la catena di ricadute che governa l'acquisizione.
-Ogni anello interviene soltanto quando il precedente non ha prodotto un risultato utilizzabile, e l'ultimo anello, cioè
+La figura \ref{fig:cascata-dati} riassume la catena che governa l'acquisizione.
+Ogni blocco interviene soltanto quando il precedente non ha prodotto un risultato utilizzabile, e l'ultimo, cioè
 l'avviso all'utente, viene raggiunto solo quando nessun dato è disponibile.
 
 \begin{figure}[H]
@@ -481,20 +479,20 @@ l'avviso all'utente, viene raggiunto solo quando nessun dato è disponibile.
     \label{fig:cascata-dati}
 \end{figure}
 
-Nella figura si notano due cose che riassumono l'impostazione dell'intero modulo.
-La prima è che i centri personalizzati raggiungono il disegno per una via che non attraversa mai la rete: sono l'unica
-parte del contenuto che resta disponibile e completa anche quando ogni servizio esterno è irraggiungibile.
-La seconda è che la scrittura in archivio avviene dopo la normalizzazione e non prima, cioè viene conservata la forma originaria
-del record così come arriva dalla sorgente.
-La scelta ha una motivazione precisa: conservare la forma normalizzata renderebbe la lettura successiva più semplice; conservare
-l'originale ha però il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione,
-che può cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
-
-Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-08.
-Un archivio locale può essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un
-contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cioè nel momento peggiore.
-Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto
-invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito
-ricostruisce l'archivio.
-La verifica di questo comportamento è fra i casi di test descritti al paragrafo \ref{sec:test-unitari}, perché è esattamente
-il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza un test automatico, resterebbe non verificato.
+%Nella figura si notano due cose che riassumono l'impostazione dell'intero modulo.
+%La prima è che i centri personalizzati raggiungono il disegno per una via che non attraversa mai la rete: sono l'unica
+%parte del contenuto che resta disponibile e completa anche quando ogni servizio esterno è irraggiungibile.
+%La seconda è che la scrittura in archivio avviene dopo la normalizzazione e non prima, cioè viene conservata la forma originaria
+%del record così come arriva dalla sorgente.
+%La scelta ha una motivazione precisa: conservare la forma normalizzata renderebbe la lettura successiva più semplice; conservare
+%l'originale ha però il vantaggio di non irrigidire l'archivio intorno a una particolare versione della logica di normalizzazione,
+%che può cambiare fra due versioni dell'applicazione mentre i dati sul dispositivo restano quelli.
+%
+%Un ultimo aspetto riguarda la robustezza in lettura, richiesta dal requisito RNF-08.
+%Un archivio locale può essere corrotto, per un aggiornamento interrotto o per una scrittura non completata, e la lettura di un
+%contenuto non interpretabile solleverebbe un errore proprio durante l'avvio, cioè nel momento peggiore.
+%Tutte le letture dagli archivi locali sono quindi protette e, in caso di contenuto illeggibile, restituiscono un elenco vuoto
+%invece di propagare l'errore: l'applicazione si avvia comunque, eventualmente senza dati, e il primo scaricamento riuscito
+%ricostruisce l'archivio.
+%La verifica di questo comportamento è fra i casi di test descritti al paragrafo \ref{sec:test-unitari}, perché è esattamente
+%il genere di percorso che non viene mai esercitato dall'uso normale e che quindi, senza un test automatico, resterebbe non verificato.

@@ -225,40 +225,39 @@ sanitario personale custodito da terzi, con le conseguenze normative che ne deri
 Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
 corretta sarebbe una cifratura eseguita sul dispositivo con una chiave che il servizio non possiede, in modo che il servizio
 conservi dati che non è in grado di leggere nemmeno in caso esso venisse violato.
+%Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
+%strutture che ha salvato e che negli elenchi pubblici non compaiono.
+%Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che
+%manca, e restituirebbe valore ai portali da cui il progetto prende i propri dati; richiederebbe però una moderazione redazionale,
+%che è un problema più organizzativo piuttosto che informatico.
 
-Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
-strutture che ha salvato e che negli elenchi pubblici non compaiono.
-Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che
-manca, e restituirebbe valore ai portali da cui il progetto prende i propri dati; richiederebbe però una moderazione redazionale,
-che è un problema più organizzativo piuttosto che informatico.
-
-\subsection{Percorsi e mappe vettoriali}\label{subsec:futuro-percorsi}
+\subsection{Percorsi}\label{subsec:futuro-percorsi}
 
 Tutte le distanze mostrate dal modulo sono geodetiche (sono corrette in base alla curvatura terrestre), limitazione discussa al paragrafo \ref{subsec:impl-filtraggio}.
 L'introduzione di un servizio di \textit{routing} permetterebbe di ordinare i centri per il tempo di viaggio effettivo invece
 che per distanza in linea d'aria, grandezza a cui l'utente è realmente interessato.
-Per esempio, in un contesto montano, o in un'area urbana congestionata, il centro geograficamente più vicino non è necessariamente
-quello alla distanza minore in linea d'aria o con la strada più corta (a causa di fattori come il traffico).
+%Per esempio, in un contesto montano, o in un'area urbana congestionata, il centro geograficamente più vicino non è necessariamente
+%quello alla distanza minore in linea d'aria o con la strada più corta (a causa di fattori come il traffico).
 %Il cambiamento trasformerebbe l'ordinamento dell'elenco dei centri più vicini. ed è anche
 %il motivo per cui uno degli unit test del paragrafo \ref{sec:test-unitari} verifica la simmetria della distanza: un instradamento
 %su rete stradale non è simmetrico, e quel test segnalerebbe il cambiamento invece di ignorarlo.
 
-Lato grafico, il passaggio dai tile raster ad una mappa vettoriale porterebbe due vantaggi:
-
-\begin{enumerate}
-    \item La nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo (\textit{DPI}), che le immagini raster non possono garantire.
-    \item La possibilità di personalizzare lo stile della mappa attenuando gli elementi meno importanti.
-    Per esempio, una mappa in cui le strutture sanitarie vengano evidenziate e il resto del contesto
-    sia reso più tenue metterebbe in risalto l'informazione che l'utente sta cercando.
-\end{enumerate}
-
-
-
-Un'ultima funzione utile sarebbe il \textit{predownload} in locale dei tile di un'area scelta dall'utente, per
-consultare la mappa in assenza di rete.
-Attualmente il salvataggio in locale riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
-in assenza di rete i marker compaiono su uno sfondo vuoto.
-Quindi i marker restano disponibili, ma il contesto geografico che li rende leggibili viene perso.
-Su questa strada occorrerebbe procedere con criterio per rispettare la politica d'uso (\textit{ToS}) dei tile pubblici, che vieta espressamente
-il \textit{download} massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario l'utilizzo di un provider diverso oppure
-la predisposizione di un proprio servizio di tile.
+%Lato grafico, il passaggio dai tile raster ad una mappa vettoriale porterebbe due vantaggi:
+%
+%\begin{enumerate}
+%    \item La nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo (\textit{DPI}), che le immagini raster non possono garantire.
+%    \item La possibilità di personalizzare lo stile della mappa attenuando gli elementi meno importanti.
+%    Per esempio, una mappa in cui le strutture sanitarie vengano evidenziate e il resto del contesto
+%    sia reso più tenue metterebbe in risalto l'informazione che l'utente sta cercando.
+%\end{enumerate}
+%
+%
+%
+%Un'ultima funzione utile sarebbe il \textit{predownload} in locale dei tile di un'area scelta dall'utente, per
+%consultare la mappa in assenza di rete.
+%Attualmente il salvataggio in locale riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
+%in assenza di rete i marker compaiono su uno sfondo vuoto.
+%Quindi i marker restano disponibili, ma il contesto geografico che li rende leggibili viene perso.
+%Su questa strada occorrerebbe procedere con criterio per rispettare la politica d'uso (\textit{ToS}) dei tile pubblici, che vieta espressamente
+%il \textit{download} massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario l'utilizzo di un provider diverso oppure
+%la predisposizione di un proprio servizio di tile.

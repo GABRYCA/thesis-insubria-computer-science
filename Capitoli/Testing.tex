@@ -1,4 +1,4 @@
-\chapter{Testing e validazione}\label{ch:testing}
+\chapter{Testing}\label{ch:testing}
 
 \section{Strategia di testing}\label{sec:strategia-testing}
 
@@ -88,31 +88,31 @@ La tabella \ref{tab:test-unitari} elenca gli Unit Test con esito e requisito a c
 \label{tab:test-unitari}
 \end{table}
 
-I casi 2, 3 e 4 verificano comportamenti che l'uso normale non produce mai, ed è per questo che sono stati scritti.
-Un campo opzionale vuoto, un elenco di patologie assente e una coordinata mancante non si ottengono compilando il modulo
-di inserimento, che li rifiuterebbe; si ottengono leggendo un archivio scritto da una versione precedente dell'applicazione,
-oppure un archivio manomesso.
-Sono percorsi che senza un test automatico resterebbero non esercitati fino al momento in cui, sul dispositivo di un utente,
-provocherebbero un errore all'avvio.
-
-Lo stesso vale per i casi 8 e 9, che riguardano il requisito RNF-08.
-Il caso 8 inietta nell'archivio una stringa non interpretabile e verifica che la lettura restituisca un elenco vuoto invece di
-propagare l'errore.
-Il caso 9 è la variante meno evidente e più insidiosa: il contenuto è un documento JSON perfettamente valido, ma rappresenta un
-oggetto e non un elenco.
-Una lettura che si limitasse a intercettare gli errori di interpretazione supererebbe il caso 8 e fallirebbe il caso 9,
-perché l'interpretazione riuscirebbe e l'errore comparirebbe dopo, al primo tentativo di scorrere il risultato.
-La distinzione fra i due casi è il motivo per cui la lettura verifica esplicitamente il tipo del contenuto interpretato.
-
-Il caso 10 richiede una precisazione di metodo.
-Il valore atteso non è stato ricavato eseguendo il codice e registrandone il risultato, procedimento che avrebbe prodotto un
-test capace di rilevare soltanto le variazioni future ma non un errore già presente.
-È stato invece assunto dall'esterno il valore noto della distanza ortodromica fra le due città, circa quattrocentosettantasette
-chilometri, con una tolleranza di sei chilometri che assorbe le differenze fra i possibili raggi terrestri di riferimento e
-l'arbitrarietà delle coordinate scelte per rappresentare due città.
-Un test costruito in questo modo rileva anche l'errore che più facilmente si commette in questo ambito, cioè il calcolo di una
-distanza euclidea sui gradi: quel calcolo, sulle stesse coordinate, restituirebbe un valore incompatibile con la tolleranza, e
-il test fallirebbe.
+%I casi 2, 3 e 4 verificano comportamenti che l'uso normale non produce mai, ed è per questo che sono stati scritti.
+%Un campo opzionale vuoto, un elenco di patologie assente e una coordinata mancante non si ottengono compilando il modulo
+%di inserimento, che li rifiuterebbe; si ottengono leggendo un archivio scritto da una versione precedente dell'applicazione,
+%oppure un archivio manomesso.
+%Sono percorsi che senza un test automatico resterebbero non esercitati fino al momento in cui, sul dispositivo di un utente,
+%provocherebbero un errore all'avvio.
+%
+%Lo stesso vale per i casi 8 e 9, che riguardano il requisito RNF-08.
+%Il caso 8 inietta nell'archivio una stringa non interpretabile e verifica che la lettura restituisca un elenco vuoto invece di
+%propagare l'errore.
+%Il caso 9 è la variante meno evidente e più insidiosa: il contenuto è un documento JSON perfettamente valido, ma rappresenta un
+%oggetto e non un elenco.
+%Una lettura che si limitasse a intercettare gli errori di interpretazione supererebbe il caso 8 e fallirebbe il caso 9,
+%perché l'interpretazione riuscirebbe e l'errore comparirebbe dopo, al primo tentativo di scorrere il risultato.
+%La distinzione fra i due casi è il motivo per cui la lettura verifica esplicitamente il tipo del contenuto interpretato.
+%
+%Il caso 10 richiede una precisazione di metodo.
+%Il valore atteso non è stato ricavato eseguendo il codice e registrandone il risultato, procedimento che avrebbe prodotto un
+%test capace di rilevare soltanto le variazioni future ma non un errore già presente.
+%È stato invece assunto dall'esterno il valore noto della distanza ortodromica fra le due città, circa quattrocentosettantasette
+%chilometri, con una tolleranza di sei chilometri che assorbe le differenze fra i possibili raggi terrestri di riferimento e
+%l'arbitrarietà delle coordinate scelte per rappresentare due città.
+%Un test costruito in questo modo rileva anche l'errore che più facilmente si commette in questo ambito, cioè il calcolo di una
+%distanza euclidea sui gradi: quel calcolo, sulle stesse coordinate, restituirebbe un valore incompatibile con la tolleranza, e
+%il test fallirebbe.
 
 % I casi 11 e 12 verificano due proprietà formali della funzione di distanza, cioè l'annullamento sull'argomento coincidente e la simmetria.
 % Sono verifiche che sembrano superflue, poiché entrambe le proprietà sono garantite dalla formula impiegata, ma il loro costo è
