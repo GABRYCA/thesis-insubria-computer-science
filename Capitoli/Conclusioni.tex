@@ -183,9 +183,9 @@ Le tre che seguono sono ordinate per rapporto di beneficio/costo.%, e la prima �
 
 L'intervento con l'effetto più ampio consiste nell'integrare fra le sorgenti pubbliche e l'applicazione un servizio
 proprio (come un \textit{middleware} o un'\textit{API}), che interroghi periodicamente gli elenchi originali, ne normalizzi
-il contenuto una volta ed esponga ai client un unico formato stabile.
-Questo è un elemento che non è stato ancora sviluppato, per le ragioni mostrate al
-paragrafo \ref{sec:architettura-sistema}.
+il contenuto una volta ed esponga al client un unico formato stabile.
+%Questo è un elemento che non è stato ancora sviluppato, per le ragioni mostrate al
+%paragrafo \ref{sec:architettura-sistema}.
 % , e il riesame conclusivo mostra quanto quella rinuncia sia costata.
 
 Un servizio di questo genere risolverebbe tre limiti distinti:
@@ -195,7 +195,7 @@ Un servizio di questo genere risolverebbe tre limiti distinti:
     i nomi dei campi resterebbero confinati nel servizio.
     \item Sul lato del servizio permetterebbe di riconoscere i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
     sul dispositivo dell'utente e sotto forma di elenco vuoto o malformato.
-    \item Ridurrebbe drasticamente le richieste dirette ai servizi pubblici: le interrogazioni verrebbero effettuate da
+    \item Ridurrebbe drasticamente le richieste dirette ai servizi pubblici, in quanto le interrogazioni verrebbero effettuate da
     un solo ente a intervalli regolari invece che da ciascuna copia dell'applicazione.
 \end{enumerate}
 
@@ -213,11 +213,12 @@ Un servizio di questo genere risolverebbe tre limiti distinti:
 
 I centri inseriti dall'utente vivono ad oggi soltanto sul dispositivo su cui sono stati creati.
 Cambiando telefono vengono persi, e non esiste modo di consultarli da un secondo dispositivo.
-Una sincronizzazione remota risolverebbe entrambi i problemi, e sul piano tecnico sarebbe integrabile
-sull'impianto esistente: i centri personalizzati hanno già una rappresentazione tipizzata, una serializzazione simmetrica
-e un identificatore stabile, ossia i tre requisiti principali di un sistema tale.
+Una sincronizzazione remota risolverebbe entrambi i problemi, e a livello tecnico sarebbe integrabile con la base di dati
+già esistente.
+Di fatto i centri personalizzati hanno già una rappresentazione tipizzata, una serializzazione simmetrica
+e un identificatore stabile, ossia i tre requisiti principali di un tale sistema.
 
-Un aspetto delicato non è la sincronizzazione ma ciò che essa comporta sul piano della riservatezza.
+Rimarrebbe comunque un aspetto delicato non la sincronizzazione, ma ciò che essa comporta sul piano della riservatezza.
 L'applicazione, nella versione attuale, non richiede alcuna registrazione e non trasmette all'esterno alcun dato personale,
 come stabiliscono i requisiti RNF-10 e RNF-11; l'elenco dei centri dermatologici che una persona salva è un'informazione
 da cui si potrebbe presumere la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato
@@ -225,6 +226,7 @@ sanitario personale custodito da terzi, con le conseguenze normative che ne deri
 Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
 corretta sarebbe una cifratura eseguita sul dispositivo con una chiave che il servizio non possiede, in modo che il servizio
 conservi dati che non è in grado di leggere nemmeno in caso esso venisse violato.
+Parliamo di crittografia di tipo \textit{end-to-end}, con standard moderni e rischi in caso di perdita delle chiavi.
 %Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
 %strutture che ha salvato e che negli elenchi pubblici non compaiono.
 %Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che
@@ -233,9 +235,10 @@ conservi dati che non è in grado di leggere nemmeno in caso esso venisse violat
 
 \subsection{Percorsi}\label{subsec:futuro-percorsi}
 
-Tutte le distanze mostrate dal modulo sono geodetiche (sono corrette in base alla curvatura terrestre), limitazione discussa al paragrafo \ref{subsec:impl-filtraggio}.
-L'introduzione di un servizio di \textit{routing} permetterebbe di ordinare i centri per il tempo di viaggio effettivo invece
-che per distanza in linea d'aria, grandezza a cui l'utente è realmente interessato.
+Tutte le distanze mostrate dal modulo sono geodetiche (sono corrette in base alla curvatura terrestre), limitazione
+discussa al paragrafo \ref{subsec:impl-filtraggio}.
+L'introduzione di un servizio di \textit{routing} permetterebbe di ordinare i centri per il tempo di viaggio effettivo
+invece che per distanza in linea d'aria, grandezza a cui l'utente è realmente interessato.
 %Per esempio, in un contesto montano, o in un'area urbana congestionata, il centro geograficamente più vicino non è necessariamente
 %quello alla distanza minore in linea d'aria o con la strada più corta (a causa di fattori come il traffico).
 %Il cambiamento trasformerebbe l'ordinamento dell'elenco dei centri più vicini. ed è anche

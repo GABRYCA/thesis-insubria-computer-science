@@ -4,14 +4,14 @@
 
 \subsection{Dermatite atopica e psoriasi: caratteristiche e differenze}\label{subsec:dermatite-psoriasi}
 
-Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
+%Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
 Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e
 un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono tuttavia, sono distinti, come
 lo sono anche i percorsi terapeutici.
 
 La dermatite atopica è caratterizzata da un difetto della barriera cutanea associato a una risposta immunitaria di tipo 2.
-Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}.
-La psoriasi ha un profilo immunologico differente, dominato dall'asse interleuchina-23 e dei linfociti T helper 17, si presenta
+Si scopre tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}.
+La psoriasi ha un profilo immunologico differente, dominato dall'asse interleuchina-23 e dei linfociti T-helper 17, si presenta
 con placche eritematose a desquamazione argentea e, in una quota rilevante di pazienti, si accompagna a manifestazioni articolari
 e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
 %Le differenze principali, riassunte nella tabella \ref{tab:patologie}, giustificano elenchi di strutture separati.
@@ -50,9 +50,8 @@ Nelle forme moderate e severe la gestione esce dall'ambito della medicina genera
 
 Il Piano Nazionale della Cronicità (\textit{PNC}) individua nella frammentazione informativa uno degli ostacoli alla presa
 in carico \cite{pianoCronicita}.
-%È una frammentazione che l'utente percepisce in modo molto concreto, sotto forma di elenchi da confrontare a mano.
-%Ridurre quel confronto a un'unica vista ordinata per distanza è l'obiettivo minimo che un'applicazione come questa deve
-%raggiungere per essere utile.
+Questo è un problema che l'utente percepisce in modo molto concreto, sotto forma di elenchi da confrontare a mano.
+Ridurre quel confronto a un'unica schermata ordinata è uno degli obiettivi di questa applicazione.
 
 \section{Strumenti esistenti per la ricerca di centri dermatologici}\label{sec:strumenti-esistenti}
 
@@ -122,7 +121,7 @@ Sono state valutate tre alternative.
   Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
   e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}.
   Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
-  \item Mapbox, che propone cartografia vettoriale personalizzabile e un modello di prezzo analogo, basato su un numero
+  \item Mapbox, che propone mappe vettoriali personalizzabili e un modello di prezzo analogo, basato su un numero
   di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
   La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.
   \item OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
@@ -130,7 +129,7 @@ Sono state valutate tre alternative.
   In Flutter il compito è affidato a \texttt{flutter\_map}, un package mantenuto dalla \textit{community} che effettua il rendering dei \textit{tile layer}
   (i tasselli quadrati che compongono la mappa) senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
   Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
-  può essere sostituita modificando un URL.
+  può essere sostituita modificando un URL (\textit{Uniform Resource Locator}).
 \end{enumerate}
 
 
@@ -159,11 +158,11 @@ a tutti gli effetti.
 Questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
 con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un layer nativo.
 
-Tuttavia, ci sono dei compromessi da accettare.
-I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta usi massivi, impone di
+Tuttavia, ci sono dei compromessi.
+I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta utilizzi massivi, impone di
 identificare l'applicazione richiedente e di rispettare le direttive di caching \cite{osmTilePolicy}.
-Sono vincoli che vanno rispettati e gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
-In secondo luogo, la grafica dei \textit{tile} raster non è agli stessi livelli qualitativi di quella vettoriale offerta dai concorrenti commerciali.
+%Sono vincoli che vanno rispettati e gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
+Inoltre, la grafica dei \textit{tile} raster non è agli stessi livelli qualitativi di quella vettoriale offerta dai concorrenti commerciali.
 
 Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}, ove la superficie terrestre è proiettata secondo Web Mercator
 (standard per le mappe digitali web) e suddivisa, a ogni livello di zoom, in una griglia di immagini quadrate indicizzate
@@ -207,10 +206,10 @@ Ogni incremento dello zoom raddoppia il numero di tile per lato e ogni tile è i
 \subsection{Geocodifica e ricerca per indirizzo}\label{subsec:geocodifica}
 
 Una mappa senza barra di ricerca è utile soltanto per chi sa già dove guardare.
-Serve quindi una geocodifica diretta, cioè la traduzione di un testo in coordinate, come una barra di ricerca per indirizzo.
-Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON\@.
+Serve quindi una geocodifica diretta, cioè la traduzione di un testo in coordinate. % come una barra di ricerca per indirizzo.
+Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON (\textit{JavaScript Object Notation})\@.
 
-Anche qui sono dei presenti dei vincoli, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
+Anche qui sono presenti dei vincoli, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
 divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (caching) per non ripetere più interrogazioni identiche \cite{nominatimPolicy}.
 %La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
 %nasce proprio da questo vincolo. %e non da una preferenza estetica.
@@ -225,9 +224,9 @@ Il requisito di una singola base di codice per Android e iOS restringe di molto 
 %quando si dispone già di competenze nell'ecosistema web.
 
 Flutter compila codice Dart in binario e disegna l'interfaccia con un proprio motore
-grafico, ottenendo completo controllo sul risultato visivo e un comportamento uniforme sulle due piattaforme \cite{flutterDocs, dartLang}.
+grafico, ottenendo completo controllo sul risultato visivo e un comportamento uniforme su entrambe le piattaforme \cite{flutterDocs, dartLang}.
 
-Per questo progetto inoltre, Flutter presentava due vantaggi principali:
+Per questo progetto inoltre, Flutter presentava due ulteriori vantaggi:
 \begin{enumerate}
   \item Il totale controllo sul rendering, indispensabile quando i marker sulla mappa devono cambiare forma e dimensione
   in funzione del livello di zoom.

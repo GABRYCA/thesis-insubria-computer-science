@@ -3,26 +3,26 @@
 Questo capitolo raccoglie le decisioni prese prima di scrivere il codice e le ragioni che le hanno motivate.
 L'ordine segue il percorso naturale del lavoro: prima la scelta della piattaforma e la forma complessiva del sistema,
 poi l'organizzazione dell'interfaccia, infine la rappresentazione dei dati e la loro conservazione sul dispositivo.
-Dove una decisione ha comportato una rinuncia, quest'ultima viene dichiarata esplicitamente.
+%Dove una decisione ha comportato una rinuncia, quest'ultima viene dichiarata esplicitamente.
 
 \section{Architettura del sistema}\label{sec:architettura-sistema}
 
-La premessa che vincola ogni altra scelta è l'assenza di un servizio proprio.
+%Premessa che vincola ogni altra scelta è l'assenza di un servizio proprio.
 Per questo lavoro non è stato realizzato alcun backend: l'applicazione interroga direttamente elenchi pubblicati da terzi,
 ne normalizza il contenuto e conserva il risultato sul dispositivo.
 Non esiste quindi un punto in cui i dati vengano ripuliti una volta per tutte a beneficio di tutti gli utenti, e la responsabilità
 di rendere omogenee sorgenti disomogenee ricade interamente sul client.
 
-La conseguenza è duplice.
-Da un lato l'App resta autonoma e non richiede infrastruttura da mantenere, il che risulta un vantaggio.
+%La conseguenza è duplice.
+Di conseguenza, da un lato l'App resta autonoma e non richiede infrastruttura da mantenere, il che è un vantaggio.
 Dall'altro l'applicazione è esposta a ogni variazione di formato deciso a monte, e deve continuare a funzionare quando una sorgente
 diventa irraggiungibile.
-Entrambe le cose hanno conseguenze dirette sulla progettazione, discusse rispettivamente al paragrafo \ref{subsec:modello-centri} e al
+Entrambe hanno conseguenze dirette sulla progettazione, discusse rispettivamente al paragrafo \ref{subsec:modello-centri} e al
 paragrafo \ref{subsec:strategia-cache}.
 
 L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura \ref{fig:architettura}.
-La separazione non è imposta da un framework: è una disciplina adottata deliberatamente, perché il modulo risiede in un singolo widget tree e,
-senza una convenzione esplicita, le responsabilità tenderebbero a mescolarsi.
+%La separazione non è imposta da un framework ma è una disciplina adottata deliberatamente, perché il modulo risiede in un singolo widget tree e,
+%senza una convenzione esplicita, le responsabilità tenderebbero a mescolarsi.
 
 \begin{figure}[H]
 \centering
@@ -68,57 +68,49 @@ senza una convenzione esplicita, le responsabilità tenderebbero a mescolarsi.
 \label{fig:architettura}
 \end{figure}
 
-Il livello di presentazione contiene la mappa con i suoi livelli sovrapposti, i controlli della mappa, la barra di ricerca e
+Il livello di presentazione contiene la mappa con i suoi livelli e i controlli, la barra di ricerca e
 le schede informative.
 Non prende decisioni: riceve gli elenchi da mostrare e inoltra i gesti dell'utente al livello sottostante.
 
-Il livello di logica applicativa è la parte che decide.
-Qui vengono stabiliti quali centri ricadono nell'area visibile, come vanno clusterizzati al variare dello zoom, quale struttura
-risulta la più vicina, se un permesso di posizione va richiesto oppure se occorre rimandare l'utente alle impostazioni di sistema,
-e se i dati immessi in un modulo sono accettabili.
+Il livello di logica applicativa stabilisce quali centri ricadono nell'area visibile, come vanno clusterizzati al
+variare dello zoom, quale struttura risulta la più vicina, se un permesso di posizione va richiesto oppure se occorre
+richiederlo all'utente, e se i dati immessi in un modulo sono accettabili.
 
 Il livello di accesso ai dati si occupa dell'acquisizione dalle sorgenti remote, della normalizzazione dei record e della loro conservazione.
-È l'unico livello che conosce la forma originaria dei dati, e questa è la ragione principale per cui è stato tenuto separato:
+È l'unico livello che conosce la forma originaria dei dati, e questa è la ragione principale per cui è stato tenuto separato,
 sopra di esso circolano soltanto record già resi omogenei.
 
-Anche il verso delle frecce della figura dice qualcosa.
+Anche il verso delle frecce della figura è importante.
 Gli scambi fra livelli sono bidirezionali perché alle richieste discendenti corrispondono aggiornamenti ascendenti, mentre i
-collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita: l'applicazione interroga o delega, ma nessun sistema
+collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita e l'applicazione gli interroga o delega, ma nessun sistema
 esterno la contatta di propria iniziativa.
 
 \subsection{Scelta tecnologica: il framework Flutter e Dart}\label{subsec:scelta-flutter}
 
-Il requisito di partenza era coprire Android e iOS con un solo sviluppo, avendo a disposizione il tempo di una tesi triennale
-e un solo sviluppatore.
-Lo sviluppo nativo separato, con Kotlin da un lato e Swift dall'altro, avrebbe raddoppiato il lavoro su ogni funzione della
+Il requisito di partenza era coprire Android e iOS con un solo sviluppo.
+La scrittura di codice nativo separato, con Kotlin da un lato e Swift dall'altro, avrebbe raddoppiato il lavoro su ogni funzione della
 mappa, dai cluster ai moduli di inserimento, senza portare vantaggi che in questo contesto fossero percepibili.
 
-Fra le soluzioni multipiattaforma la scelta è ricaduta su Flutter, con Dart come linguaggio.
-Il motivo determinante è il modello di disegno: Flutter non incapsula i componenti nativi del sistema operativo ma disegna
-la propria interfaccia, e questo rende prevedibile il risultato su entrambe le piattaforme.
-Per un modulo che sovrappone alla mappa diversi strati di comandi, bolle di clustering e schede a comparsa, la prevedibilità
-del disegno conta più dell'aderenza a ogni singola convenzione di sistema.
+Fra le soluzioni multipiattaforma la scelta è ricaduta su Flutter, con Dart come linguaggio di programmazione.
+Il motivo determinante è il modello di funzionamento, di fatto Flutter non incapsula i componenti nativi del sistema operativo
+ma disegna la propria interfaccia, e questo rende prevedibile il risultato su entrambe le piattaforme.
+Per un modulo che sovrappone alla mappa diversi livelli di comandi, bolle di clustering e schede a comparsa, la prevedibilità
+del disegno conta più di seguire ogni convenzione dei diversi sistemi operativi.
 
-La decisione tecnica più significativa riguarda però la libreria cartografica, e non il framework.
-La strada consueta sarebbe stata affidarsi al servizio cartografico di Google, che offre cluster e ricerca già pronti.
-Quella strada richiede tuttavia una chiave di accesso associata a un profilo di fatturazione attivo, con oneri che crescono con le richieste.
-Per un progetto di tesi, privo di budget e destinato a rimanere una dimostrazione, sarebbe stata una dipendenza sproporzionata
-e un ostacolo alla riproducibilità del lavoro da parte di chi lo esamina.
+Altra decisione tecnica riguarda la libreria cartografica per la mappa.
+Solitamente ci si sarebbe affidati al servizio delle mappe Google, che offre cluster e ricerca già pronti.
+Tuttavia, esso richiede una chiave di accesso associata a un profilo di fatturazione attivo, con costi che crescono con le richieste.
+Per questo progetto, sarebbe stata una dipendenza non necessaria ed evitabile.
 
 La cartografia si appoggia quindi a OpenStreetMap attraverso una libreria che si limita a effettuare il rendering dei tile e
 a gestire la viewport, senza chiavi né registrazioni.
-La contropartita è che tutto ciò che il servizio commerciale avrebbe fornito compreso nel prezzo va costruito: il clustering
-dei marker, la selezione di quelli effettivamente visibili e la ricerca per indirizzo.
+L'utilizzo di Google Maps avrebbe evitato di dover ricostruire numerosi servizi, come il clustering automatico e la ricerca.
 È per questo motivo che buona parte del capitolo seguente descrive algoritmi che, con una scelta iniziale diversa, non sarebbe
 stato necessario sviluppare.
 
-Il costo si è manifestato anche in una forma meno prevedibile.
-Esiste un'estensione della libreria cartografica dedicata proprio al clustering dei marker, che sulla carta avrebbe risolto il
-problema senza scrivere codice.
-In pratica quell'estensione richiede una versione della libreria di calcolo geografico incompatibile con quella imposta dalle
-altre dipendenze del progetto, e il conflitto non è risolvibile senza retrocedere l'intera catena di dipendenze.
-Il clustering è stato perciò realizzato a mano, con l'algoritmo descritto al capitolo seguente.
-È un esempio istruttivo di come, nell'ecosistema dei package, la disponibilità sulla carta di una funzione non coincida con la sua utilizzabilità.
+%Il costo si è manifestato anche in una forma meno prevedibile.
+Per \textit{flutter\_map}, esisterebbe anche un'estensione per il clustering, tuttavia questa è risultata incompatibile con la nostra versione
+e quindi è stata scartata in favore di un'alternativa sviluppata internamente che verrà descritta nel capitolo successivo.
 
 %Chiude con una limitazione.
 %Non essendo disponibile una macchina Apple, la verifica su iOS è rimasta parziale: il codice è scritto per entrambe le
@@ -131,15 +123,15 @@ Per la gestione dello stato non è stata adottata alcuna libreria dedicata.
 %La decisione è deliberata e va giustificata, perché va in direzione contraria alla pratica corrente.
 
 Il modulo mappa ha un solo consumatore dei propri dati e nessuna necessità di condividerli con parti distanti della UI (\textit{User Interface}).
-Introdurre un contenitore di stato esterno avrebbe aggiunto un livello di indirezione senza eliminare complessità: lo stato sarebbe
-stato spostato, non semplificato.
-Gli strumenti offerti dal framework, uno stato locale associato al widget e una notifica puntuale verso i soli elementi interessati,
-coprono il caso d'uso.
+%Introdurre un contenitore di stato esterno avrebbe aggiunto un livello di indirezione senza eliminare complessità: lo stato sarebbe
+%stato spostato, non semplificato.
+Gli strumenti offerti dal framework, uno stato locale associato al widget e una notifica verso i soli elementi interessati,
+coprono il caso d'uso e le esigenze a noi necessarie.
 
-Il punto che ha richiesto attenzione non è infatti dove risieda lo stato, ma quanto spesso venga ridisegnata la mappa.
-Un aggiornamento indiscriminato a ogni variazione avrebbe ricostruito l'intero albero, tile compresi, a ogni spostamento della viewport.
-Per questo l'elenco dei centri visibili è stato separato dal resto dello stato e affidato a un oggetto osservabile: quando cambia,
-si ridisegna il solo livello dei marker, mentre lo sfondo cartografico e i comandi restano intatti.
+Punto che ha richiesto attenzione è stato quanto spesso venga ridisegnata la mappa.
+Un aggiornamento senza vincoli a ogni variazione avrebbe ricostruito l'intero albero, tile compresi, a ogni spostamento della viewport.
+Per questo l'elenco dei centri visibili è stato separato dal resto dello stato e affidato a un oggetto osservabile, in questo modo
+quando cambia, si ridisegna il solo livello dei marker, mentre lo sfondo della mappa e i comandi restano intatti.
 
 La tabella \ref{tab:stato} riassume la distribuzione dello stato e il meccanismo con cui ogni parte propaga i propri cambiamenti.
 
@@ -181,7 +173,7 @@ Raggio del filtro & Distanza massima ammessa, oppure nessun limite & Ridisegno c
 L'interfaccia è stata pensata attorno a un semplice vincolo: su una mappa il contesto è il contenuto.
 Se per leggere i dettagli di una struttura l'utente perde di vista la mappa, perde anche la relazione fra quella struttura
 e le altre, il motivo per cui stava consultando una mappa invece di un elenco.
-Tutte le decisioni descritte in questa sezione derivano da questa considerazione.
+Le decisioni descritte in questa sezione derivano da questa considerazione.
 
 \subsection{Flusso di navigazione e mappa dell'App}\label{subsec:flusso-navigazione}
 
@@ -191,7 +183,7 @@ basata su due informazioni: la patologia di
 interesse e, se già disponibile, la posizione dell'utente.
 %Ricevere la posizione dall'esterno evita di richiedere un permesso che potrebbe già essere stato concesso, e consente di
 %aprire la mappa direttamente sulla zona utile invece che su una viewport predefinita.
-Questa, se disponibile, permette di impostare la visuale sulla posizione attuale piuttosto che su una predefinita.
+Questa permette di impostare la visuale sulla posizione attuale piuttosto che su una predefinita.
 
 Da quel punto in avanti la navigazione si ferma.
 Nessuna delle funzioni del modulo apre una nuova schermata: consultazione dei dettagli, scelta del percorso, elenco dei
@@ -236,18 +228,18 @@ La figura \ref{fig:navigazione} riporta il quadro complessivo.
 
 \subsection{Progettazione del modulo mappa e filtri}\label{subsec:design-mappa-centri}
 
-La schermata è costruita per sovrapposizione: la mappa occupa tutto lo spazio disponibile e ogni comando le sta sopra,
-senza sottrarle superficie.
-La scelta può sembrare ovvia, ma l'alternativa, cioè riservare ai comandi una fascia propria in alto o in basso, avrebbe
-ridotto la porzione di territorio visibile proprio sui dispositivi dove è già più scarsa.
+La schermata è costruita per sovrapposizione.
+La mappa occupa tutto lo spazio disponibile e ogni comando le sta sopra, senza sottrarle superficie.
+Questo approccio è migliore piuttosto che riservare ai comandi una fascia propria in alto o in basso, in quanto avrebbe
+ridotto la porzione di territorio visibile proprio sui dispositivi dove questa è già più carente.
 %Poiché la mappa è il contenuto, si è preferito che i comandi le sottraessero soltanto qualche decina di punti in trasparenza.
 
-La sovrapposizione introduce però un problema che sui banchi di prova non si vede e che compare al primo uso reale: quando
-l'utente tocca la barra di ricerca, la tastiera di sistema sale dal basso e il sistema di suggerimenti apre un elenco sotto la barra.
+La sovrapposizione introduce però un problema che compare al primo utilizzo: quando
+l'utente tocca la barra di ricerca, la tastiera di sistema sale dal basso e il meccanismo di suggerimenti apre un elenco sotto la barra.
 In quel momento i comandi flottanti si trovano schiacciati fra i due, e alcuni finiscono coperti a metà.
-La soluzione adottata non è spostare i comandi, che avrebbe prodotto un salto visivo a ogni tocco della barra, ma nasconderli per
-la durata della ricerca: mentre l'utente sta scrivendo un indirizzo, la sua attenzione è sulla barra e sull'elenco dei risultati,
-non sui comandi della mappa, che tornano appena la ricerca si conclude.
+Vengono quindi nascosti i comandi durante la ricerca, in questo modo mentre l'utente sta scrivendo un indirizzo,
+la sua attenzione è sulla barra e sull'elenco dei risultati e non sui comandi della mappa, che tornano appena la
+ricerca si conclude.
 
 %La condizione che governa questa scelta tiene conto di tre fatti distinti, e non di uno solo: la presenza della tastiera, la presenza
 %di suggerimenti aperti e il fatto che la barra abbia il fuoco.
@@ -256,14 +248,15 @@ non sui comandi della mappa, che tornano appena la ricerca si conclude.
 %l'utente ha chiuso la tastiera senza confermare.
 %Verificare un solo indizio avrebbe lasciato scoperto uno dei casi.
 
-Alla stessa famiglia di problemi appartiene una seconda decisione: la schermata non si ridimensiona all'apertura della tastiera.
-Il comportamento predefinito comprimerebbe la mappa nello spazio residuo, cambiando la viewport e costringendo a un nuovo calcolo
-dei centri visibili proprio mentre l'utente sta digitando.
-Disattivando il ridimensionamento la tastiera si limita a coprire la parte bassa della mappa, che resta invariata e ricompare
+Inoltre, la schermata non si ridimensiona all'apertura della tastiera.
+Il comportamento predefinito comprimerebbe la mappa nello spazio residuo, modificando la viewport e costringendo un ricalcolo
+dei centri visibili mentre l'utente sta digitando.
+Disattivando il ridimensionamento la tastiera si limita a coprire la parte inferiore della mappa, che resta invariata e ricompare
 identica alla chiusura.
 
 La tabella \ref{tab:strati} elenca gli strati sovrapposti nell'ordine in cui vengono disegnati, dal basso verso l'alto.
-Non tutti sono sempre presenti: alcuni compaiono solo quando la condizione indicata nella terza colonna è soddisfatta, ed è
+Non tutti sono sempre presenti.
+Alcuni compaiono solo quando la condizione indicata nella terza colonna è soddisfatta, ed è
 questa presenza condizionata che permette di mantenere leggibile una schermata che, nel caso peggiore, ospita otto elementi
 sovrapposti.
 
@@ -273,27 +266,26 @@ sovrapposti.
 \toprule
 \textbf{Strato} & \textbf{Contenuto} & \textbf{Presenza} \tabularnewline
 \midrule
-Tile cartografici & Immagini del territorio scaricate dal servizio di mappe & Sempre \tabularnewline
+Tile cartografici & Immagini del territorio scaricate dal servizio per le mappe & Sempre \tabularnewline
 Cerchio del raggio & Area circolare centrata sull'utente, con bordo e riempimento tenue & Solo con filtro raggio attivo \tabularnewline
 Centri pubblici & marker dei centri visibili, singoli oppure clusterizzati in bolle numerate & Sempre \tabularnewline
 Centri personalizzati & marker delle strutture inserite dall'utente & Solo se ne esiste almeno una \tabularnewline
 Posizione dell'utente & Indicatore circolare della posizione rilevata & Solo con posizione nota \tabularnewline
-Barra di ricerca & Campo di ricerca per indirizzo, pulsante di ritorno ed elenco dei suggerimenti & Sempre \tabularnewline
-Colonna dei comandi & Zoom, aggiornamento, bussola, centri vicini, centro più vicino, posizione, centri personali & Nascosta durante la ricerca \tabularnewline
-Indicatore di caricamento & Avviso testuale con indicatore di attività & Solo durante il recupero dati \tabularnewline
+Barra di ricerca & Campo di ricerca per indirizzo, pulsante indietro ed elenco dei suggerimenti & Sempre \tabularnewline
+Colonna dei comandi & Zoom, aggiornamento, bussola, centri vicini, più vicino, personali e posizione & Nascosta durante la ricerca \tabularnewline
+Indicatore di caricamento & Avviso testuale con indicatore & Solo durante il recupero dati \tabularnewline
 \bottomrule
 \end{tabularx}
 \caption{Strati sovrapposti della schermata mappa, dal basso verso l'alto.}
 \label{tab:strati}
 \end{table}
 
-Il filtraggio per patologia coinvolge due insiemi distinti, gestiti con due meccanismi diversi che l'utente non deve avere
-motivo di distinguere.
-I centri pubblici vengono richiesti al servizio remoto già selezionati per patologia, e conservati separatamente per
-ciascuna: quando l'utente cambia patologia non viene applicato alcun filtro, viene semplicemente sostituito l'insieme di partenza.
+Il filtro per patologia coinvolge due insiemi distinti, gestiti con due meccanismi diversi.
+I centri pubblici vengono richiesti al servizio remoto già selezionati per patologia, e conservati separatamente.
+Quando l'utente cambia patologia non viene applicato alcun filtro, viene semplicemente sostituito l'insieme di partenza.
 I centri personalizzati, al contrario, risiedono in un unico archivio locale e portano con sè l'elenco delle patologie a
 cui si riferiscono, perché una struttura inserita a mano può legittimamente trattarne entrambe; per questi il filtro è valutato
-al momento in cui viene disegnato a schermo.
+al momento in cui viene mostrato a schermo.
 
 %L'asimmetria è voluta.
 %Duplicare i centri personalizzati in due archivi separati per allinearli al comportamento dei centri pubblici avrebbe
@@ -311,18 +303,18 @@ al momento in cui viene disegnato a schermo.
 
 \section{Modello e persistenza dei dati}\label{sec:modello-dati}
 
-Resta da descrivere la parte meno visibile del lavoro, e probabilmente la più delicata: come vengono rappresentati i
-centri all'interno dell'applicazione, e dove finiscono quando l'applicazione viene chiusa.
-Il problema nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti} non sono state pensate
-per essere consumate insieme, e nessuna delle due è stata pensata per questa applicazione.
+In questa sezione parliamo di come vengono rappresentati i centri all'interno dell'applicazione, e dove finiscono quando l'applicazione
+viene chiusa.
+Dove viene inoltre discusso un problema che nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti}
+non sono state pensate per essere consumate insieme, e nessuna delle due è stata pensata per questa applicazione.
 
 \subsection{Rappresentazione e normalizzazione}\label{subsec:modello-centri}
 
 Le sorgenti differiscono su tre piani, nello specifico differiscono nella forma della risposta, perché una restituisce
 un oggetto con i record annidati sotto una chiave mentre l'altra restituisce direttamente un elenco.
-Differiscono nei nomi dei campi, per cui la stessa informazione si chiama in un caso in un modo e nell'altro in un altro.
-Differiscono, infine, nel grado di strutturazione: una espone i contatti in campi dedicati, l'altra li annega in un frammento
-di HTML destinato a essere mostrato in una finestra informativa, dal quale vanno estratti.
+Differiscono nei nomi dei campi, per cui la stessa informazione ha nomi diversi nei due casi.
+Differiscono anche strutturalmente, dove una espone i contatti in campi dedicati, l'altra li inserisce in un frammento
+di HTML destinato a essere mostrato in una finestra dedicata, dal quale vanno estratti.
 
 La tabella \ref{tab:mappatura-campi} riporta la corrispondenza fra i campi delle due sorgenti e le informazioni effettivamente
 impiegate.
@@ -337,10 +329,10 @@ Denominazione & \texttt{center\_name} & \texttt{title} & Primo valore non nullo 
 Indirizzo & \texttt{address} & \texttt{address} & Composto con città e provincia in un'unica stringa \tabularnewline
 Città & \texttt{city} & assente & Concatenata all'indirizzo quando presente \tabularnewline
 Provincia & \texttt{district} & assente & Aggiunta fra parentesi quando presente \tabularnewline
-Latitudine & \texttt{lat} & \texttt{lat} & Conversione tollerante; record scartato se non valida \tabularnewline
+Latitudine & \texttt{lat} & \texttt{lat} & Conversione e parsing, con record scartato se invalido \tabularnewline
 Longitudine & \texttt{lon} & \texttt{lng} & Alias distinti, poi conversione tollerante \tabularnewline
-Telefono & \texttt{phone} & dentro \texttt{description} & Estratto dal testo con espressione regolare \tabularnewline
-Posta elettronica & \texttt{email} & dentro \texttt{description} & Estratto dal testo con espressione regolare \tabularnewline
+Telefono & \texttt{phone} & in \texttt{description} & Estratto dal testo tramite \textit{regex} (espressione regolare) \tabularnewline
+Posta elettronica & \texttt{email} & in \texttt{description} & Estratto dal testo tramite \textit{regex} \tabularnewline
 Patologia & implicita nella sorgente & campo \texttt{category} & Selezionata a monte, non conservata nel record \tabularnewline
 \bottomrule
 \end{tabularx}
@@ -348,18 +340,17 @@ Patologia & implicita nella sorgente & campo \texttt{category} & Selezionata a m
 \label{tab:mappatura-campi}
 \end{table}
 
-Davanti a una situazione come questa la soluzione da manuale sarebbe una classe di dominio, con un costruttore per
+Davanti a una situazione come questa la soluzione tipicamente intrapresa sarebbe una classe di dominio, con un costruttore per
 ciascuna sorgente che riceve la mappa grezza e restituisce un oggetto tipizzato.
-La strada seguita è diversa: i record remoti restano mappe non tipizzate,
+Tuttavia, la strada seguita è diversa: i record remoti restano mappe non tipizzate,
 e la normalizzazione avviene al momento dell'accesso, attraverso catene di alias che interrogano in sequenza i nomi possibili
 di ciascun campo.
 
-La ragione della scelta è la tolleranza.
+Questo rende più tollerante il sistema.
 Una classe di dominio con campi obbligatori impone di decidere in anticipo quali informazioni devono esserci, e fallisce
-quando la sorgente cambia forma; l'accesso per alias, al contrario, ignora ciò che non riconosce e continua a lavorare su ciò
-che riconosce.
+quando la sorgente cambia forma; l'accesso per alias, al contrario, ignora ciò che non riconosce e continua a lavorare sul resto.
 Non avendo il progetto alcun controllo sulle sorgenti, e nessun preavviso sulle loro modifiche, la resistenza al cambiamento
-è stata preferita alla garanzia sul tipo.
+è preferibile alla garanzia sul tipo.
 
 %Il costo, però, esiste, e conviene metterlo per iscritto.
 %La catena di alias non è concentrata in un punto ma ricompare in ogni luogo in cui un record viene letto: nella selezione
@@ -372,7 +363,7 @@ Non avendo il progetto alcun controllo sulle sorgenti, e nessun preavviso sulle 
 %Se dovessi riprendere il modulo, sarebbe questo il primo intervento.
 
 %Sui dati creati dall'utente il ragionamento si capovolge, perché qui lo schema è sotto il controllo del progetto.
-I centri personalizzati hanno una classe propria, con campi tipizzati, serializzazione simmetrica verso e da JSON e un
+Diversamente, i centri personalizzati hanno una classe propria, con campi tipizzati, serializzazione simmetrica verso e da JSON e un
 metodo di copia con modifica che conserva l'identificatore.
 %La differenza di trattamento fra i due casi non è una incoerenza: dove lo schema è imposto da altri conviene essere permissivi,
 %dove lo schema è nostro conviene essere rigorosi, perché è l'unico modo di accorgersi di un errore prima che finisca nell'archivio.
@@ -389,7 +380,7 @@ Indirizzo & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
 Città & testo opzionale & Le stringhe vuote o di soli spazi diventano assenza di valore \tabularnewline
 Telefono & testo opzionale & Come sopra; almeno un contatto fra telefono e posta è richiesto \tabularnewline
 Posta elettronica & testo opzionale & Come sopra \tabularnewline
-Coordinate & numerico & Impostati a zero in lettura, condizione non producibile dal modulo \tabularnewline
+Coordinate & numerico & Impostati a zero in lettura \tabularnewline
 Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le patologie \tabularnewline
 \bottomrule
 \end{tabularx}
@@ -404,11 +395,11 @@ Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le
 %    \item Uno spazio vuoto è più intuitivo.
 %\end{enumerate}
 
-La seconda è l'assegnazione di entrambe le patologie quando il campo manca.
-Il caso si presenta soltanto leggendo un archivio scritto da una versione precedente, che quel campo non prevedeva.
-Fra le due possibilità, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, è stata scelta la
-seconda: un centro inserito dall'utente e poi diventato invisibile sarebbe percepito come una perdita di dati, mentre un
-centro che compare una volta di troppo è al più una imprecisione visibile, e correggibile in due tocchi.
+%La seconda è l'assegnazione di entrambe le patologie quando il campo manca.
+%Il caso in cui vengono assegnate entrambe le patologie si presenta soltanto leggendo un archivio scritto da una versione precedente, che quel campo non prevedeva.
+%Fra le due possibilità, nascondere quei centri fino a una modifica manuale oppure mostrarli in ogni contesto, è stata scelta la
+%seconda: un centro inserito dall'utente e poi diventato invisibile sarebbe percepito come una perdita di dati, mentre un
+%centro che compare una volta di troppo è al più una imprecisione visibile, e correggibile in due tocchi.
 
 %C'è infine un punto in cui i due modelli non si incontrano.
 %Per i centri remoti la patologia non è un attributo del record ma una proprietà dell'insieme da cui il record proviene,
@@ -420,24 +411,27 @@ centro che compare una volta di troppo è al più una imprecisione visibile, e c
 \subsection{Strategia di caching e funzionamento offline}\label{subsec:strategia-cache}
 
 Il requisito RNF-07 chiede che l'applicazione resti utilizzabile in assenza di connessione.
-Non è una richiesta di comodo: la ricerca di un centro avviene tipicamente in viaggio, cioè nella condizione in cui
-la copertura di rete è meno affidabile, e uno strumento che in quel momento mostra una schermata vuota non è utile.
+Questo perchè la ricerca di un centro potrebbe avvenire in viaggio, cioè nella condizione in cui
+la copertura di rete è inaffidabile, e uno strumento che in quel momento mostrasse una schermata vuota sarebbe poco utile.
 
-La conservazione dei dati è organizzata su tre depositi distinti, che rispondono a esigenze diverse e hanno tempi di vita diversi.
-Il primo è una mappa in memoria, indicizzata per nome della patologia, che evita di ripetere una richiesta già soddisfatta nel
-corso della stessa sessione.
-Il secondo è un archivio persistente sul dispositivo, in cui l'ultimo elenco ricevuto viene serializzato in JSON con una chiave
-derivata dal nome della patologia, e che sopravvive alla chiusura dell'applicazione.
-Il terzo è l'archivio dei centri personalizzati, che non è una cache ma la sorgente primaria di quei dati, e che quindi non
-viene mai invalidato.
+La conservazione dei dati è organizzata su tre archivi distinti, che rispondono a esigenze diverse e hanno tempi di vita diversi.
 
-La distinzione fra il secondo e il terzo deposito è importante e non è soltanto terminologica.
-Una cache può essere cancellata senza perdita di informazione, perché il dato originale sta altrove; un archivio primario, no.
+\begin{enumerate}
+    \item Una mappa in memoria, indicizzata per nome della patologia, che evita di ripetere una richiesta già soddisfatta nel
+    corso della stessa sessione.
+    \item Un archivio persistente sul dispositivo, in cui l'ultimo elenco ricevuto viene serializzato in JSON con una chiave
+    derivata dal nome della patologia, e che sopravvive alla chiusura dell'applicazione.
+    \item L'archivio dei centri personalizzati, che non è una cache ma la sorgente primaria di quei dati, e che quindi non
+    viene mai invalidato.
+\end{enumerate}
+
+Vale notare che una cache può essere cancellata senza perdita di informazione, perché il dato originale sta altrove
+mentre per un archivio primario, no.
 Per questo i due usano chiavi separate e non vengono mai scritti dalla stessa procedura, così che un aggiornamento dell'elenco
 remoto non possa in nessun caso sovrascrivere ciò che l'utente ha inserito a mano.
 
-Sull'archivio persistente è stata adottata una politica che privilegia la reattività: all'avvio l'elenco salvato viene letto e
-mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
+Sull'archivio persistente è stata adottata una politica che privilegia la reattività, il quale all'avvio l'elenco salvato
+viene letto e mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
 si limita a sostituire i dati con la versione aggiornata.
 È la stessa idea del requisito RNF-05, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.
 
