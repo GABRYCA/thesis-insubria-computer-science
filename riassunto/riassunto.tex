@@ -1,0 +1,156 @@
+﻿% --------------------------
+% ---- DECLARE PACKAGES ----
+% --------------------------
+\documentclass[a4paper, oneside, openright]{book}
+\usepackage[T1]{fontenc} % Font encoding, T1 = it
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc} % Input encoding
+\usepackage[english,italian]{babel} % Lingua principale italiana, con parti in inglese
+\usepackage{graphicx} % Immagini esterne
+
+\usepackage{setspace}
+\onehalfspacing % interlinea 1.5
+
+\usepackage[parfill]{parskip} % Disabilita l'indentazione dopo essere andati a capo
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Colonne di tabella a bandiera
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{B}[1]{>{\raggedright\arraybackslash\bfseries}p{#1}}
+
+% Percorso immagini
+\graphicspath{{../Immagini/}{../Immagini/Sessioni/}{../Immagini/Screenshot/}}
+
+% Diagrammi TikZ
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, shapes.multipart, arrows, arrows.meta,
+                positioning, fit, backgrounds, calc, chains, automata,
+                decorations.pathreplacing}
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+% Stili per i diagrammi
+\tikzset{
+  layer/.style   = {rectangle, rounded corners=3pt, draw=black!70, thick,
+                    align=center, inner sep=6pt, minimum height=1cm},
+  comp/.style    = {rectangle, rounded corners=2pt, draw=black!60,
+                    fill=white, align=center, font=\footnotesize,
+                    inner sep=4pt, minimum height=0.8cm},
+  extern/.style  = {rectangle, dashed, draw=black!60, align=center,
+                    font=\footnotesize, inner sep=4pt},
+  ucase/.style   = {ellipse, draw=black!70, align=center,
+                    font=\footnotesize, inner sep=2pt, minimum width=2.6cm},
+  flow/.style    = {-{Latex[length=2mm]}, thick},
+  flowdash/.style= {-{Latex[length=2mm]}, thick, dashed},
+  % Stili per i diagrammi
+  tile/.style    = {rectangle, draw=black!55, fill=black!2, thin},
+  cellgrid/.style= {draw=black!35, thin, dash pattern=on 1.2pt off 1.2pt},
+  pin/.style     = {circle, fill=black!75, draw=none, inner sep=0pt,
+                    minimum size=3pt},
+  bubble/.style  = {circle, draw=black!65, fill=black!12, thick,
+                    inner sep=0pt, font=\scriptsize},
+  tick/.style    = {black!70, thin},
+  band/.style    = {rectangle, draw=black!55, fill=black!6, rounded corners=1pt}
+}
+
+% Captions
+\usepackage[font=scriptsize, skip=5pt, justification=centering]{caption}
+
+\usepackage[bottom]{footmisc}
+\usepackage{hyperref}
+\usepackage{subcaption}
+
+% Sperimentali
+\usepackage[immediate]{silence} % Necessario per \WarningFilter
+\WarningFilter{microtype}{Unable to apply patch `footnote'}
+\usepackage{microtype}
+
+\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
+
+% ------------------------
+% ---- DOCUMENT SETUP ----
+% ------------------------
+\pagestyle{plain}
+\raggedbottom
+
+% Titolo del capitolo unico, senza prefisso e senza numerazione
+\titleformat{\chapter}[display]
+{\normalfont\fontsize{20pt}{26pt}\selectfont\bfseries}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\renewcommand{\footnotesize}{\fontsize{11pt}{13pt}\selectfont} % Imposta la dimensione del testo delle footnotes
+\setlength{\footnotesep}{0.5cm} % Imposta lo spazio fra le singole footnotes
+\setlength{\skip\footins}{1.5cm} % Imposta lo spazio fra il corpo e le footnotes
+
+\DeclareUnicodeCharacter{02BC}{}
+
+% ------------------------
+% ---- DOCUMENT START ----
+% ------------------------
+\begin{document}
+
+\chapter*{Riassunto tesi Gabriele Caretti 756564}
+\label{ch:riassunto}
+
+La dermatite atopica e la psoriasi sono patologie infiammatorie croniche che non guariscono.
+Chi ne è affetto ha bisogno di un percorso di cure, con controlli periodici e trattamenti che solo strutture autorizzate
+possono prescrivere.
+Per un utente affetto o un suo familiare sorge una domanda, cioè dove si trovi il centro più vicino che segue la propria
+patologia.
+Esiste una risposta ma frammentata, sotto forma di elenchi e mappe web organizzati per regione o provincia,
+che richiedono una connessione attiva.
+Il lavoro ha realizzato un'applicazione mobile cross-platform, in Flutter, che rende interrogabili per posizione dati
+già pubblici, raccoglie da due portali italiani i centri dermatologici dedicati alle due patologie, li normalizza e li
+mostra su una mappa interattiva con clustering dinamico dei marker, filtri per patologia e per raggio di distanza, ricerca
+per indirizzo e centri personalizzati inseriti dall'utente, delegando le azioni successive come il calcolo del percorso
+ai programmi installati.
+L'applicazione non formula diagnosi, non prevede autenticazione né backend dedicato e non trasmette all'esterno nessuna
+informazione dell'utente.
+
+%Le scelte più condizionanti riguardano i dati e la cartografia.
+Non essendoci un servizio proprio per i dati, la responsabilità di rendere omogenee due fonti eterogenee è a carico del client.
+Il modulo è organizzato in tre livelli, dei quali solamente il livello di accesso conosce la forma originaria dei record, e la
+normalizzazione avviene per catene di alias, più tolleranti ai cambiamenti di formato di una classe di dominio tipizzata.
+Come provider cartografico per le mappe si è scelto OpenStreetMap con \texttt{flutter\_map} anziché Google Maps o Mapbox, che avrebbero
+richiesto una chiave associata a un profilo di fatturazione, e i marker sono veri widget Flutter.
+I dati vengono conservati su tre archivi distinti, di cui uno riservato ai centri inseriti a mano, %che nessun aggiornamento può sovrascrivere,
+così che l'applicazione resti utilizzabile anche senza connessione.
+
+A causa dell'utilizzo di OpenStreetMap rispetto a un provider commerciale, l'algoritmo di clustering è stato
+sviluppato internamente.
+Lo spazio delle coordinate è suddiviso in celle quadrate il cui lato dimezza a ogni incremento
+dello zoom, come nello schema \emph{slippy map}, così che la loro dimensione sullo schermo resti costante e i centri
+concentrati nelle aree urbane restino leggibili.
+%La verifica si è limitata a ciò che è ripetibile senza dispositivo e senza rete.
+Sono stati creati dodici unit test sulla serializzazione, sulla persistenza locale dei dati e sul calcolo geodetico,
+completati da verifiche manuali su Android.
+%I limiti principali sono due: la cache degli elenchi non ha una scadenza e l'applicazione dipende da elenchi pubblici di
+%terzi, sui quali non si ha controllo.
+Viene inoltre proposta una direzione di sviluppo futura, ossia l'introduzione di un livello intermedio di normalizzazione
+fra le sorgenti e l'applicazione, che renderebbe superflue le catene di alias, permetterebbe di riconoscere i cambiamenti
+di formato sul dispositivo e ridurrebbe le richieste ai servizi pubblici.
+
+% ----------------------
+% ---- DOCUMENT END ----
+% ----------------------
+\end{document}
