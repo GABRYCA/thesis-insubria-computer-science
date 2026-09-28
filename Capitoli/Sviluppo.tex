@@ -315,7 +315,7 @@ si contragga con lo zoom.%, come l'utente si aspetterebbe da una grandezza geogr
 
 Il livello dei marker dei centri pubblici è l'unico che si appoggia a un costruttore che si lega all'oggetto osservabile
 discusso al paragrafo \ref{subsec:gestione-stato}.
-A livello pratico l'unica effetto è che l'aggiornamento dell'elenco dei centri visibili ridisegna quel solo livello,
+A livello pratico l'unico effetto è che l'aggiornamento dell'elenco dei centri visibili ridisegna quel solo livello,
 di fatto i tile non vengono nuovamente richiesti, i comandi non vengono ricostruiti, e il costo del ridisegno resta
 proporzionale al numero di marker e non alla complessità dell'intera schermata.
 
@@ -407,7 +407,7 @@ La funzionalità di clustering è stata riscritta in modo nativo, come discusso 
 compatibilità tra le versioni.
 Questo serve quando i centri dermatologici si concentrano, per esempio, nelle aree urbane, come nella zona di Milano o
 di Roma dove decine di marker finiscono a pochi punti di distanza l'uno dall'altro, sovrapponendosi fino a rendere impossibile
-sia contarli e sia selezionarli.
+sia contarli sia selezionarli.
 
 L'approccio adottato è il \textit{grid-based clustering} (clustering a griglia).
 Lo spazio delle coordinate viene suddiviso in celle quadrate, ogni centro visibile viene assegnato alla cella che lo
