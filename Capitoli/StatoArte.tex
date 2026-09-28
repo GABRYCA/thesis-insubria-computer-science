@@ -55,9 +55,9 @@ Ridurre quel confronto a un'unica schermata ordinata è uno degli obiettivi di q
 
 \section{Strumenti esistenti per la ricerca di centri dermatologici}\label{sec:strumenti-esistenti}
 
-\subsection{I portali dermatopia e vicini di pelle}\label{subsec:portali-esistenti}
+\subsection{I portali Dermatopia e Vicini di Pelle}\label{subsec:portali-esistenti}
 
-Nel contesto italiano, due piattaforme di denotano per completezza.
+Nel contesto italiano, due piattaforme si denotano per completezza.
 La prima, Dermatopia, offre un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
 La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento,
 costruita tramite un plugin cartografico WordPress \cite{viciniDiPelle}.
@@ -112,15 +112,15 @@ capitolo \ref{ch:analisi-dei-requisiti}.
 
 \section{Provider delle mappe mobile}\label{sec:piattaforme-cartografiche}
 
-La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice.%, quindi va affrontata prima
+La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice. %, quindi va affrontata prima
 %di scrivere l'applicazione.
 Sono state valutate tre alternative.
 
 \begin{enumerate}
   \item Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
-  Offre la qualità cartografica più alta e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
-  e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento di mappa viene tariffato \cite{googleMapsPricing}.
-  Per un'applicazione senza modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
+  Offre la migliore qualità cartografica e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
+  e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento della mappa viene tariffato \cite{googleMapsPricing}.
+  Per un'applicazione senza un modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
   \item Mapbox, che propone mappe vettoriali personalizzabili e un modello di prezzo analogo, basato su un numero
   di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
   La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.

@@ -10,7 +10,7 @@ Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno 
 \section{Ambiente di sviluppo e librerie utilizzate}\label{sec:ambiente-sviluppo}
 
 Lo sviluppo si è svolto su Windows 11 con Android Studio, impiegando Flutter e il linguaggio Dart \cite{flutterDocs, dartLang}.
-La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16.%, con la limitazione su iOS discussa al paragrafo \ref{sec:test-compatibilita}.
+La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16. %, con la limitazione su iOS discussa al paragrafo \ref{sec:test-compatibilita}.
 L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implementazione dei componenti impiegati nei pannelli e nei moduli.
 
 Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità.
@@ -91,7 +91,7 @@ un campo di categoria che può contenerne più di uno, separati da virgola.
 
 Due particolarità di questa seconda fonte hanno richiesto delle correzioni.
 La prima è che il servizio nega la risposta alle richieste che non dichiarano un'intestazione di identificazione compatibile con
-quella di un normale browser.% la richiesta la dichiara quindi esplicitamente.
+quella di un normale browser. % la richiesta la dichiara quindi esplicitamente.
 La seconda è che il corpo (\textit{body}) della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il decodificatore non rimuove e che,
 rimanendo come primo carattere della stringa, rende l'intero documento non interpretabile.
 La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
@@ -215,7 +215,7 @@ Il recupero avviene in due passaggi: rimozione dei \textit{marker} dal testo e r
 
 Il terzo punto riguarda le coordinate.
 Alcuni record riportano valori con più di un solo separatore decimale, come conseguenza di un errore di trascrizione della fonte.
-La normale conversione su un valore di questa tipo fallisce restituendone uno nullo, e il record verrebbe scartato pur
+La normale conversione su un valore di questo tipo fallisce restituendone uno nullo, e il record verrebbe scartato pur
 contenendo un'informazione che sarebbe in realtà recuperabile.
 In tal caso, le cifre ci sono tutte, ma è il formato a essere errato.
 La conversione, riportata in \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
@@ -720,7 +720,7 @@ per mezzo secondo, quindi il numero di richieste dipende dalle pause e non dai c
 
 \subsection{Distanze geodetiche e filtro per raggio}\label{subsec:impl-filtraggio}
 
-Il requisito RF-19 chiede che il calcolo delle distanze tenga conto della curvatura terrestre.%, e la richiesta non è un eccesso di rigore.
+Il requisito RF-19 chiede che il calcolo delle distanze tenga conto della curvatura terrestre. %, e la richiesta non è un eccesso di rigore.
 Trattare latitudine e longitudine come coordinate cartesiane, cioè applicare il teorema di Pitagora ai gradi, produce un errore che
 dipende dalla latitudine e che alle latitudini italiane è dell'ordine del trenta per cento sulle distanze in direzione est-ovest,
 perché un grado di longitudine misura circa settantotto chilometri a Milano e centoundici all'equatore.
@@ -904,7 +904,7 @@ String? _validateItalianPhone(String? value) {
 %Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
 %rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
 
-La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, ec evidenzia
+La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, ed evidenzia
 il punto in cui il valore vuoto prende un percorso diverso. %che non applica alcun rifiuto di campo.
 
 \begin{figure}[H]
@@ -964,7 +964,7 @@ Se il controllo di campo rifiutasse il valore vuoto, un centro con il solo indir
 %di rifiutare un recapito valido, e il costo di quel rifiuto, cioè un dato corretto che l'utente non riesce a inserire, è superiore
 %al costo di accettare una cifra in più.
 
-Ogni centro riceve alla creazione un identificatore ricavato dall'istante di creazione.%, e quell'identificatore non cambia più.
+Ogni centro riceve alla creazione un identificatore ricavato dall'istante di creazione. %, e quell'identificatore non cambia più.
 La modifica di un centro esistente non ne genera uno nuovo ma riscrive la voce con lo stesso identificatore, che è la
 chiave con cui l'aggiornamento distingue la sostituzione dall'inserimento.
 %I centri salvati a partire da una voce dell'elenco pubblico portano un identificatore con un prefisso distinto, il che
