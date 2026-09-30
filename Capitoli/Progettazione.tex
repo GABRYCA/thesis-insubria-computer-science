@@ -15,9 +15,9 @@ di rendere omogenee sorgenti disomogenee ricade interamente sul client.
 
 %La conseguenza è duplice.
 Di conseguenza, da un lato l'App resta autonoma e non richiede infrastruttura da mantenere, il che è un vantaggio.
-Dall'altro l'applicazione è esposta a ogni variazione di formato deciso a monte, e deve continuare a funzionare quando una sorgente
+Dall'altro l'applicazione è esposta a ogni variazione del formato deciso a monte, e deve continuare a funzionare quando una sorgente
 diventa irraggiungibile.
-Entrambe hanno conseguenze dirette sulla progettazione, discusse rispettivamente al paragrafo \ref{subsec:modello-centri} e al
+Entrambi gli aspetti hanno conseguenze dirette sulla progettazione, discusse rispettivamente al paragrafo \ref{subsec:modello-centri} e al
 paragrafo \ref{subsec:strategia-cache}.
 
 L'organizzazione interna segue tre livelli sovrapposti, illustrati nella figura \ref{fig:architettura}.
@@ -82,7 +82,7 @@ sopra di esso circolano soltanto record già resi omogenei.
 
 Anche il verso delle frecce della figura è importante.
 Gli scambi fra livelli sono bidirezionali perché alle richieste discendenti corrispondono aggiornamenti ascendenti, mentre i
-collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita e l'applicazione gli interroga o delega, ma nessun sistema
+collegamenti tratteggiati verso i sistemi esterni sono tutti in uscita e l'applicazione li interroga o delega, ma nessun sistema
 esterno la contatta di propria iniziativa.
 
 \subsection{Scelta tecnologica: il framework Flutter e Dart}\label{subsec:scelta-flutter}
@@ -92,7 +92,7 @@ La scrittura di codice nativo separato, con Kotlin da un lato e Swift dall'altro
 mappa, dai cluster ai moduli di inserimento, senza portare vantaggi che in questo contesto fossero percepibili.
 
 Fra le soluzioni multipiattaforma la scelta è ricaduta su Flutter, con Dart come linguaggio di programmazione.
-Il motivo determinante è il modello di funzionamento, di fatto Flutter non incapsula i componenti nativi del sistema operativo
+Il motivo determinante è il modello di funzionamento: di fatto Flutter non incapsula i componenti nativi del sistema operativo
 ma disegna la propria interfaccia, e questo rende prevedibile il risultato su entrambe le piattaforme.
 Per un modulo che sovrappone alla mappa diversi livelli di comandi, bolle di clustering e schede a comparsa, la prevedibilità
 del disegno conta più di seguire ogni convenzione dei diversi sistemi operativi.
@@ -109,7 +109,7 @@ L'utilizzo di Google Maps avrebbe evitato di dover ricostruire numerosi servizi,
 stato necessario sviluppare.
 
 %Il costo si è manifestato anche in una forma meno prevedibile.
-Per \textit{flutter\_map}, esisterebbe anche un'estensione per il clustering, tuttavia questa è risultata incompatibile con la nostra versione
+Per \textit{flutter\_map}, esisterebbe anche un'estensione per il clustering; tuttavia, questa è risultata incompatibile con la nostra versione
 e quindi è stata scartata in favore di un'alternativa sviluppata internamente che verrà descritta nel capitolo successivo.
 
 %Chiude con una limitazione.
@@ -126,9 +126,9 @@ Il modulo mappa ha un solo consumatore dei propri dati e nessuna necessità di c
 %Introdurre un contenitore di stato esterno avrebbe aggiunto un livello di indirezione senza eliminare complessità: lo stato sarebbe
 %stato spostato, non semplificato.
 Gli strumenti offerti dal framework, uno stato locale associato al widget e una notifica verso i soli elementi interessati,
-coprono il caso d'uso e le esigenze a noi necessarie.
+coprono il caso d'uso e i requisiti necessari.
 
-Punto che ha richiesto attenzione è stato quanto spesso venga ridisegnata la mappa.
+Un punto che ha richiesto attenzione è stato quanto spesso venga ridisegnata la mappa.
 Un aggiornamento senza vincoli a ogni variazione avrebbe ricostruito l'intero albero, tile compresi, a ogni spostamento della viewport.
 Per questo l'elenco dei centri visibili è stato separato dal resto dello stato e affidato a un oggetto osservabile, in questo modo
 quando cambia, si ridisegna il solo livello dei marker, mentre lo sfondo della mappa e i comandi restano intatti.
@@ -230,14 +230,14 @@ La figura \ref{fig:navigazione} riporta il quadro complessivo.
 
 La schermata è costruita per sovrapposizione.
 La mappa occupa tutto lo spazio disponibile e ogni comando le sta sopra, senza sottrarle superficie.
-Questo approccio è migliore piuttosto che riservare ai comandi una fascia propria in alto o in basso, in quanto avrebbe
+Questo approccio è preferibile rispetto al riservare ai comandi una fascia propria in alto o in basso, in quanto avrebbe
 ridotto la porzione di territorio visibile proprio sui dispositivi dove questa è già più carente.
 %Poiché la mappa è il contenuto, si è preferito che i comandi le sottraessero soltanto qualche decina di punti in trasparenza.
 
 La sovrapposizione introduce però un problema che compare al primo utilizzo: quando
 l'utente tocca la barra di ricerca, la tastiera di sistema sale dal basso e il meccanismo di suggerimenti apre un elenco sotto la barra.
 In quel momento i comandi flottanti si trovano schiacciati fra i due, e alcuni finiscono coperti a metà.
-Vengono quindi nascosti i comandi durante la ricerca, in questo modo mentre l'utente sta scrivendo un indirizzo,
+Vengono quindi nascosti i comandi durante la ricerca: in questo modo, mentre l'utente sta scrivendo un indirizzo,
 la sua attenzione è sulla barra e sull'elenco dei risultati e non sui comandi della mappa, che tornano appena la
 ricerca si conclude.
 
@@ -303,9 +303,9 @@ al momento in cui viene mostrato a schermo.
 
 \section{Modello e persistenza dei dati}\label{sec:modello-dati}
 
-In questa sezione parliamo di come vengono rappresentati i centri all'interno dell'applicazione, e dove finiscono quando l'applicazione
+In questa sezione si descrive come vengono rappresentati i centri all'interno dell'applicazione, e dove finiscono quando l'applicazione
 viene chiusa.
-Dove viene inoltre discusso un problema che nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti}
+Viene inoltre analizzato un problema che nasce dal fatto che le due sorgenti citate al paragrafo \ref{subsec:portali-esistenti}
 non sono state pensate per essere consumate insieme, e nessuna delle due è stata pensata per questa applicazione.
 
 \subsection{Rappresentazione e normalizzazione}\label{subsec:modello-centri}
@@ -380,7 +380,7 @@ Indirizzo & testo & Obbligatorio, validato prima del salvataggio \tabularnewline
 Città & testo opzionale & Le stringhe vuote o di soli spazi diventano assenza di valore \tabularnewline
 Telefono & testo opzionale & Come sopra; almeno un contatto fra telefono e posta è richiesto \tabularnewline
 Posta elettronica & testo opzionale & Come sopra \tabularnewline
-Coordinate & numerico & Impostati a zero in lettura \tabularnewline
+Coordinate & numerico & Impostate a zero in lettura \tabularnewline
 Patologie & elenco di testo & In assenza del campo vengono assegnate entrambe le patologie \tabularnewline
 \bottomrule
 \end{tabularx}
@@ -425,12 +425,12 @@ La conservazione dei dati è organizzata su tre archivi distinti, che rispondono
     viene mai invalidato.
 \end{enumerate}
 
-Vale notare che una cache può essere cancellata senza perdita di informazione, perché il dato originale sta altrove
-mentre per un archivio primario, no.
+Vale notare che una cache può essere cancellata senza perdita di informazione, perché il dato originale risiede altrove
+mentre ciò non vale per un archivio primario.
 Per questo i due usano chiavi separate e non vengono mai scritti dalla stessa procedura, così che un aggiornamento dell'elenco
 remoto non possa in nessun caso sovrascrivere ciò che l'utente ha inserito a mano.
 
-Sull'archivio persistente è stata adottata una politica che privilegia la reattività, il quale all'avvio l'elenco salvato
+Sull'archivio persistente è stata adottata una politica che privilegia la reattività, secondo cui all'avvio l'elenco salvato
 viene letto e mostrato prima che parta qualunque richiesta di rete, così la mappa si popola immediatamente e la richiesta remota, quando arriva,
 si limita a sostituire i dati con la versione aggiornata.
 È la stessa idea del requisito RNF-05, che vieta di far attendere la comparsa della mappa fino al termine della rete, applicata anche ai marker.

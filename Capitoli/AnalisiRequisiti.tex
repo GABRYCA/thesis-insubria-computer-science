@@ -11,8 +11,8 @@ Non è necessariamente un operatore sanitario, non inserisce dati clinici e non 
 Da questa analisi derivano due conseguenze operative:
 \begin{enumerate}
   \item Nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
-  la risposta alla domanda \emph{dove è il centro più vicino} è un passaggio che riduce l'utilizzabilità dello strumento.
-  \item La seconda è che i controlli devono essere collocati nella metà inferiore dello schermo,
+  la risposta alla domanda \emph{"dov'è il centro più vicino?"} è un passaggio che riduce l'utilizzabilità dello strumento.
+  \item I controlli devono essere collocati nella metà inferiore dello schermo,
   dov'è possibile arrivarci più facilmente con il pollice.
 \end{enumerate}
 
@@ -67,7 +67,7 @@ RF-02 & In caso di errore o di risposta non valida dal servizio principale, il s
 & Obbligatorio \tabularnewline
 RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione comune interna.
 & Obbligatorio \tabularnewline
-RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interromperne l'elaborazione dei restanti.
+RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interrompere l'elaborazione dei restanti.
 & Obbligatorio \tabularnewline
 RF-05 & Il sistema deve conservare l'ultimo elenco scaricato in una cache persistente e utilizzarla quando la rete è assente.
 & Obbligatorio \tabularnewline
@@ -131,7 +131,7 @@ RF-24 & Il sistema deve permettere la modifica e l'eliminazione dei centri inser
 & Obbligatorio \tabularnewline
 RF-25 & I centri personalizzati devono persistere tra un avvio e l'altro dell'applicazione ed essere distinguibili sulla mappa da quelli remoti.
 & Obbligatorio \tabularnewline
-RF-26 & Il sistema deve permettere di aggiungere un centro ai preferiti e di poter accedere all'elenco.
+RF-26 & Il sistema deve permettere di aggiungere un centro ai preferiti e di accedere al relativo all'elenco.
 & Obbligatorio \tabularnewline
 \addlinespace
 \multicolumn{3}{@{}l}{\textbf{Azioni sul centro selezionato}} \tabularnewline
@@ -146,7 +146,7 @@ RF-29 & Il sistema deve consentire di avviare una chiamata telefonica e di compo
 %RF-35 & Il sistema deve consentire la condivisione della scheda del centro tramite applicazioni esterne.
 %& Desiderabile \tabularnewline
 \addlinespace
-\multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
+%\multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
 %RF-36 & Il sistema deve fornire comandi di avvicinamento (\textit{zoom in}) e allontanamento (\textit{zoom out}) della vista alternativi al gesto a due dita.
 %& Desiderabile \tabularnewline
 %RF-37 & Quando la mappa è ruotata, il sistema deve mostrare una bussola che ne consenta il ripristino verso il nord.
@@ -158,7 +158,7 @@ RF-29 & Il sistema deve consentire di avviare una chiamata telefonica e di compo
 
 \section{Requisiti non funzionali}\label{sec:requisiti-non-funzionali}
 
-I requisiti non funzionali riguardano il modo in cui il sistema deve comportarsi, piuttosto che delle funzioni che deve offrire.
+I requisiti non funzionali riguardano il modo in cui il sistema deve comportarsi, anziché le funzioni che deve offrire.
 In questo caso sono particolarmente importanti in quanto l'applicazione dipende da servizi terzi che non controlla, e
 opera in un contesto d'uso mobile in cui la connettività non è garantita.
 
@@ -361,11 +361,11 @@ L'utente attiva la funzione di ricerca per raggio.
 \newline 3. Il sistema richiede la posizione aggiornata al sistema operativo.
 \newline 4. L'utente seleziona il raggio di ricerca e, se lo desidera, la patologia di interesse.
 \newline 5. Il sistema calcola la distanza di ogni centro dalla posizione dell'utente,
-scarta quelli troppo distanti e applica il filtro per patologia sia ai centri remoti sia a quelli personalizzati
+scarta quelli troppo distanti e applica il filtro per patologia sia ai centri remoti sia a quelli personalizzati.
 \newline 6. Il sistema disegna sulla mappa la circonferenza corrispondente al raggio e presenta l'elenco dei centri trovati
 ordinati per distanza crescente. \tabularnewline
 Scenari alternativi & 2a.
-Il permesso non viene concesso: il sistema lo richiede e prosegue dal passo 3 se viene dato.
+Il permesso non viene concesso: il sistema lo richiede e prosegue dal passo 3 se questo viene concesso.
 \newline 2b.
 Il permesso viene negato: il sistema mantiene la schermata predefinita, avvisa che la funzione richiede la posizione e chiede
 di riprovare più tardi.

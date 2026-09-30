@@ -108,19 +108,19 @@ persistenza e sul calcolo geodetico.
 % è l'esito che considero più significativo dell'intera attività di verifica, e non a dispetto della colonna di esiti negativi
 % ma proprio in virtù di essa.
 
-A livello personale, il lavoro ha avuto un valore che vale menzionare.
+A livello personale, il lavoro ha avuto un valore che merita di essere menzionato.
 %Sul piano personale il lavoro ha avuto un esito che vale registrare.
 La scelta iniziale di rinunciare a una piattaforma di mappe commerciale, motivata al paragrafo \ref{subsec:scelta-flutter} da
 ragioni di costo e di riproducibilità, ha comportato la necessità di costruire a mano funzioni che quella piattaforma avrebbe fornito
 comprese nel prezzo.
 Di conseguenza, il modulo dell'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
-e i ragionamenti annessi, esistono perché quella funzione non era disponibile.
+e i ragionamenti annessi esistono perché quella funzione non era disponibile.
 % Che la costante di quell'algoritmo sia stata trovata per tentativi e ne abbia compreso il significato geometrico soltanto
 % in un secondo momento, ricostruendolo per scrivere queste pagine, è a sua volta un risultato del lavoro di stesura.
 
 \section{Criticità e limiti attuali}\label{sec:limiti-attuali}
 
-I limiti che restano sono riconducibili a tre punti.
+I limiti che restano sono riconducibili a due punti.
 \begin{enumerate}
     \item La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo \textit{download} finché l'utente
     non richiede esplicitamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
@@ -218,7 +218,7 @@ già esistente.
 Di fatto i centri personalizzati hanno già una rappresentazione tipizzata, una serializzazione simmetrica
 e un identificatore stabile, ossia i tre requisiti principali di un tale sistema.
 
-Rimarrebbe comunque un aspetto delicato non la sincronizzazione, ma ciò che essa comporta sul piano della riservatezza.
+Rimarrebbe comunque un aspetto delicato: non tanto la sincronizzazione in sé, quanto ciò che essa comporta sul piano della riservatezza.
 L'applicazione, nella versione attuale, non richiede alcuna registrazione e non trasmette all'esterno alcun dato personale,
 come stabiliscono i requisiti RNF-10 e RNF-11; l'elenco dei centri dermatologici che una persona salva è un'informazione
 da cui si potrebbe presumere la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato
@@ -226,7 +226,7 @@ sanitario personale custodito da terzi, con le conseguenze normative che ne deri
 Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
 corretta sarebbe una cifratura eseguita sul dispositivo con una chiave che il servizio non possiede, in modo che il servizio
 conservi dati che non è in grado di leggere nemmeno in caso esso venisse violato.
-Parliamo di crittografia di tipo \textit{end-to-end}, con standard moderni e rischi in caso di perdita delle chiavi.
+Si tratterebbe di crittografia \textit{end-to-end} basata su protocolli e standard moderni. %e rischi in caso di perdita delle chiavi.
 %Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
 %strutture che ha salvato e che negli elenchi pubblici non compaiono.
 %Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che

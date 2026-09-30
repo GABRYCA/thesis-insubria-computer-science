@@ -16,7 +16,7 @@ L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implement
 Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità.
 Ogni package aggiunto è un componente che può causare errori a un suo aggiornamento e un vincolo sulle versioni degli altri
 sull'intero progetto.
-La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'app e la loro funzione.
+La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App e la loro funzione.
 
 \begin{table}[H]
 \footnotesize
@@ -38,8 +38,8 @@ La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'app 
 \end{table}
 
 Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
-condivisione, fissata a una versione specifica a causa di precedenti aggiornamenti in cui la propria API ha cambiato forma,
-causando errori, e che si vorrebbe evitare nella nostra App.
+condivisione, fissata a una versione specifica a causa di precedenti aggiornamenti in cui la sua API ha cambiato forma,
+causando errori che si vorrebbe evitare nella nostra App.
 %Questo perché quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
 %diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
 %innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
@@ -204,7 +204,7 @@ due chiavi distinte, e in entrambi i casi il primo valore trovato vince sul seco
 
 Il secondo punto riguarda i contatti, come email e numeri di telefono, dalla fonte dei centri per la psoriasi,
 che non li espone in campi propri ma li lascia dentro un frammento di codice HTML.
-Il recupero avviene in due passaggi: rimozione dei \textit{marker} dal testo e relativa ricerca dei recapiti tramite \textit{regex}.
+Il recupero avviene in due passaggi: rimozione dei \textit{tag} HTML dal testo e relativa ricerca dei recapiti tramite \textit{regex}.
 
 %Per cercare e riconoscere nel testo i numeri di telefono, sono necessarie ulteriori operazioni e filtri.
 %Una \textit{regex} sufficientemente aperta da accettare tutte le forme in cui un recapito telefonico viene scritto nei dati ricevuti,
@@ -218,7 +218,7 @@ Alcuni record riportano valori con più di un solo separatore decimale, come con
 La normale conversione su un valore di questo tipo fallisce restituendone uno nullo, e il record verrebbe scartato pur
 contenendo un'informazione che sarebbe in realtà recuperabile.
 In tal caso, le cifre ci sono tutte, ma è il formato a essere errato.
-La conversione, riportata in \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
+La conversione, riportata nel listato \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
 riportando la stringa a una forma corretta e interpretabile.
 
 \begin{listing}[H]
@@ -280,7 +280,7 @@ Centri personalizzati & Chiave fissa con suffisso versione (\textit{version tag}
 %ridotto alla scala dell'app.
 
 All'avvio vengono eseguite le operazioni definite al paragrafo \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
-Vengono prima letti i \textit{record} salvati sul dispositivo per entrambe le patologie e riportate nella mappa,
+Vengono prima letti i \textit{record} salvati sul dispositivo per entrambe le patologie e riportati nella mappa,
 poi viene effettuata una richiesta alla fonte.
 Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'attesa della risposta dalla rete non blocca
 l'interazione; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
@@ -291,7 +291,7 @@ sempre basandosi su questo meccanismo.
 %errore di scrittura non ha conseguenze sulla sessione in corso, poiché i dati sono comunque presenti in memoria.
 %L'errore viene comunque registrato nei \textit{log}, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
 
-Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o d'errore, restituisce un elenco vuoto.
+Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o di errore, restituisce un elenco vuoto.
 La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perché un documento JSON sintatticamente
 valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
 %I due casi sono verificati nei test descritti al paragrafo \ref{sec:test-unitari}.
@@ -376,7 +376,7 @@ avviene soltanto se l'elenco selezionato è cambiato.}
 \label{fig:aggiornamento-marker}
 \end{figure}
 
-Il controllo della mappa tramite bussola, si occupa del riallineamento della vista al valore predefinito dopo una rotazione.
+Il controllo della mappa tramite bussola si occupa del riallineamento della vista al valore predefinito dopo una rotazione.
 Il comando compare soltanto quando si ruota la mappa di oltre due gradi, per questione pratica ed estetica,
 e la rotazione viene registrata nello stato solo quando si discosta di oltre mezzo grado dall'ultimo valore noto, per
 non provocare un aggiornamento sulla schermata a ogni fotogramma durante la rotazione.
@@ -385,7 +385,7 @@ più breve.
 Se la mappa è ruotata di, per esempio, trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
 trecentocinquanta all'indietro, e senza un controllo esplicito a livello di codice l'animazione compierebbe il giro lungo.
 Viene quindi calcolato prima di essere animato lo scarto basandosi sull'intervallo fra meno e più centottanta gradi, con l'espressione
-riportata in \ref{lst:bussola}.
+riportata nel listato \ref{lst:bussola}.
 
 \begin{listing}[H]
 \begin{minted}{dart}
@@ -472,7 +472,7 @@ alla latitudine di 45 gradi.}
 %al variare dello zoom cambia radicalmente l'estensione geografica della cella, da centoquarantasei chilometri a trentasei metri,
 %mentre la sua dimensione percepita resta la stessa.
 
-Il codice \ref{lst:clustering} riporta la costruzione dei cluster.
+Il listato \ref{lst:clustering} riporta la costruzione dei cluster.
 L'assegnazione alla cella avviene dividendo le coordinate per il lato e troncando all'intero inferiore.
 Le celle sono conservate in una struttura associativa a due livelli, indicizzata prima per colonna e poi per riga, e
 ogni cella non vuota produce un cluster nel baricentro dei propri membri.
@@ -581,13 +581,13 @@ l'applicazione deve restare utilizzabile anche quando la posizione non c'è, com
 %Il permesso non viene richiesto all'avvio.
 La schermata riceve la posizione, se questa è già disponibile, e in quel caso si limita ad avviare il flusso di
 aggiornamento senza alcuna richiesta all'utente; quando invece la posizione sia assente, la richiesta viene rinviata al momento in cui
-l'utente attiva una funzione che ne ha bisogno, come il ritorno alla propria posizione, ricerca del centro più vicino o l'elenco dei centri vicini.
+l'utente attiva una funzione che ne ha bisogno, come il ritorno alla propria posizione, la ricerca del centro più vicino o l'elenco dei centri vicini.
 %Soddisfa il requisito RF-10.
 %Un permesso chiesto prima che ne sia evidente il motivo viene negato con maggiore
 %frequenza di uno chiesto in risposta a un comando esplicito.
 
 La procedura di acquisizione attraversa gli stati riportati nella figura \ref{fig:permessi}.
-Suddiviso in 4 casi, in cui ciascuno richiede una risposta diversa: il servizio di localizzazione del
+Il flusso è suddiviso in quattro casi, ciascuno dei quali richiede una risposta diversa: il servizio di localizzazione del
 dispositivo può essere disattivato, il permesso può non essere ancora stato richiesto, può essere stato negato una
 volta, oppure può essere stato negato in modo permanente.
 
@@ -617,7 +617,7 @@ volta, oppure può essere stato negato in modo permanente.
   \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,0.1) {appena disponibile};
    \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-1.4) {aggiornamento ogni 25 metri};
   \end{tikzpicture}
-  \caption{Stati attraversati nell'acquisizione della posizione, sia in caso di posizione concessa che negata.}
+  \caption{Stati attraversati nell'acquisizione della posizione, sia in caso di posizione concessa sia negata.}
   \label{fig:permessi}
 \end{figure}
 
@@ -646,7 +646,7 @@ volta, oppure può essere stato negato in modo permanente.
 
 La ricerca per indirizzo si appoggia al servizio di geocodifica dell'ecosistema OpenStreetMap descritto al
 paragrafo \ref{subsec:geocodifica}. % interrogato in due modalità distinte.
-Durante la digitazione la richiesta chiede fino a cinque risultati con i dettagli dell'indirizzo, che alimentano l'elenco
+Durante la digitazione il sistema richiede fino a cinque risultati con i dettagli dell'indirizzo, che alimentano l'elenco
 dei suggerimenti.
 Alla conferma, con il tasto di invio o con il comando di ricerca, la richiesta utilizza
 solo il primo risultato e sposta direttamente la viewport.
@@ -737,7 +737,7 @@ La presentazione delle distanze segue tre scaglioni:%, scelti in base a quello c
 \begin{itemize}
   \item Sotto il chilometro la distanza è espressa in metri arrotondati.
   \item Fra uno e dieci chilometri viene usato un decimale.
-  \item Oltre i dieci chilometri l'arrotondamento è al chilometro intero%, perché i decimali su una distanza di cinquanta
+  \item Oltre i dieci chilometri l'arrotondamento è al chilometro intero.%, perché i decimali su una distanza di cinquanta
   %chilometri suggerirebbero una precisione che il dato non ha, trattandosi comunque di una distanza in linea d'aria e non
   %di un percorso stradale.
 \end{itemize}
@@ -821,7 +821,7 @@ rappresenta l'estensione.
 
 La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, sia quello remoto che quello personale. %, mantenendo
 %il minimo corrente insieme all'azione che ne aprirà la scheda.
-Funziona tramite una singola lettura dell'intero elenco, e salvando quello alla distanza minore trovato.
+Funziona tramite una singola lettura dell'intero elenco, individuando e memorizzando il centro situato alla distanza minore.
 Una volta individuato il centro, la schermata si sposta su di esso tramite un'animazione di movimento e zoom appropriati,
 in base alla posizione di entrambi.
 %Di fatto, in questo scenario sarebbe inutile un ordinamento dell'intero insieme, e comporterebbe solamente un costo evitabile.
@@ -870,7 +870,7 @@ compilazione obbliga a ricostruire quale campo abbia prodotto quale messaggio, m
 l'errore al campo nel momento in cui vi si sta lavorando.
 %È anche una risposta al requisito RNF-02, che chiede un riscontro visivo immediato per ogni azione.
 
-Il controllo sul numero di telefono, riportato in \ref{lst:telefono},
+Il controllo sul numero di telefono, riportato nel listato \ref{lst:telefono},
 riflette il formato della numerazione italiana. %e non una convenzione generica.
 
 \begin{listing}[H]
