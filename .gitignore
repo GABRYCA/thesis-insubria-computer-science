@@ -331,4 +331,7 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 docs/*
-*.md
+
+riassunto_gc_f004.pdf
+stampa.pdf
+tesi_gc_f004.pdf
