@@ -1,0 +1,185 @@
+%! Author = gabry
+%! Date = 03/07/2026
+
+\chapter{Progettazione}\label{ch:progettazione}
+
+Successivamente alla fase di analisi dei requisiti, la fase di progettazione definisce come tali requisiti saranno
+effettivamente implementati, sia a livello di struttura software che di interfaccia utente.
+
+\section{Descrizione generale}\label{sec:descrizione-generale}
+
+\section{Scelte architetturali}\label{sec:scelte-architetturali}
+
+\subsection{Migrazione verso Kotlin Multiplatform}\label{subsec:migrazione-verso-kotlin-multiplatform}
+
+Il progetto è stato inizialmente sviluppato in Kotlin nativo Android, utilizzando strumenti Java e non solo, come:
+
+\begin{itemize}
+    \item EvalEx, per la lettura dei file delle espressioni per ottenere le diagnosi
+    \item Firebase, per la sincronizzazione dei dati dei pazienti e delle diagnosi
+    \item SpashScreen, per l'animazione iniziale di caricamento
+    \item Lingua e tema di default in base al dispositivo
+\end{itemize}
+
+Questi elementi sono stati sostituiti con altre librerie simili o sostituiti, nello specifico:
+
+\begin{itemize}
+    \item EvalEx è stato rimosso, e si è invece scritto un interprete da zero nativo Kotlin
+    \item Firebase è stato sostituito con la version Gitlive della community, con l'aggiunta di diverse dipendenze per i servizi Google
+    \item Lo SplashScreen animato è stato rimosso in favore di uno statico
+    \item La lingua e il tema di default sono stati scritti nelle rispettive iosMain e androidMain, in quanto diverse per piattaforma
+\end{itemize}
+
+\subsection{Architettura dell'applicazione}\label{subsec:architettura-dell'applicazione}
+L'architettura del software si adatta agli standard di Kotlin Multiplatform (KMP). Durante la migrazione da Kotlin a Kotlin Multiplatform, l'obiettivo primario
+è stato quello di massimizzare il codice condiviso tra Android e iOS, con il minor numero di dipendenze native ove possibile, con una logica di business e di presentazione (UI) unificati.
+
+L'applicazione segue una variante del pattern architetturale \textbf{Model-View-ViewModel (MVVM)}, costruita attorno a una singola \textit{ViewModel} centralizzata (\texttt{MelanomaViewModel}).
+Questa funge da singolo punto di accesso per l'intero ciclo di vita dell'applicazione, separando l'interfaccia utente dalla logica di dominio.
+
+Le caratteristiche architetturali principali includono:
+
+\begin{itemize}
+    \item Utilizzo di Compose Multiplaform, compatibile sia con Android che iOS in Kotlin Multiplatform, tramite
+    il modulo condiviso \texttt{commonMain}.
+    Le viste (View) sono \textit{stateless}, e si limitano quindi a osservare i dati e a inoltrare al ViewModel le interazioni dell'utente.
+    \item Utilizzo di \texttt{StateFlow} e di \texttt{MutableStateFlow} per la gestione della reattività degli stati.
+    Variabili come dati anagrafici, parametri clinici e risultati della stadiazione (\texttt{StagingResult}) vengono aggiornati reattivamente.
+    Viene quindi ricomposta automaticamente l'interfaccia grafica quando i flussi di dati cambiano, emettendo un nuovo stato.
+    \item Navigazione tra le schermate gestita tramite stato (State-Driven), senza librerie di routing esterne (inizialmente nella versione nativa veniva utilizzato il Navigation Component di Android), viene quindi gestita in modo manuale e dichiarativo la navigazione tra le schermate.
+    Una \texttt{Sealed class Screen} definisce le possibili destinazioni navigabili dell'app (\texttt{Calculator}, \texttt{PatientList} e \texttt{PatientHistory}).
+    Il ViewModel mantiene lo stato della schermata attiva, e fornisce la funzione \texttt{navigateTo(screen: Screen)}.
+    Cambiando lo stato della variabile, viene quindi cambiata la schermata, eseguendo eventuale logica annessa (come il caricamento dei pazienti tramite fetch).
+    \item Utilizzo di \texttt{Kotlin Coroutines} per la gestione della concorrenza e dell'accesso ai dati.
+    Tutte le operazioni asincrone, come il calcolo della diagnosi basato su regole dei file JSON (e tramite \texttt{StagingEngine}), inclusa la comunicazione cloud di Firebase, sono gestite
+    in modo sicuro e non bloccante, anche tramite il \texttt{viewModelScope}.
+    L'interazione con il database cloud Firebase, inizialmente con Firebase nativo di Google, è stata migrata alla versione KMP della community GitLive, che permette di utilizzare funzioni CRUD
+    (lettura, salvataggio e cancellazione) sui dati senza dover applicare codici diversi in base al sistema operativo.
+\end{itemize}
+
+In breve, la maggior parte del codice si trova in commonMain e utilizza codice Kotlin compatibile sia con sistemi Android che iOS, con il minimo utilizzo di funzioni proprietare tramite \texttt{expect/actual}, lasciando quindi
+i moduli \texttt{androidMain} e \texttt{iosMain} il più snelli possibili (salvo inizializzazioni e configurazioni iniziali obbligatorie).
+
+\section{Specifica dei requisiti}\label{sec:specifica-requisiti}
+
+\subsection{Interfaccia utente}\label{subsec:interfaccia-utente}
+
+L'interfaccia utente (UI) e l'esperienza utente (UX) sono state progettate per essere intuitive e di rapido utilizzo a livello clinico,
+essendo questa applicazione uno strumento di supporto per i medici, deve essere semplice e con un carico cognitivo minimo per l'inserimento dei dati
+e la lettura dei risultati delle diagnosi.
+
+Per definire gli Screen (schermate) e definire un progetto dell'applicazione prima della scrittura del codice, è stato utilizzato \textbf{Figma}.
+Il prototipo è stato costruito secondo i seguenti criteri:
+\begin{itemize}
+    \item Parametri suddivisi logicamente in sezioni ben definite e distinte (Parametri T, N e M), racchiuse in \texttt{Card} con stili personalizzati.
+    \item Pulsanti di input standard, come \textit{switch}, \textit{chip} e \textit{checkbox} selezionabili, al posto di
+    opzioni più complesse come menù a tendina.
+    Alcuni switch o checkbox quando premuti mostrano ulteriori parametri opzionali od obbligatori, per l'inserimento di dati specifici per le diagnosi.
+    \item Supporto sia al tema chiaro che scuro, per non affaticare la vista dell'utente in ambito ospedaliero con diverse condizioni di luce.
+    Viene inoltre provvisto direttamente nella barra di navigazione un pulsante per il passaggio veloce tra i temi.
+\end{itemize}
+
+\subsection{Realizzazione del layout}\label{subsec:realizzazione-layout}
+
+Inizialmente il layout è stato realizzato seguendo un prototipo senza cSCC Testa-Collo, ma solamente con la stadiazione del melanoma TNM.
+Successivamente ha subito un'estensione per supportare il nuovo tipo di diagnosi e introdurre la compatibile con Kotlin Multiplatform.
+Questo è visibile anche nei prototipi Figma (Figura~\ref{fig:figma_v1} e Figura~\ref{fig:figma_v2}):
+
+In (Figura~\ref{fig:figma_v1}), sviluppata in Kotlin Android Nativo, il layout e l'interfaccia
+erano strutturati unicamente per supportare la stadiazione del Melanoma TNM, con parametri statici e senza selettori per altri tipi di diagnosi.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{immagini/prototipo1/screenshots/figma}
+    \caption{Fase 1 (Android Nativo) - Solo Melanoma}
+    \label{fig:figma_v1}
+\end{figure}
+
+In (Figura~\ref{fig:figma_v2}), con la migrazione verso Kotlin Multiplatform, si è aggiunta
+anche l'opzione di diagnosi del Carcinoma a Cellule Squamose (cSCC) Testa-Collo, di conseguenza è stata aggiunta una nuova
+\texttt{card}, con due pulsanti di selezione per scegliere il tipo di diagnosi (\textit{Tipo di tumore}).
+Quando premuti, ricaricano dinamicamente la sezione dei parametri con i rispettivi tipi T, N e M\@.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{immagini/prototipo2/screenshots/figma}
+    \caption{Fase 2 (KMP) - Selezione Dinamica}
+    \label{fig:figma_v2}
+\end{figure}
+
+Il progetto definito in Figma è stato successivamente tradotto in codice con \textbf{Compose Multiplatform} (nella prima versione invece con \textbf{Jetpack Compose}).
+Sono stati creati e utilizzati dei componenti personalizzati come \texttt{ModernChip} (un selettore) e componenti di animazione come \texttt{AnimatedContent} per ottenere delle transizioni
+fluide senza interruzioni.
+Grazie a questi componenti personalizzati si è resa più modulare l'applicazione e quindi anche il suo mantenimento per eventuali aggiornamenti futuri.
+
+
+
+\section{Database}\label{sec:database}
+
+Utilizziamo \textbf{Cloud Firebase Firestore} per la persistenza e sincronizzazione dei dati nel cloud.
+Firestore è un database NoSQL a documenti offerto nell'ecosistema Firestore di Google, tuttavia dato che questo non è
+direttamente supportato su Kotlin Multiplatform, come menzionato in precedenza durante la fase di migrazione, è stato necessario
+adottare la libreria SDK \textit{Gitlive Firebase} della community, che offre funzionalità simili e compatibilità con Firestore e KMP.
+Essa offre dei \textit{wrapper} Kotlin sia per Android che iOS, che possono essere utilizzati direttamente nel modulo \texttt{commonMain}.
+
+Essendo un database NoSQL a documenti, esso ha un funzionamento diverso dai tradizionali database relazionali con tabelle, righe e colonne.
+Firestore mantiene i dati in una struttura gerarchica di \textit{documenti} in formato simile a JSON, raggruppati in \textit{collezioni}, che a loro volta contengono
+altri documenti, con le proprie raccolte.
+
+\subsection{Modello dati}\label{subsec:modello-dati}
+
+Utilizziamo una struttura progettata attorno a un'unica collezione root che abbiamo denominato \texttt{patients}.
+I documenti al suo interno rappresentano i singoli pazienti, identificati in modo univoco tramite UUID (\textit{Universally Unique Identifier}).
+Ogni paziente ha un documento che contiene campi come lo storico (un array di diagnosi) e dati anagrafici di base.
+
+I documenti NoSQL sono generati direttamente da codice convertendo delle \texttt{data class} Kotlin in un formato compatibile con Firestore, utilizzando
+la libreria \texttt{kotlinx.serialization}, che ne permette la serializzazione e deserializzazione.
+Di fatto, grazie all'annotazione \texttt{@Serializable}, il framework si occupa automaticamente della traduzione dei dati in documenti Firestore,
+fortemente tipizzati garantendo la sicurezza dei tipi dei dati e riducendo codice \textit{boilerplate}.
+
+Il modello dei dati principale della classe \texttt{Patients} è la seguente:
+\begin{itemize}
+    \item \texttt{id}, \texttt{name}, \texttt{surname}: Stringhe che compongo i campi per l'anagrafica e l'identificazione di ogni paziente
+    \item \texttt{birthDate}: Un campo opzionale, che rappresenta la data di nascita del paziente, e che viene gestita tramite la libreria \texttt{kotlinx.datetime}
+    \item\texttt{history}: Un array, simile a una lista di oggetti, di \texttt{StagingRecord}
+\end{itemize}
+
+Nonostante sarebbe stato possibile modellare lo storico dei pazienti in una sotto-collezione separata, dato che stiamo lavorando
+in NoSQL si è deciso di mantenerlo come un array \texttt{embedded} all'interno dei documenti dei pazienti.
+Questo permette di ottimizzare prestazioni e costi che potrebbero derivare da multiple query su diverse collezioni.
+Il caricamento dei pazienti e dei relativi storici, avviene automaticamente tramite la funzione \texttt{fetchPatients()} nel ViewModel,
+insieme al proprio storico clinico, in una singola operazione di lettura (read).
+Questa funzione viene solitamente richiamata al momento
+dell'apertura della schermata dei pazienti, durante la navigazione tramite bottom bar, in una \texttt{Kotlin Coroutine}.
+
+\subsection{Struttura record diagnosi}\label{subsec:struttura-record-diagnosi}
+
+Gli elementi dell'array \texttt{history}, che compongono essenzialmente un'istanza della classe \texttt{StagingRecord} serializzata,
+sono composti da:
+
+\begin{enumerate}
+    \item \textbf{Metadati}: Un \texttt{UUID} univoco insieme a un \texttt{timestamp} (di tipo \texttt{Instant}) che identificano e registrano il momento
+    esatto in cui l'analisi è stata effettuata
+    \item \textbf{\texttt{input} MelanomaInput}: Una classe che contiene i parametri clinici inseriti dall'utente, che supporta sia la stadiazione del melanoma TNM che cSCC.
+    I dati includono tipi primitivi come \texttt{breslowMm} e \texttt{linfonodiPositivi}, serializzati come stringhe sul database.
+    \item \textbf{\texttt{result} StagingResult}: Il risultato di output che viene generato dal motore di calcolo (\texttt{StagingEngine}), che
+    memorizza i valori TNM calcolati, il follow-up suggerito e lo stadio complessivo.
+    Infatti, al posto di salvare stringhe statiche per le spiegazioni, salviamo una chiave (come \texttt{explanationKeysM}), che permette di
+    assegnare testi diversi in più lingue, senza salvare nel database stringhe statiche intraducibili o tradotte in più lingue, sarà poi l'interfaccia utente
+    direttamente dal dispositivo a tradurre i valori chiave nel testo equivalente.
+\end{enumerate}
+
+\subsection{Interazione con Firestore}\label{subsec:interazione-con-firestore}
+
+Il collegamento e interazione con il database vengono gestire dal \texttt{MelanomaViewModel} tramite delle \textit{Kotlin Coroutines}
+permettendo di eseguire operazione \texttt{IO} senza bloccare il thread principale dell'interfaccia grafica in modo asincrono.
+
+Gitlive Firestore, inoltre, ha delle espressioni CRUD (Create, Read, Update e Delete) molto semplici.
+Operazioni come il salvataggio e l'aggiornamento dei pazienti sono convertite tramite oggetti Kotlin, per esempio:
+\begin{minted}{kotlin}
+db.collection("patients").document(patientId).set(newPatient)
+\end{minted}
+Quando viene necessario modificare solamente parzialmente dei dati (come eliminare una singola diagnosi dello storico),
+viene utilizzata l'estensione \texttt{updateFields} ottimizzata da Firestore, che permette di eseguire una modifica esclusivamente su un
+elemento dell'array richiesto (nel nostro caso l'array \texttt{history}) senza rieseguire una sovrascrittura dell'intero documento,
+un approccio che migliora l'efficienza nella gestione dei dati in ambiente cloud.
