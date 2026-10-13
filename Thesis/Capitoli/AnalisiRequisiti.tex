@@ -1,0 +1,497 @@
+\chapter{Analisi dei requisiti}\label{ch:analisi-dei-requisiti}
+
+\section{Attori e destinatari del sistema}\label{sec:attori-sistema}
+
+Il destinatario dell'applicazione è una sola figura, e conviene descriverla con precisione perché da lei dipendono le scelte dell'interfaccia.
+Si tratta di una persona, per esempio colui che è affetto da dermatite atopica o psoriasi, ma potrebbe anche essere un suo
+familiare o un dottore, che deve individuare una struttura specializzata raggiungibile.
+Non ha competenze informatiche particolari, usa l'applicazione su uno smartphone e spesso con una sola mano.
+Non è necessariamente un operatore sanitario, non inserisce dati clinici e non ha bisogno di funzioni di refertazione.
+
+Da questa analisi derivano due conseguenze operative:
+\begin{enumerate}
+  \item Nessuna funzione può richiedere una registrazione, perché ogni passaggio in più tra l'apertura dell'applicazione e
+  la risposta alla domanda \emph{"dov'è il centro più vicino?"} è un passaggio che riduce l'utilizzabilità dello strumento.
+  \item I controlli devono essere collocati nella metà inferiore dello schermo,
+  dov'è possibile arrivarci più facilmente con il pollice.
+\end{enumerate}
+
+Accanto all'attore primario operano diversi sistemi esterni, che nella terminologia UML (\textit{Unified Modeling Language}) sono gli attori secondari.
+Questi non hanno intenzioni, ma il sistema dipende da loro e deve prevedere il caso in cui non rispondano.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l l L@{}}
+\toprule
+\textbf{Attore} & \textbf{Tipo} & \textbf{Ruolo nel sistema} \tabularnewline
+\midrule
+Utente & Primario & Consulta la mappa, applica i filtri, gestisce preferiti e centri personalizzati, avvia le azioni di contatto
+e navigazione. \tabularnewline
+Servizio elenco centri & Secondario & Fornisce l'elenco dei centri dermatologici tramite endpoint HTTP pubblici.
+Il sistema ne interroga due, uno principale e uno secondario di riserva. \tabularnewline
+Servizio di geocodifica & Secondario & Traduce il testo digitato dall'utente in coordinate geografiche. \tabularnewline
+Server dei tile & Secondario & Fornisce le immagini che compongono la mappa. \tabularnewline
+Sistema operativo & Secondario & Espone la posizione del dispositivo e fa da tramite per garantirne il relativo permesso. \tabularnewline
+Applicazioni esterne & Secondario & Ricevono le richieste di navigazione, chiamata, invio email e condivisione. \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Attori del sistema e rispettivo ruolo.}
+\label{tab:attori}
+\end{table}
+
+\section{Requisiti funzionali}\label{sec:requisiti-funzionali}
+
+I requisiti funzionali sono raccolti nella tabella \ref{tab:requisiti-funzionali}, raggruppati per area.
+La colonna di priorità riporta la priorità di ciascun requisito:
+
+\footnotesize
+\begin{longtable}{@{}P{1.4cm} P{9.1cm} P{2.3cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Descrizione} & \textbf{Priorità} \tabularnewline
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Descrizione} & \textbf{Priorità} \tabularnewline
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\emph{segue alla pagina successiva}} \tabularnewline
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{3}{@{}l}{\textbf{Acquisizione e persistenza dei dati}} \tabularnewline
+RF-01 & Il sistema deve scaricare l'elenco dei centri dermatologici da un servizio pubblico remoto.
+& Obbligatorio \tabularnewline
+RF-02 & In caso di errore o di risposta non valida dal servizio principale, il sistema deve interrogare automaticamente un endpoint secondario.
+& Obbligatorio \tabularnewline
+RF-03 & Il sistema deve normalizzare i record provenienti da sorgenti con schemi differenti in un'unica rappresentazione comune interna.
+& Obbligatorio \tabularnewline
+RF-04 & Il sistema deve scartare i record privi di coordinate valide senza interrompere l'elaborazione dei restanti.
+& Obbligatorio \tabularnewline
+RF-05 & Il sistema deve conservare l'ultimo elenco scaricato in una cache persistente e utilizzarla quando la rete è assente.
+& Obbligatorio \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Visualizzazione cartografica}} \tabularnewline
+RF-06 & Il sistema deve mostrare una mappa interattiva con supporto a spostamenti, zoom e rotazione.
+& Obbligatorio \tabularnewline
+%RF-07 & Il sistema deve riportare i crediti della mappa originale in modo visibile.
+%& Desiderabile \tabularnewline
+RF-07 & Ogni centro deve essere rappresentato da un marker posizionato sulle proprie coordinate.
+& Obbligatorio \tabularnewline
+RF-08 & Marker geograficamente vicini devono essere \textit{clusterizzati} (raggruppati) in un unico indicatore che riporti il numero di centri contenuti.
+& Obbligatorio \tabularnewline
+RF-09 & La selezione di un \textit{cluster} (gruppo) deve produrre un avvicinamento della vista che lo scomponga negli elementi che lo costituiscono.
+& Obbligatorio \tabularnewline
+%RF-11 & Il sistema deve disegnare soltanto i marker compresi nell'area visibile, con un margine di tolleranza.
+%& Desiderabile \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Localizzazione e ricerca}} \tabularnewline
+RF-10 & Il sistema deve richiedere il permesso di accesso alla posizione soltanto quando l'utente attiva una funzione che la richieda.
+& Obbligatorio \tabularnewline
+RF-11 & Il sistema deve centrare la vista sulla posizione dell'utente e indicarla con un simbolo distinto da quello dei centri.
+& Obbligatorio \tabularnewline
+RF-12 & In caso di permesso negato il sistema deve continuare a funzionare, utilizzando una posizione iniziale predefinita.
+& Obbligatorio \tabularnewline
+%RF-15 & Se il permesso è stato negato in modo permanente, il sistema deve offrire un collegamento alle impostazioni di sistema.
+%& Desiderabile \tabularnewline
+RF-13 & Il sistema deve permettere la ricerca di una località o di un indirizzo tramite un campo di input testuale.
+& Obbligatorio \tabularnewline
+RF-14 & Durante la digitazione il sistema deve proporre suggerimenti, interrogando il servizio di geocodifica solo dopo una pausa nell'inserimento.
+& Obbligatorio \tabularnewline
+RF-15 & La selezione di un suggerimento deve spostare la vista sulle coordinate corrispondenti.
+& Obbligatorio \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Filtraggio e ricerca per prossimità}} \tabularnewline
+RF-16 & Il sistema deve consentire di filtrare i centri per patologia trattata, distinguendo dermatite atopica e psoriasi.
+& Obbligatorio \tabularnewline
+RF-17 & Il sistema deve consentire di limitare i risultati a un raggio configurabile intorno alla posizione dell'utente.
+& Obbligatorio \tabularnewline
+RF-18 & Il sistema deve presentare l'elenco dei centri più vicini ordinato per distanza crescente, con la distanza espressa in chilometri.
+& Obbligatorio \tabularnewline
+RF-19 & Il calcolo della distanza deve tenere conto della curvatura terrestre.
+& Obbligatorio \tabularnewline
+RF-20 & I filtri per patologia e per raggio devono poter essere combinati e devono applicarsi anche ai centri inseriti dall'utente.
+& Obbligatorio \tabularnewline
+%RF-24 & Il sistema deve rappresentare graficamente sulla mappa il raggio di ricerca attivo.
+%& Desiderabile \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Centri personalizzati e preferiti}} \tabularnewline
+RF-21 & Il sistema deve permettere l'inserimento di un centro non presente nell'elenco, indicandone denominazione, indirizzo,
+città, contatti e patologie trattate.
+& Obbligatorio \tabularnewline
+RF-22 & La posizione del centro inserito deve essere acquisita dalla mappa, mediante pressione prolungata sul punto desiderato oppure
+assumendo il centro della viewport corrente, senza digitazione manuale delle coordinate.
+& Obbligatorio \tabularnewline
+RF-23 & Il sistema deve validare i dati inseriti prima del salvataggio, richiedendo nome, indirizzo e città, almeno un
+contatto tra telefono ed email, almeno una patologia, e verificando che il numero telefonico rispetti il formato nazionale e che l'indirizzo
+email sia sintatticamente corretto.
+& Obbligatorio \tabularnewline
+RF-24 & Il sistema deve permettere la modifica e l'eliminazione dei centri inseriti dall'utente.
+& Obbligatorio \tabularnewline
+RF-25 & I centri personalizzati devono persistere tra un avvio e l'altro dell'applicazione ed essere distinguibili sulla mappa da quelli remoti.
+& Obbligatorio \tabularnewline
+RF-26 & Il sistema deve permettere di aggiungere un centro ai preferiti e di accedere al relativo all'elenco.
+& Obbligatorio \tabularnewline
+\addlinespace
+\multicolumn{3}{@{}l}{\textbf{Azioni sul centro selezionato}} \tabularnewline
+RF-27 & La selezione di un marker deve aprire una scheda con nome, indirizzo e contatti disponibili.
+& Obbligatorio \tabularnewline
+RF-28 & Il sistema deve consentire di avviare la navigazione verso il centro delegandola a un'applicazione esterna.
+& Obbligatorio \tabularnewline
+%RF-33 & Il sistema deve permettere di scegliere il mezzo di trasporto per il calcolo del percorso.
+%& Desiderabile \tabularnewline
+RF-29 & Il sistema deve consentire di avviare una chiamata telefonica e di comporre un'email verso i contatti del centro, quando presenti.
+& Obbligatorio \tabularnewline
+%RF-35 & Il sistema deve consentire la condivisione della scheda del centro tramite applicazioni esterne.
+%& Desiderabile \tabularnewline
+\addlinespace
+%\multicolumn{3}{@{}l}{\textbf{Controlli della mappa}} \tabularnewline
+%RF-36 & Il sistema deve fornire comandi di avvicinamento (\textit{zoom in}) e allontanamento (\textit{zoom out}) della vista alternativi al gesto a due dita.
+%& Desiderabile \tabularnewline
+%RF-37 & Quando la mappa è ruotata, il sistema deve mostrare una bussola che ne consenta il ripristino verso il nord.
+%& Desiderabile \tabularnewline
+\caption{Requisiti funzionali del sistema.}
+\label{tab:requisiti-funzionali}
+\end{longtable}
+\normalsize
+
+\section{Requisiti non funzionali}\label{sec:requisiti-non-funzionali}
+
+I requisiti non funzionali riguardano il modo in cui il sistema deve comportarsi, anziché le funzioni che deve offrire.
+In questo caso sono particolarmente importanti in quanto l'applicazione dipende da servizi terzi che non controlla, e
+opera in un contesto d'uso mobile in cui la connettività non è garantita.
+
+\footnotesize
+\begin{longtable}{@{}P{1.6cm} P{2.4cm} P{8.8cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Categoria} & \textbf{Descrizione} \tabularnewline
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Categoria} & \textbf{Descrizione} \tabularnewline
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\emph{segue alla pagina successiva}} \tabularnewline
+\endfoot
+\bottomrule
+\endlastfoot
+RNF-01 & Usabilità & I comandi d'uso frequente devono trovarsi nella porzione inferiore dello schermo, raggiungibile con
+il pollice e una sola mano. \tabularnewline
+%RNF-02 & Usabilità & Ogni elemento interattivo deve avere un'area di tocco non inferiore a 48 punti logici (pt) per lato, in
+%accordo con le indicazioni di Material 3. \tabularnewline
+RNF-02 & Usabilità & Ogni azione dell'utente deve produrre un feedback visivo immediato, così da rendere percepibile lo
+stato del sistema. \tabularnewline
+RNF-03 & Usabilità & I messaggi rivolti all'utente devono essere in italiano e privi di terminologia tecnica o di codici
+di errore. \tabularnewline
+RNF-04 & Prestazioni & Lo spostamento e lo zoom della mappa devono risultare fluidi anche con l'intero elenco dei centri
+caricato in memoria. \tabularnewline
+%RNF-06 & Prestazioni & Il ricalcolo dei cluster non deve essere eseguito a ogni fotogramma dell'interazione, ma solo al
+%termine di essa. \tabularnewline
+RNF-05 & Prestazioni & L'avvio dell'applicazione non deve attendere il completamento delle richieste di rete per mostrare
+la mappa. \tabularnewline
+RNF-06 & Stabilità & Ogni richiesta di rete deve avere un \textit{timeout} oltre il quale viene scartata, per non bloccare l'interfaccia. \tabularnewline
+%RNF-09 & Stabilità & Un record malformato proveniente dal servizio remoto non deve impedire il caricamento dei record corretti. \tabularnewline
+RNF-07 & Stabilità & In assenza di connessione il sistema deve restare utilizzabile con i dati già acquisiti, segnalando
+all'utente la condizione. \tabularnewline
+RNF-08 & Stabilità & Un errore di lettura della cache locale non deve impedire l'avvio dell'applicazione. \tabularnewline
+RNF-09 & Compatibilità & L'attribuzione dei dati cartografici deve essere sempre visibile, come previsto dalla licenza della
+sorgente. \tabularnewline
+%RNF-13 & Compatibilità & Le richieste ai servizi pubblici devono identificare l'applicazione e rispettare i limiti di frequenza
+%dichiarati nelle rispettive policy. \tabularnewline
+RNF-10 & Riservatezza & La posizione dell'utente deve essere impiegata per il centraggio della mappa e per il
+calcolo delle distanze, e non deve essere trasmessa ad alcun servizio. \tabularnewline
+RNF-11 & Riservatezza & Il sistema non deve richiedere registrazione, credenziali o dati personali identificativi. \tabularnewline
+%RNF-16 & Portabilità & L'applicazione deve essere realizzata con un'unica base di codice per Android e iOS, dichiarando su entrambe
+%le piattaforme i permessi necessari. \tabularnewline
+%RNF-17 & Manutenibilità & Il modello dei dati interno deve essere indipendente dallo schema delle sorgenti remote, così da consentire
+%la sostituzione di un endpoint senza modifiche all'interfaccia. \tabularnewline
+\caption{Requisiti non funzionali del sistema.}
+\label{tab:requisiti-non-funzionali}
+\end{longtable}
+\normalsize
+
+%I requisiti d'usabilità sono definiti nei paragrafi successivi.
+%La norma ISO 9241 definisce l'usabilità come il grado in cui un sistema permette a determinati utenti di raggiungere obiettivi
+%specifici con efficacia, efficienza e in modo soddisfacente in un determinato contesto d'utilizzo \cite{iso9241}. %e in questo caso il contesto
+%d'uso, cioè una persona che cerca una struttura sanitaria, è parte integrante della specifica.
+%Le classiche linee guida di valutazione dell'interfaccia \cite{nielsenUsability} hanno guidato in particolare i requisiti
+%RNF-03 e RNF-04: la visibilità dello stato del sistema e l'uso di un linguaggio comprensibile all'utente sono due dei dieci criteri,
+%e sono anche i due punti su cui un'applicazione che dipende dalla rete sbaglia più facilmente.
+
+\section{Casi d'uso}\label{sec:casi-duso}
+
+Il diagramma della figura \ref{fig:casi-uso} raccoglie le interazioni principali.
+L'utente compare a sinistra, i casi d'uso sono racchiusi nel confine, e i servizi esterni sono collegati con
+linee tratteggiate ai casi d'uso che li coinvolgono: la cartina geografica e l'acquisizione dell'elenco dipendono da
+servizi remoti, la ricerca per indirizzo dalla geocodifica, la ricerca dei centri vicini dal sistema operativo, mentre
+indicazioni e contatti delegano il compito ad applicazioni installate sul dispositivo.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.86, transform shape, font=\footnotesize]
+  \draw[black!70, thick] (0,-0.4) rectangle (7.4,9.4);
+  \node[anchor=north] at (3.7,9.25) {\textbf{Applicazione}};
+
+  \node[ucase] (uc1) at (3.7,8.3) {Consultare la mappa dei centri};
+  \node[ucase] (uc2) at (3.7,7.1) {Ricerca località per indirizzo};
+  \node[ucase] (uc3) at (3.7,5.9) {Filtrare i centri per patologia};
+  \node[ucase] (uc4) at (3.7,4.7) {Ricerca centri più vicini};
+  \node[ucase] (uc5) at (3.7,3.5) {Gestire i centri preferiti};
+  \node[ucase] (uc6) at (3.7,2.3) {Gestire i centri personalizzati};
+  \node[ucase] (uc7) at (3.7,1.1) {Ottenere le indicazioni stradali};
+  \node[ucase] (uc8) at (3.7,-0.1) {Contattare il centro};
+
+  \begin{scope}[shift={(-2.3,4.1)}]
+    \draw[thick] (0,0.9) circle (0.22);
+    \draw[thick] (0,0.68) -- (0,0.05);
+    \draw[thick] (-0.32,0.45) -- (0.32,0.45);
+    \draw[thick] (0,0.05) -- (-0.26,-0.45);
+    \draw[thick] (0,0.05) -- (0.26,-0.45);
+    \node[anchor=north, font=\scriptsize] at (0,-0.55) {Utente};
+  \end{scope}
+
+  \foreach \i in {1,...,8}{
+    \draw[black!65] (-2.06,4.55) -- (uc\i.west);
+  }
+
+  \node[extern] (s1) at (10.1,8.3) {Server dei tile\\ e servizio elenco centri};
+  \node[extern] (s2) at (10.1,7.1) {Servizio di\\ geocodifica};
+  \node[extern] (s3) at (10.1,4.7) {Sistema operativo\\ (posizione)};
+  \node[extern] (s4) at (10.1,0.5) {Applicazioni\\ esterne};
+
+  \draw[flowdash] (uc1.east) -- (s1.west);
+  \draw[flowdash] (uc2.east) -- (s2.west);
+  \draw[flowdash] (uc4.east) -- (s3.west);
+  \draw[flowdash] (uc7.east) -- (s4.west);
+  \draw[flowdash] (uc8.east) -- (s4.west);
+\end{tikzpicture}
+\caption{Diagramma dei casi d'uso.}
+\label{fig:casi-uso}
+\end{figure}
+
+I casi d'uso sono numerati da UC-01 a UC-08 seguendo l'ordine con cui compaiono nel diagramma, dall'alto verso il basso.
+Le schede che seguono ne mostrano nel dettaglio tre (UC-01, UC-04, UC-06).
+Sono esclusi il filtro per patologia e la gestione dei preferiti,
+il cui svolgimento si riduce all'attivazione di un comando e all'aggiornamento della vista (\textit{view}),
+senza azioni particolari, così come la ricerca per indirizzo (UC-02), le indicazioni stradali (UC-07) e il contatto (UC-08),
+descritti dai requisiti e dall'implementazione.
+%Per gli altri la sequenza di interazione non è immediata, oppure il comportamento in caso di errore conviene definirlo per iscritto.
+L'ultima riga di ogni scheda richiama i requisiti funzionali (RF) corrispondenti.%, così da rendere verificabile la copertura della specifica.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{UC-01 \textemdash{} Consultare la mappa dei centri}} \tabularnewline
+\midrule
+Attore primario & Utente \tabularnewline
+Attori secondari & Servizio elenco centri, server dei tile \tabularnewline
+Precondizioni & L'applicazione è stata avviata.
+Nessun permesso necessario. \tabularnewline
+Postcondizioni & La mappa mostra i centri disponibili nell'area visibile. \tabularnewline
+Scenario principale & 1.
+L'utente apre l'applicazione.
+\newline 2. Il sistema mostra la mappa su una schermata iniziale predefinita e carica i centri dalla cache locale, se presente.
+\newline 3. Il sistema richiede l'elenco aggiornato al servizio remoto, normalizza i record e aggiorna la cache.
+\newline 4. Il sistema seleziona i centri compresi nell'area visibile, li raggruppa in base al livello di zoom e disegna marker e cluster.
+\newline 5. L'utente sposta la schermata oppure ne modifica lo zoom.
+\newline 6. Il sistema ricalcola selezione e cluster al termine del gesto e aggiorna il disegno. \tabularnewline
+Scenari alternativi & 3a.
+Il servizio principale non risponde oppure restituisce dati invalidi: il sistema interroga la fonte alternativa e prosegue dal passo 4.
+\newline 3b.
+Nessuna fonte raggiungibile ma la cache contiene dati: il sistema utilizza la cache e segnala che l'elenco potrebbe non essere aggiornato.
+\newline 3c.
+Nessuna fonte raggiungibile e cache vuota: il sistema segnala l'assenza di dati e offre un comando per riprovare.
+\newline 4a.
+Alcuni record sono privi di coordinate valide: il sistema li scarta e disegna i rimanenti. \tabularnewline
+Requisiti & RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09 \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Scheda caso d'uso UC-01.}
+\label{tab:uc-01}
+\end{table}
+
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-02 \textemdash{} Ricerca località per indirizzo}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Servizio di geocodifica \tabularnewline
+%Precondizioni & La mappa è visualizzata ed è disponibile una connessione di rete. \tabularnewline
+%Postcondizioni & La vista è centrata sulla località scelta. \tabularnewline
+%Scenario principale & 1.
+%L'utente tocca il campo di ricerca e digita un indirizzo oppure il nome di una località.
+%\newline 2. Il sistema attende una pausa nella digitazione, quindi interroga il servizio di geocodifica con il testo inserito.
+%\newline 3. Il sistema mostra l'elenco dei risultati sotto il campo di ricerca.
+%\newline 4. L'utente seleziona un risultato.
+%\newline 5. Il sistema chiude l'elenco, sposta la vista sulle coordinate corrispondenti e ricalcola i marker visibili. \tabularnewline
+%Scenari alternativi & 2a.
+%L'utente continua a digitare prima della scadenza del timeout (attesa): il sistema annulla la query in corso e ne pianifica
+%una nuova, così da evitare multiple richieste per ogni carattere inserito.
+%\newline 3a.
+%Il servizio non restituisce alcun risultato: il sistema segnala l'esito e lascia il testo inserito.
+%\newline 3b.
+%Il servizio è irraggiungibile: il sistema segnala l'errore e mantiene la viewport corrente.
+%\newline 4a.
+%L'utente annulla la ricerca: il sistema chiude l'elenco dei suggerimenti e ripristina i comandi della mappa. \tabularnewline
+%Requisiti & RF-13, RF-14, RF-15 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-02.}
+%\label{tab:uc-02}
+%\end{table}
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{UC-04 \textemdash{} Ricerca centri più vicini}} \tabularnewline
+\midrule
+Attore primario & Utente \tabularnewline
+Attori secondari & Sistema operativo \tabularnewline
+Precondizioni & La mappa e l'elenco dei centri sono stati caricati. \tabularnewline
+Postcondizioni & L'utente dispone dell'elenco dei centri entro il raggio prescelto, ordinati per distanza. \tabularnewline
+Scenario principale & 1.
+L'utente attiva la funzione di ricerca per raggio.
+\newline 2. Il sistema verifica se il servizio di localizzazione del dispositivo sia attivo e se il permesso sia già stato concesso.
+\newline 3. Il sistema richiede la posizione aggiornata al sistema operativo.
+\newline 4. L'utente seleziona il raggio di ricerca e, se lo desidera, la patologia di interesse.
+\newline 5. Il sistema calcola la distanza di ogni centro dalla posizione dell'utente,
+scarta quelli troppo distanti e applica il filtro per patologia sia ai centri remoti sia a quelli personalizzati.
+\newline 6. Il sistema disegna sulla mappa la circonferenza corrispondente al raggio e presenta l'elenco dei centri trovati
+ordinati per distanza crescente. \tabularnewline
+Scenari alternativi & 2a.
+Il permesso non viene concesso: il sistema lo richiede e prosegue dal passo 3 se questo viene concesso.
+\newline 2b.
+Il permesso viene negato: il sistema mantiene la schermata predefinita, avvisa che la funzione richiede la posizione e chiede
+di riprovare più tardi.
+\newline 2c.
+Il permesso viene negato in modo permanente: il sistema offre un collegamento alle impostazioni di sistema, poiché da
+questo stato la richiesta non può più essere ripresentata dall'applicazione.
+\newline 2d.
+Il servizio di geolocalizzazione del dispositivo è disattivato: il sistema lo segnala e invita ad attivarlo.
+\newline 6a.
+Nessun centro nel raggio: il sistema lo comunica e suggerisce di effettuare nuovamente la ricerca con un raggio più ampio. \tabularnewline
+Requisiti & RF-10, RF-11, RF-12, RF-16, RF-17, RF-18, RF-19, RF-20 \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Scheda caso d'uso UC-04.}
+\label{tab:uc-04}
+\end{table}
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{UC-06 \textemdash{} Inserimento centro personalizzato}} \tabularnewline
+\midrule
+Attore primario & Utente \tabularnewline
+Attori secondari & Nessuno.
+L'operazione avviene interamente in locale e non richiede una connessione di rete. \tabularnewline
+Precondizioni & La mappa è aperta. \tabularnewline
+Postcondizioni & Il centro viene memorizzato sul dispositivo, ed è visibile sulla mappa come un marker. \tabularnewline
+Scenario principale & 1.
+L'utente mantiene premuto il dito sulla mappa nel punto in cui si trova la struttura.
+\newline 2. Il sistema apre il modulo di inserimento assumendo quel punto come posizione del centro.
+\newline 3. L'utente compila nome, indirizzo e città, indica almeno un contatto tra numero di telefono e indirizzo
+email, e seleziona le patologie trattate.
+\newline 4. L'utente conferma il salvataggio.
+\newline 5. Il sistema verifica e valida i dati inseriti.
+\newline 6. Il sistema assegna al centro un identificatore, lo aggiunge all'archivio locale e lo disegna sulla mappa. \tabularnewline
+Scenari alternativi & 1a.
+L'utente apre il modulo dall'elenco dei centri personalizzati invece che dalla mappa: il sistema propone come posizione il centro
+della schermata attiva, che l'utente può visualizzare sulla vista aggiornata prima di salvare.
+%\newline 5a.
+%Nome, indirizzo oppure città sono vuoti: il sistema segnala il campo mancante e resta sul modulo, conservando quanto già inserito.
+%\newline 5b.
+%Né il telefono né l'email sono stati inseriti: il sistema chiede l'inserimento di almeno un contatto.
+%\newline 5c.
+%Il numero di telefono non rispetta il formato nazionale oppure l'indirizzo email non è sintatticamente corretto: il sistema segnala l'errore sul campo interessato.
+%\newline 5d.
+%Nessuna patologia selezionata: il sistema lo segnala e lo richiede.
+\newline 4a.
+L'utente annulla: il sistema chiude il modulo senza memorizzare. \tabularnewline
+Requisiti & RF-21, RF-22, RF-23, RF-24, RF-25 \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Scheda caso d'uso UC-06.}
+\label{tab:uc-06}
+\end{table}
+
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-07 \textemdash{} Ottenere le indicazioni stradali}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Applicazioni di navigazione installate sul dispositivo \tabularnewline
+%Precondizioni & La scheda di un centro è aperta e il centro dispone di coordinate valide. \tabularnewline
+%Postcondizioni & Il percorso verso il centro è aperto in un'applicazione di navigazione esterna. \tabularnewline
+%Scenario principale & 1.
+%L'utente richiede le indicazioni dalla scheda del centro.
+%\newline 2. Il sistema propone la scelta di un mezzo di trasporto tra automobile, mezzi pubblici, bicicletta e a piedi.
+%\newline 3. L'utente seleziona il mezzo desiderato.
+%\newline 4. Il sistema propone le applicazioni di navigazione.
+%\newline 5. L'utente seleziona un'applicazione.
+%\newline 6. Il sistema crea il collegamento verso quell'applicazione, inserendo le coordinate del centro come destinazione e
+%il mezzo prescelto, e ne delega l'apertura al sistema operativo. \tabularnewline
+%Scenari alternativi & 4a.
+%Dispositivo Android: il sistema propone Google Maps e Waze.
+%\newline 4b.
+%Dispositivo iOS: il sistema propone anche Apple Maps.
+%\newline 6a.
+%Viene scelta come applicazione Waze, che accetta nel collegamento la destinazione ma non il mezzo di trasporto: il sistema avvia la
+%navigazione lasciando all'applicazione la sua modalità predefinita.
+%\newline 6b.
+%Viene scelta come applicazione Apple Maps e il mezzo selezionato è la bicicletta, che il collegamento non riconosce: il sistema
+%mostra allora il percorso con un mezzo alternativo, ossia in auto.
+%\newline 6c.
+%Nessuna applicazione è in grado di gestire il collegamento oppure l'apertura fallisce: il sistema avvisa che le indicazioni
+%non possono essere aperte e mantiene la scheda del centro. \tabularnewline
+%Requisiti & RF-28 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-07.}
+%\label{tab:uc-07}
+%\end{table}
+
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.1cm} L@{}}
+%\toprule
+%\multicolumn{2}{@{}l}{\textbf{UC-08 \textemdash{} Contattare il centro}} \tabularnewline
+%\midrule
+%Attore primario & Utente \tabularnewline
+%Attori secondari & Applicazione telefonica, client di posta elettronica, applicazioni di condivisione \tabularnewline
+%Precondizioni & È aperta la scheda di un centro. \tabularnewline
+%Postcondizioni & L'applicazione assegnata viene aperta con il contatto e/o con il testo da condividere già predisposto. \tabularnewline
+%Scenario principale & 1.
+%L'utente seleziona il marker di un centro.
+%\newline 2. Il sistema apre la scheda con nome, indirizzo e contatti disponibili, mostrando i comandi per chiamare,
+%inviare un'email e condividere.
+%\newline 3. L'utente richiede la chiamata.
+%\newline 4. Il sistema individua il primo numero fra quelli elencati nel campo: ne rimuove i divisori e apre
+%l'applicazione telefonica con il numero già composto, senza avviare la chiamata. \tabularnewline
+%Scenari alternativi & 3a.
+%L'utente richiede l'invio di un'email: il sistema individua l'indirizzo e apre il client di posta
+%elettronica con il destinatario scelto.
+%\newline 3b.
+%L'utente richiede la condivisione: il sistema compone un testo con i dati del centro e un collegamento alla posizione sulla
+%mappa, quindi apre il pannello di condivisione del dispositivo.
+%\newline 4a.
+%Il campo contiene più recapiti separati da virgole o barre: il sistema ne utilizza il primo.
+%\newline 4b.
+%Dopo la rimozione dei caratteri non ammessi il numero risulta vuoto: il sistema non effettua alcuna azione.
+%\newline 4c.
+%Nessuna applicazione è in grado di gestire il collegamento: l'operazione viene annullata rimanendo sulla scheda corrente. \tabularnewline
+%Requisiti & RF-27, RF-29 \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Scheda caso d'uso UC-08.}
+%\label{tab:uc-08}
+%\end{table}

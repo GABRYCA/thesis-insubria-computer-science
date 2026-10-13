@@ -1,0 +1,237 @@
+\chapter{Stato dell'arte}\label{ch:stato-arte}
+
+\section{Inquadramento clinico}\label{sec:inquadramento-clinico}
+
+\subsection{Dermatite atopica e psoriasi: caratteristiche e differenze}\label{subsec:dermatite-psoriasi}
+
+%Un'applicazione che filtra i centri per patologia deve sapere perché quel filtro serve.
+Dermatite atopica e psoriasi vengono spesso accostate, e in effetti hanno in comune la cronicità, la componente infiammatoria e
+un impatto sulla qualità della vita che va oltre il sintomo cutaneo; i meccanismi che le sostengono, tuttavia, sono distinti, come
+lo sono anche i percorsi terapeutici.
+
+La dermatite atopica è caratterizzata da un difetto della barriera cutanea associato a una risposta immunitaria di tipo 2.
+Esordisce tipicamente nell'infanzia, si manifesta con lesioni eczematose e prurito intenso, e ha un andamento fortemente stagionale \cite{weidingerAD}.
+La psoriasi ha un profilo immunologico differente, dominato dall'asse dell'interleuchina-23 e dei linfociti T-helper 17, si presenta
+con placche eritematose a desquamazione argentea e, in una quota rilevante di pazienti, si accompagna a manifestazioni articolari
+e a comorbilità di tipo metabolico e cardiovascolare \cite{griffithsPsoriasis}.
+%Le differenze principali, riassunte nella tabella \ref{tab:patologie}, giustificano elenchi di strutture separati.
+
+%\begin{table}[H]
+%\centering
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}B{3.3cm} L L@{}}
+%\toprule
+% & \textbf{Dermatite atopica} & \textbf{Psoriasi} \tabularnewline
+%\midrule
+%Meccanismo immunitario & Risposta di tipo 2, associata a un difetto della barriera cutanea & Asse dell'interleuchina-23 e linfociti T helper 17 \tabularnewline
+%Esordio tipico & Infanzia & Più frequente in età adulta \tabularnewline
+%Manifestazione cutanea & Lesioni eczematose con prurito intenso & Placche eritematose a desquamazione argentea \tabularnewline
+%Segni associati & andamento fortemente stagionale & interessamento articolare, comorbilità metaboliche e cardiovascolari \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Caratteristiche principali delle due patologie: meccanismi distinti corrispondono a percorsi di cura distinti.}
+%\label{tab:patologie}
+%\end{table}
+
+La conseguenza organizzativa è che le due patologie non vengono seguite necessariamente dalle stesse strutture.
+Alcuni ambulatori sono dedicati a una sola delle due, altri a entrambe, e la specializzazione si riflette sui farmaci disponibili
+e sui protocolli di monitoraggio.
+Un elenco che non distingua i due casi costringe l'utente a verificare struttura per struttura, che è esattamente parte del lavoro che si vorrebbe evitargli.
+Per questo, nel modello dei dati descritto al paragrafo \ref{subsec:modello-centri}, la patologia trattata è uno degli attributi principali
+del centro.% e non un'annotazione testuale.
+
+\subsection{Il percorso di cura e il ruolo dei centri specialistici}\label{subsec:percorso-cura}
+
+Nelle forme moderate e severe la gestione esce dall'ambito della medicina generale:
+%I farmaci biologici e le piccole molecole di più recente introduzione richiedono una prescrizione specialistica, esami di
+%monitoraggio periodici e, in Italia, l'erogazione attraverso centri riconosciuti a livello regionale.
+%Questo genera una geografia particolare: le strutture non sono distribuite in modo uniforme sul territorio, e la distanza
+%dal centro più vicino diventa un fattore che incide sull'aderenza alla terapia.
+il Piano Nazionale della Cronicità (\textit{PNC}) individua infatti nella frammentazione informativa uno degli ostacoli alla presa
+in carico \cite{pianoCronicita}.
+Questo è un problema che l'utente percepisce in modo molto concreto, sotto forma di elenchi da confrontare a mano.
+Ridurre quel confronto a un'unica schermata ordinata è uno degli obiettivi di questa applicazione.
+
+\section{Strumenti esistenti per la ricerca di centri dermatologici}\label{sec:strumenti-esistenti}
+
+\subsection{I portali Dermatopia e Vicini di Pelle}\label{subsec:portali-esistenti}
+
+Nel contesto italiano, due piattaforme si distinguono per completezza.
+La prima, Dermatopia, offre un elenco di centri dermatologici attraverso un servizio web pubblico \cite{dermatopia}.
+La seconda, Vicini di Pelle, è un progetto divulgativo dedicato alla psoriasi che pubblica una mappa delle strutture di riferimento,
+costruita tramite un plugin cartografico WordPress \cite{viciniDiPelle}.
+
+Entrambe risolvono la parte più complessa del problema, ossia il censimento.
+Raccogliere e mantenere aggiornato un elenco di strutture sanitarie è un lavoro redazionale continuo, che questa tesi
+non intende replicare. %con la stessa affidabilità.
+Per questa ragione il progetto non tenta di costruire un proprio archivio e assume queste sorgenti come dato di partenza,
+concentrando i propri sforzi su ciò che manca, cioè l'accesso mobile e georeferenziato.
+
+\subsection{Limiti degli strumenti attuali}\label{subsec:limiti-strumenti}
+
+Dall'analisi dei due portali emergono alcuni limiti, che hanno influito sulla definizione dei requisiti del
+capitolo \ref{ch:analisi-dei-requisiti}.
+
+\begin{itemize}
+  \item La navigazione è organizzata per suddivisione amministrativa e non per prossimità.
+  L'utente sceglie una regione o una provincia e ottiene un elenco; tuttavia, se abita al confine tra due province, deve ripetere la ricerca.
+  La domanda principale, cioè quale sia il centro più vicino, non ha una risposta diretta.
+  \item La posizione dell'utente non viene utilizzata.
+  Nessuno dei due strumenti chiede o impiega le coordinate del dispositivo, quindi non esiste ordinamento per distanza né filtro per raggio.
+  \item L'esperienza sugli schermi più piccoli è penalizzata.
+  Le tabelle con più colonne richiedono scorrimento orizzontale, e le azioni successive alla consultazione, come chiamare la
+  struttura o avviare la navigazione, richiedono la copia manuale del dato.
+  \item Non esiste alcuna modalità offline.
+  Ogni consultazione richiede una connessione attiva, condizione non garantita quando la ricerca avviene in movimento.
+  \item Non è previsto alcun contributo da parte dell'utente.
+  Se il proprio dermatologo di riferimento non compare nell'elenco, non c'è modo di annotarlo e ritrovarlo successivamente.
+  Questa osservazione ha portato alla funzionalità dei centri personalizzati, che nella versione realizzata convivono con quelli
+  remoti nella stessa mappa.
+\end{itemize}
+
+%\begin{table}[H]
+%\centering
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}L c c c@{}}
+%\toprule
+%\textbf{Capacità} & \textbf{Dermatopia} & \textbf{Vicini di Pelle} & \textbf{App realizzata} \tabularnewline
+%\midrule
+%Ricerca per prossimità e distanza & no & no & sì \tabularnewline
+%Uso della posizione del dispositivo & no & no & sì \tabularnewline
+%Visualizzazione su mappa interattiva & no & sì & sì \tabularnewline
+%Ordinamento per distanza & no & no & sì \tabularnewline
+%Funzionamento offline & no & no & sì \tabularnewline
+%Contributo dell'utente (centri propri) & no & no & sì \tabularnewline
+%Azioni dirette (chiamata, navigazione) & no & no & sì \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Confronto fra gli strumenti esistenti e l'applicazione realizzata rispetto alle capacità individuate dall'analisi.}
+%\label{tab:limiti-strumenti}
+%\end{table}
+
+\section{Provider delle mappe mobile}\label{sec:piattaforme-cartografiche}
+
+La scelta del provider delle mappe condiziona costi, vincoli di licenza e struttura del codice. %, quindi va affrontata prima
+%di scrivere l'applicazione.
+Sono state valutate tre alternative.
+
+\begin{enumerate}
+  \item Google Maps Platform, integrabile in Flutter attraverso un plugin ufficiale.
+  Offre la migliore qualità cartografica e servizi accessori maturi, ma richiede una chiave API associata a un profilo di fatturazione
+  e adotta un modello a consumo, con una soglia mensile gratuita oltre la quale ogni caricamento della mappa viene tariffato \cite{googleMapsPricing}.
+  Per un'applicazione senza un modello di ricavo, il rischio è di trovarsi con un costo che cresce insieme al numero di utenti.
+  \item Mapbox, che propone mappe vettoriali personalizzabili e un modello di prezzo analogo, basato su un numero
+  di caricamenti mensili gratuiti e su tariffe successive \cite{mapboxPricing}.
+  La qualità dello stile è notevole, ma restano la dipendenza da un provider commerciale e la necessità di un token.
+  \item OpenStreetMap, i cui dati sono distribuiti con licenza Open Database License e richiedono soltanto
+  l'attribuzione \cite{osmCopyright}.
+  In Flutter il compito è affidato a \texttt{flutter\_map}, un package mantenuto dalla \textit{community} che effettua il rendering dei \textit{tile layer}
+  (i tasselli quadrati che compongono la mappa) senza legarsi a un provider specifico \cite{flutterMapPkg, flutterMapDocs}.
+  Non sono necessari né una chiave né un profilo di fatturazione e la sorgente dei \textit{tile}
+  può essere sostituita modificando un URL (\textit{Uniform Resource Locator}).
+\end{enumerate}
+
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l L L L@{}}
+\toprule
+\textbf{Criterio} & \textbf{Google Maps} & \textbf{Mapbox} & \textbf{OSM con flutter\_map} \tabularnewline
+\midrule
+Costi operativi & A consumo oltre la soglia gratuita & A consumo oltre la soglia gratuita & Nessun costo diretto \tabularnewline
+Credenziali richieste & Chiave API con fatturazione attiva & Token di accesso & Nessuna \tabularnewline
+Licenza & Proprietaria & Proprietaria & ODbL con attribuzione \tabularnewline
+Marker personalizzabili & Vincolati al plugin nativo & Buona & Totale, sono widget Flutter \tabularnewline
+Sostituibilità del provider & Bassa & Bassa & Alta \tabularnewline
+Vincoli d'uso & Contrattuali & Contrattuali & Policy di utilizzo dei tile \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Confronto dei provider delle mappe valutati.}
+\label{tab:confronto-piattaforme}
+\end{table}
+
+A seguito di un'attenta valutazione, la scelta migliore è risultata OpenStreetMap con \texttt{flutter\_map}.
+I fattori determinanti non sono stati solamente i costi, ma anche il fatto che i marker siano widget Flutter
+a tutti gli effetti.
+Questo permette di costruire il clustering dinamico descritto al paragrafo \ref{subsec:impl-clustering}
+con gli stessi strumenti usati per il resto dell'interfaccia, senza passare attraverso un layer nativo.
+
+Tuttavia, ci sono dei compromessi.
+I \textit{tile} pubblici di OpenStreetMap sono forniti a titolo gratuito e la relativa policy vieta utilizzi massivi, impone di
+identificare l'applicazione richiedente e di rispettare le direttive di caching \cite{osmTilePolicy}.
+%Sono vincoli che vanno rispettati e gestiti, specialmente nel caso in cui il numero di utenti cresca a numeri considerevoli.
+Inoltre, la grafica dei \textit{tile} raster non è agli stessi livelli qualitativi di quella vettoriale offerta dai concorrenti commerciali.
+
+Sul piano tecnico la visualizzazione segue lo schema \emph{slippy map}, ove la superficie terrestre è proiettata secondo Web Mercator
+(standard per le mappe digitali web) e suddivisa, a ogni livello di zoom, in una griglia di immagini quadrate indicizzate
+da tre valori: zoom, colonna e riga \cite{slippyMap}.
+Ogni incremento dello zoom raddoppia il numero di tile per lato, come illustrato nella figura \ref{fig:tasselli}.
+Questa relazione esponenziale viene trattata anche nella formula che dimensiona le celle dell'algoritmo di clustering.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+
+  \draw[black!70, thick] (0,0) rectangle (2.4,2.4);
+\draw[cellgrid] (1.2,0) -- (1.2,2.4);
+\draw[cellgrid] (0,1.2) -- (2.4,1.2);
+\fill[black!15] (1.2,1.2) rectangle (2.4,2.4);
+\node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k$, $2\times2$};
+
+\begin{scope}[xshift=3.4cm]
+\draw[black!70, thick] (0,0) rectangle (2.4,2.4);
+\foreach \x in {0.6,1.2,1.8} {\draw[cellgrid] (\x,0) -- (\x,2.4);}
+\foreach \y in {0.6,1.2,1.8} {\draw[cellgrid] (0,\y) -- (2.4,\y);}
+\fill[black!15] (0.6,1.2) rectangle (1.2,1.8);
+\node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}1$, $4\times4$};
+\end{scope}
+
+\begin{scope}[xshift=6.8cm]
+\draw[black!70, thick] (0,0) rectangle (2.4,2.4);
+\foreach \i in {1,...,7} {
+  \draw[cellgrid] (\i*0.3,0) -- (\i*0.3,2.4);
+  \draw[cellgrid] (0,\i*0.3) -- (2.4,\i*0.3);
+}
+\fill[black!15] (0.9,1.5) rectangle (1.2,1.8);
+\node[below=2pt, font=\scriptsize] at (1.2,0) {zoom $k{+}2$, $8\times8$};
+\end{scope}
+\end{tikzpicture}
+\caption{Schema slippy map: la stessa porzione di territorio ai diversi livelli di zoom, con un tile evidenziato per ciascuno.
+Ogni incremento dello zoom raddoppia il numero di tile per lato e ogni tile è individuato dagli indici di zoom, colonna e riga.}
+\label{fig:tasselli}
+\end{figure}
+
+\subsection{Geocodifica e ricerca per indirizzo}\label{subsec:geocodifica}
+
+Una mappa senza barra di ricerca è utile soltanto per chi sa già dove guardare.
+Serve quindi una geocodifica diretta, cioè la traduzione di un testo in coordinate. % come una barra di ricerca per indirizzo.
+Nell'ecosistema OpenStreetMap questo servizio è offerto da Nominatim, che espone un endpoint di ricerca con risposta in formato JSON (\textit{JavaScript Object Notation})\@.
+
+Anche qui sono presenti dei vincoli, dichiarati nella policy di utilizzo: al massimo una richiesta al secondo, obbligo di identificare l'applicazione,
+divieto di geocodifica massiva e invito esplicito a memorizzare i risultati (caching) per non ripetere più interrogazioni identiche \cite{nominatimPolicy}.
+%La soluzione adottata, ossia un meccanismo di \textit{debounce} sull'input descritto al paragrafo \ref{subsec:impl-ricerca},
+%nasce proprio da questo vincolo. %e non da una preferenza estetica.
+
+\section{Framework per lo sviluppo cross-platform}\label{sec:framework-cross-platform}
+
+Il requisito di una singola base di codice per Android e iOS restringe di molto la scelta.
+%Lo sviluppo nativo separato, con Kotlin e Swift, resta la soluzione con il migliore accesso alle API di sistema, ma comporta
+%due implementazioni parallele dell'interfaccia.%, serve quindi una soluzione alternativa.
+%
+%React Native adotta un approccio a componenti pilotati da JavaScript \cite{reactNative}, ed è una buona alternativa
+%quando si dispone già di competenze nell'ecosistema web.
+
+Flutter compila codice Dart in binario e disegna l'interfaccia con un proprio motore
+grafico, ottenendo un completo controllo sul risultato visivo e un comportamento uniforme su entrambe le piattaforme \cite{flutterDocs, dartLang}.
+
+Per questo progetto, inoltre, Flutter presentava due ulteriori vantaggi:
+\begin{enumerate}
+  \item Il totale controllo sul rendering, indispensabile quando i marker sulla mappa devono cambiare forma e dimensione
+  in funzione del livello di zoom.
+  \item La disponibilità di Material 3 come design system \cite{material3}, che permette di
+  ottenere un'interfaccia uniforme senza costruire da zero ogni componente.
+\end{enumerate}
+
+Si aggiunge un ecosistema di packages che copre esattamente le esigenze del progetto, dalla geolocalizzazione alla
+persistenza dei dati, elencati nel dettaglio al paragrafo \ref{sec:ambiente-sviluppo}.

@@ -1,0 +1,266 @@
+\chapter{Conclusioni}\label{ch:conclusioni}
+
+\section{Risultati raggiunti}\label{sec:risultati-raggiunti}
+
+Il lavoro ha prodotto una mappa funzionante, che raccoglie da elenchi pubblici i centri dermatologici dedicati
+alla dermatite atopica e alla psoriasi, li mostra su una mappa interattiva con clustering dinamico dei marker, li filtra per
+patologia e per distanza, %dalla posizione dell'utente,
+li integra con voci inserite a mano e salvate sul dispositivo, e
+delega ai programmi installati le azioni che seguono la consultazione come, per esempio, la creazione del percorso.
+
+Rispetto alla domanda da cui il lavoro è partito, cioè dove si trovi il centro più vicino che segue una determinata patologia e
+come raggiungerlo, la risposta è ora ottenibile con due tocchi a partire dall'apertura della schermata, rispetto alla ricerca manuale
+degli elenchi o di diverse mappe online.
+Il contributo non sta nei dati, che restano quelli censiti da altri, ma nel modo in cui vengono interrogati: per prossimità,
+in un unico posto.
+%invece che per appartenenza territoriale.
+
+% Sul piano quantitativo la copertura della specifica è riassunta nella tabella \ref{tab:copertura} e distribuita graficamente nella
+% figura \ref{fig:copertura}.
+% La classificazione distingue i requisiti soddisfatti, quelli soddisfatti soltanto in parte e quelli non soddisfatti, e in
+% questa sede la colonna che conta è la terza: un riepilogo che dichiarasse tutto soddisfatto sarebbe più gradevole e meno utile.
+%
+% \begin{figure}[H]
+% \centering
+% \begin{tikzpicture}
+% \begin{axis}[
+%   ybar, bar width=1.1cm,
+%   width=\textwidth - 2.6cm, height=6.4cm,
+%   ymin=0, ymax=52,
+%   ytick distance=10,
+%   ylabel={Requisiti},
+%   symbolic x coords={Soddisfatti, Parziali, Non soddisfatti},
+%   xtick=data,
+%   x tick label style={font=\footnotesize, yshift=-2pt},
+%   y tick label style={font=\footnotesize},
+%   tick align=outside,
+%   axis lines=left,
+%   nodes near coords,
+%   nodes near coords style={font=\footnotesize},
+%   enlarge x limits=0.3
+% ]
+% \addplot[fill=black!25, draw=black!55] coordinates {(Soddisfatti,43) (Parziali,11) (Non soddisfatti,2)};
+% \end{axis}
+% \end{tikzpicture}
+% \caption{Distribuzione della copertura della specifica: quarantatrè requisiti soddisfatti, undici soddisfatti soltanto
+% in parte e due non soddisfatti.}
+% \label{fig:copertura}
+% \end{figure}
+%
+% \begin{table}[H]
+% \centering
+% \footnotesize
+% \begin{tabular}{@{}l c c c c@{}}
+% \toprule
+% \textbf{Categoria} & \textbf{Totale} & \textbf{Soddisfatti} & \textbf{Parziali} & \textbf{Non soddisfatti} \tabularnewline
+% \midrule
+% Requisiti funzionali & 38 & 33 & 4 & 1 \tabularnewline
+% Requisiti non funzionali & 18 & 10 & 7 & 1 \tabularnewline
+% \midrule
+% \textbf{Totale} & \textbf{56} & \textbf{43} & \textbf{11} & \textbf{2} \tabularnewline
+% \bottomrule
+% \end{tabular}
+% \caption{Copertura della specifica nella versione realizzata.}
+% \label{tab:copertura}
+% \end{table}
+%
+% La tabella \ref{tab:scostamenti} elenca uno per uno gli scostamenti, con la natura di ciascuno.
+% è la parte del riepilogo che ha richiesto più lavoro, perché diversi di questi scostamenti non erano noti durante lo sviluppo
+% e sono emersi dal riesame sistematico del codice svolto per la scrittura dei capitoli precedenti: scrivere che cosa fa un
+% programma è un modo efficace di accorgersi di che cosa non fa.
+%
+% \begin{table}[H]
+% \footnotesize
+% \begin{tabularx}{\textwidth}{@{}P{2.0cm} P{1.9cm} L@{}}
+% \toprule
+% \textbf{Requisito} & \textbf{Stato} & \textbf{Scostamento rilevato} \tabularnewline
+% \midrule
+% RF-07 & non soddisfatto & L'attribuzione della sorgente cartografica non è presente sulla mappa \tabularnewline
+% RNF-12 & non soddisfatto & Conseguenza del precedente: obbligo di licenza non rispettato \tabularnewline
+% \addlinespace
+% RF-02 & parziale & La ricaduta sulla sorgente alternativa avviene senza avvisare che i centri mostrati non sono specifici
+% della patologia richiesta \tabularnewline
+% RF-23 & parziale & Il filtro per raggio esclude i centri personalizzati dall'elenco ma non dalla mappa \tabularnewline
+% RF-29 & parziale & I centri personalizzati sono distinguibili nell'elenco ma non sulla mappa, dove usano lo stesso marker
+% dei centri remoti \tabularnewline
+% RF-34 & parziale & Un numero contenente un trattino viene troncato nella composizione della chiamata \tabularnewline
+% \addlinespace
+% RNF-02 & parziale & I comandi circolari flottanti misurano 45 punti di lato, contro i 48 richiesti \tabularnewline
+% RNF-03 & parziale & Le righe di selezione della patologia non mostrano l'animazione di tocco \tabularnewline
+% RNF-04 & parziale & Il messaggio di errore della ricerca riporta il testo tecnico dell'eccezione \tabularnewline
+% RNF-08 & parziale & Le due richieste alla geocodifica non hanno limite di attesa, che è presente solo sugli elenchi \tabularnewline
+% RNF-13 & parziale & L'identificativo trasmesso con le richieste dei tile è quello di esempio; il rinvio sulla digitazione
+% riduce le richieste alla geocodifica senza garantirne formalmente la frequenza \tabularnewline
+% RNF-17 & parziale & L'indipendenza dallo schema remoto è ottenuta nel comportamento ma non nella struttura, per la dispersione
+% delle catene di alias \tabularnewline
+% RNF-18 & parziale & La logica di clustering non è raggiungibile da un test automatico \tabularnewline
+% \bottomrule
+% \end{tabularx}
+% \caption{Scostamenti rilevati rispetto alla specifica, con la relativa natura.}
+% \label{tab:scostamenti}
+% \end{table}
+
+Fra i risultati va contato anche il sistema di verifica, con dodici unit test superati sulla serializzazione,
+persistenza e sul calcolo geodetico.
+% , e otto test di widget sulla validazione del modulo di inserimento.
+% Queste ultime, come descritto al paragrafo \ref{sec:test-ui}, risultano tutte non superate, e non perché le condizioni
+% verificate siano disattese, ma perché hanno reso visibile un difetto dell'interfaccia che nessun test manuale aveva rilevato.
+% è l'esito che considero più significativo dell'intera attività di verifica, e non a dispetto della colonna di esiti negativi
+% ma proprio in virtù di essa.
+
+A livello personale, il lavoro ha avuto un valore che merita di essere menzionato.
+%Sul piano personale il lavoro ha avuto un esito che vale registrare.
+La scelta iniziale di rinunciare a una piattaforma di mappe commerciale, motivata al paragrafo \ref{subsec:scelta-flutter} da
+ragioni di costo e di riproducibilità, ha comportato la necessità di costruire a mano funzioni che quella piattaforma avrebbe fornito
+comprese nel prezzo.
+Di conseguenza, il modulo dell'algoritmo di clustering del paragrafo \ref{subsec:impl-clustering}
+e i ragionamenti annessi esistono perché quella funzione non era disponibile.
+% Che la costante di quell'algoritmo sia stata trovata per tentativi e ne abbia compreso il significato geometrico soltanto
+% in un secondo momento, ricostruendolo per scrivere queste pagine, è a sua volta un risultato del lavoro di stesura.
+
+\section{Criticità e limiti attuali}\label{sec:limiti-attuali}
+
+I limiti che restano sono riconducibili a due punti.
+\begin{enumerate}
+    \item La cache degli elenchi non ha una scadenza, per cui i dati mostrati restano quelli dell'ultimo \textit{download} finché l'utente
+    non richiede esplicitamente un aggiornamento, come discusso al paragrafo \ref{subsec:strategia-cache}.
+    \item Il modulo dipende dagli elenchi pubblici di terzi, sui quali non si ha controllo né sul formato né sulla loro disponibilità.
+    Le opzioni migliori valutate per rimuovere questi limiti sono tema del paragrafo \ref{sec:sviluppi-futuri}.
+\end{enumerate}
+
+% I limiti si dividono in tre famiglie, che hanno natura ed esigibilità diverse: le omissioni da correggere, i compromessi di
+% progettazione consapevoli, e i vincoli imposti dalle condizioni in cui il lavoro si è svolto.
+%
+% La prima famiglia comprende gli scostamenti della tabella \ref{tab:scostamenti} e va corretta senza discussione.
+% Il primo per importanza è l'assenza dell'attribuzione cartografica: non è un difetto di comodità ma il mancato rispetto di un
+% obbligo di licenza \cite{osmCopyright}, e la sua correzione richiede l'aggiunta di un singolo componente fra i livelli della mappa.
+% Sono dello stesso genere l'identificativo di esempio trasmesso con le richieste dei tile, la mancanza del limite di attesa sulle
+% richieste alla geocodifica, il messaggio di errore che riporta il testo dell'eccezione, il troncamento dei numeri contenenti
+% un trattino e la dimensione dei comandi circolari, che va portata da quarantacinque a quarantotto punti.
+% Nessuno di questi interventi è oneroso e ciascuno è localizzato.
+%
+% Restano i due difetti che rendono i centri personalizzati meno distinguibili e meno coerenti di quanto la specifica preveda.
+% Sulla mappa usano lo stesso marker dei centri remoti, quando dovrebbero essere riconoscibili a vista, motivo per cui il requisito
+% RF-29 risulta soddisfatto solo in parte; il filtro per raggio, inoltre, li esclude dall'elenco ma non dalla mappa, producendo la
+% situazione poco difendibile di un centro che non compare fra i risultati mentre il suo marker resta visibile.
+% Entrambi derivano dalla stessa scelta implementativa, cioè il livello separato e non sottoposto alla selezione descritto al
+% paragrafo \ref{subsec:impl-marker}, e si correggerebbero facendo attraversare a quei centri lo stesso percorso dei centri remoti.
+%
+% La seconda famiglia comprende i compromessi assunti in modo consapevole, che non sono difetti ma scelte con un costo.
+% Il più rilevante è la politica della cache descritta al paragrafo \ref{subsec:strategia-cache}: in assenza di una scadenza,
+% un elenco già presente in memoria non viene mai riscaricato spontaneamente, e l'utente può consultare dati vecchi senza che
+% nulla lo segnali.
+% La correzione naturale è l'associazione di un istante di scaricamento a ciascun elenco conservato, con un aggiornamento
+% automatico oltre una certa età e un'indicazione della data del dato mostrato.
+%
+% Allo stesso gruppo appartiene la dispersione delle catene di alias discussa al paragrafo \ref{subsec:modello-centri}, che rende
+% l'aggiunta di una terza sorgente più costosa di quanto dovrebbe, e la ricaduta silenziosa fra le due sorgenti descritta al
+% paragrafo \ref{subsec:impl-endpoint}, che mostra centri non specifici della patologia richiesta senza dichiararlo.
+% Vi appartiene infine la natura geodetica di tutte le distanze mostrate: sono misurate in linea d'aria, e in territorio montano
+% lo scostamento dal percorso reale può essere considerevole.
+%
+% La terza famiglia raccoglie i limiti imposti dalle condizioni del lavoro, e il principale è l'assenza di qualunque verifica su
+% iOS, dichiarata al paragrafo \ref{sec:test-compatibilita}.
+% Il codice è scritto per entrambe le piattaforme e i tre punti in cui le distingue sono espliciti, ma nessuno di essi è stato
+% osservato in esecuzione; finché quella verifica non avviene, il supporto a iOS resta una previsione.
+% Allo stesso ordine appartiene l'impossibilità di sottoporre a test automatico l'algoritmo di clustering, che non dipende da
+% un vincolo esterno ma da una scelta di collocazione del codice, e che il requisito RNF-18 avrebbe dovuto prevenire.
+%
+% Resta da ricordare il limite che discende dalla premessa architetturale, cioè l'assenza di un servizio proprio.
+% Il modulo dipende per i dati da due elenchi pubblicati da terzi, sui quali non ha alcun controllo e nessun preavviso di modifica:
+% un cambiamento di formato deciso alla sorgente lo rende inutilizzabile fino a un aggiornamento dell'applicazione, e la chiusura
+% di una delle due sorgenti ne dimezza il contenuto.
+% La resistenza costruita nel livello di acquisizione, con la ricaduta fra sorgenti e la conservazione locale, attenua il problema
+% ma non lo elimina, perché sposta soltanto in avanti il momento in cui l'assenza del dato diventa visibile.
+
+\section{Sviluppi futuri}\label{sec:sviluppi-futuri}
+
+Le opzioni di sviluppo future che sembrano più opportune non sono l'aggiunta di nuove funzioni, %di cui il modulo non ha particolare bisogno,
+ma la rimozione dei limiti individuati nel paragrafo precedente.
+Le tre che seguono sono ordinate per rapporto di beneficio/costo.%, e la prima è anche quella dall'effetto più ampio.
+
+\subsection{Un livello intermedio di normalizzazione}\label{subsec:futuro-backend}
+
+L'intervento con l'effetto più ampio consiste nell'integrare fra le sorgenti pubbliche e l'applicazione un servizio
+proprio (come un \textit{middleware} o un'\textit{API}), che interroghi periodicamente gli elenchi originali, ne normalizzi
+il contenuto una volta ed esponga al client un unico formato stabile.
+%Questo è un elemento che non è stato ancora sviluppato, per le ragioni mostrate al
+%paragrafo \ref{sec:architettura-sistema}.
+% , e il riesame conclusivo mostra quanto quella rinuncia sia costata.
+
+Un servizio di questo genere risolverebbe tre limiti distinti:
+
+\begin{enumerate}
+    \item Renderebbe superflue le catene di alias nel codice, perché l'applicazione riceverebbe record già omogenei e
+    i nomi dei campi resterebbero confinati nel servizio.
+    \item Sul lato del servizio permetterebbe di riconoscere i cambiamenti di formato delle sorgenti, che oggi si manifestano soltanto
+    sul dispositivo dell'utente e sotto forma di elenco vuoto o malformato.
+    \item Ridurrebbe drasticamente le richieste dirette ai servizi pubblici, in quanto le interrogazioni verrebbero effettuate da
+    un solo ente a intervalli regolari invece che da ciascuna copia dell'applicazione.
+\end{enumerate}
+
+
+
+% , allineando il comportamento alle politiche d'uso
+% che al paragrafo \ref{sec:limiti-attuali} risultano rispettate solo in parte
+
+%L'altra faccia è il costo: un servizio va ospitato, mantenuto, sorvegliato e finanziato, e introduce un punto di guasto
+%che oggi non esiste.
+%È per questo che la scelta iniziale resta difendibile nel contesto di una tesi. Il modulo attuale, con tutti i suoi limiti,
+%funziona senza che nessuno se ne prenda cura.
+
+\subsection{Sincronizzazione fra dispositivi}\label{subsec:futuro-cloud}
+
+I centri inseriti dall'utente vivono ad oggi soltanto sul dispositivo su cui sono stati creati.
+Cambiando telefono vengono persi, e non esiste modo di consultarli da un secondo dispositivo.
+Una sincronizzazione remota risolverebbe entrambi i problemi, e a livello tecnico sarebbe integrabile con la base di dati
+già esistente.
+Di fatto i centri personalizzati hanno già una rappresentazione tipizzata, una serializzazione simmetrica
+e un identificatore stabile, ossia i tre requisiti principali di un tale sistema.
+
+Rimarrebbe comunque un aspetto delicato: non tanto la sincronizzazione in sé, quanto ciò che essa comporta sul piano della riservatezza.
+L'applicazione, nella versione attuale, non richiede alcuna registrazione e non trasmette all'esterno alcun dato personale,
+come stabiliscono i requisiti RNF-10 e RNF-11; l'elenco dei centri dermatologici che una persona salva è un'informazione
+da cui si potrebbe presumere la sua condizione di salute, e trasferirla su un servizio remoto la trasforma in un dato
+sanitario personale custodito da terzi, con le conseguenze normative che ne derivano.
+Una sincronizzazione realizzata senza affrontare questo punto peggiorerebbe l'applicazione invece di migliorarla, e la direzione
+corretta sarebbe una cifratura eseguita sul dispositivo con una chiave che il servizio non possiede, in modo che il servizio
+conservi dati che non è in grado di leggere nemmeno in caso esso venisse violato.
+Si tratterebbe di crittografia \textit{end-to-end} basata su protocolli e standard moderni. %e rischi in caso di perdita delle chiavi.
+%Un ulteriore possibile miglioramento, di natura diversa, consisterebbe nel permettere all'utente di proporre alle sorgenti originali le
+%strutture che ha salvato e che negli elenchi pubblici non compaiono.
+%Chiuderebbe il ciclo fra i due ruoli: chi consuma l'elenco è anche nella posizione migliore per accorgersi di ciò che
+%manca, e restituirebbe valore ai portali da cui il progetto prende i propri dati; richiederebbe però una moderazione redazionale,
+%che è un problema più organizzativo piuttosto che informatico.
+
+\subsection{Percorsi}\label{subsec:futuro-percorsi}
+
+Tutte le distanze mostrate dal modulo sono geodetiche (sono corrette in base alla curvatura terrestre), limitazione
+discussa al paragrafo \ref{subsec:impl-filtraggio}.
+L'introduzione di un servizio di \textit{routing} permetterebbe di ordinare i centri per il tempo di viaggio effettivo
+invece che per distanza in linea d'aria, grandezza a cui l'utente è realmente interessato.
+%Per esempio, in un contesto montano, o in un'area urbana congestionata, il centro geograficamente più vicino non è necessariamente
+%quello alla distanza minore in linea d'aria o con la strada più corta (a causa di fattori come il traffico).
+%Il cambiamento trasformerebbe l'ordinamento dell'elenco dei centri più vicini. ed è anche
+%il motivo per cui uno degli unit test del paragrafo \ref{sec:test-unitari} verifica la simmetria della distanza: un instradamento
+%su rete stradale non è simmetrico, e quel test segnalerebbe il cambiamento invece di ignorarlo.
+
+%Lato grafico, il passaggio dai tile raster ad una mappa vettoriale porterebbe due vantaggi:
+%
+%\begin{enumerate}
+%    \item La nitidezza a qualunque livello di ingrandimento e su qualunque densità di schermo (\textit{DPI}), che le immagini raster non possono garantire.
+%    \item La possibilità di personalizzare lo stile della mappa attenuando gli elementi meno importanti.
+%    Per esempio, una mappa in cui le strutture sanitarie vengano evidenziate e il resto del contesto
+%    sia reso più tenue metterebbe in risalto l'informazione che l'utente sta cercando.
+%\end{enumerate}
+%
+%
+%
+%Un'ultima funzione utile sarebbe il \textit{predownload} in locale dei tile di un'area scelta dall'utente, per
+%consultare la mappa in assenza di rete.
+%Attualmente il salvataggio in locale riguarda soltanto gli elenchi dei centri, come descritto al paragrafo \ref{subsec:strategia-cache}, e
+%in assenza di rete i marker compaiono su uno sfondo vuoto.
+%Quindi i marker restano disponibili, ma il contesto geografico che li rende leggibili viene perso.
+%Su questa strada occorrerebbe procedere con criterio per rispettare la politica d'uso (\textit{ToS}) dei tile pubblici, che vieta espressamente
+%il \textit{download} massivo di aree \cite{osmTilePolicy}, e che renderebbe quindi necessario l'utilizzo di un provider diverso oppure
+%la predisposizione di un proprio servizio di tile.

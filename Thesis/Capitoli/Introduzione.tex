@@ -1,0 +1,117 @@
+\chapter{Introduzione}\label{ch:introduzione}
+
+\section{Contesto}\label{sec:contesto}
+
+La dermatite atopica e la psoriasi condividono una caratteristica che, dal punto di vista generale, pesa più di quanto
+si potrebbe pensare: non guariscono.
+Sono patologie infiammatorie croniche recidivanti, in cui fasi di remissione e fasi di riacutizzazione si alternano nel
+corso di anni o di decenni \cite{weidingerAD, griffithsPsoriasis}.
+Chi ne è affetto non ha bisogno di una visita isolata, ma di un percorso: controlli periodici, aggiustamenti della terapia
+topica o sistemica e, in una parte dei casi, trattamenti biologici che possono essere prescritti soltanto da strutture autorizzate.
+
+L'Organizzazione Mondiale della Sanità (\textit{OMS}), nel rapporto globale dedicato alla psoriasi, ha riconosciuto
+il ritardo diagnostico e la difficoltà di accesso alle cure specialistiche come problemi di salute pubblica,
+non come semplici disagi organizzativi \cite{whoPsoriasis}.
+In Italia il Piano Nazionale della Cronicità (\textit{PNC}) muove nella stessa direzione, quando individua nella continuità
+assistenziale e nella presa in carico territoriale i due assi su cui intervenire \cite{pianoCronicita}.
+
+Tradotto in una domanda concreta, quella che un paziente si pone davvero: dove si trova il centro più vicino che segue la
+mia patologia, e come ci arrivo?
+La risposta esiste, ma è distribuita.
+Le strutture di riferimento sono censite, però l'informazione vive in elenchi separati, ciascuno con la propria organizzazione
+e i propri criteri di aggiornamento.
+Due portali in particolare raccolgono i centri italiani dedicati alla dermatite atopica e alla psoriasi \cite{dermatopia, viciniDiPelle},
+e sono un buon punto di partenza;
+restano tuttavia pagine web pensate per essere lette su un monitor, dove la ricerca procede per regione o per provincia e la
+distanza dall'utente non è una grandezza che il sistema conosca o di cui tenga conto.
+
+Uno smartphone, al contrario, dispone già di queste informazioni: conosce la propria posizione,
+è in grado di visualizzare una mappa, di avviare la navigazione, di effettuare una chiamata e di conservare dati anche in assenza
+di connessione.
+Da questa asimmetria nasce il lavoro descritto nelle pagine seguenti: un'applicazione mobile che rende interrogabili per posizione
+dati già pubblici, ossia nella stessa forma in cui la domanda viene formulata.
+
+\section{Obiettivi del progetto}\label{sec:obiettivi-progetto}
+
+L'obiettivo generale è la progettazione e la realizzazione di un'applicazione mobile cross-platform, sviluppata con il
+framework Flutter, che permetta di individuare su mappa i centri dermatologici italiani dedicati alla dermatite atopica
+e alla psoriasi, e di integrarli con voci inserite dall'utente.
+In termini più operativi, il progetto si è dato i seguenti obiettivi:
+
+\begin{itemize}[itemsep=2pt]
+  \item Acquisire l'elenco dei centri da sorgenti pubbliche già esistenti, senza richiedere la costruzione di un nuovo archivio
+  proprietario e senza duplicare un lavoro di censimento già svolto da altri.
+  \item Normalizzare dati provenienti da servizi con schemi diversi in un'unica rappresentazione interna coerente, gestendo
+  i casi di record incompleti o malformati.
+  \item Visualizzare i centri su una mappa interattiva, con un clustering automatico dei marker che mantenga la scena
+  leggibile anche quando le strutture sono concentrate nella stessa area urbana.
+  \item Consentire il filtraggio per patologia e per raggio di distanza dalla posizione dell'utente, con l'ordinamento dei
+  risultati per distanza geodetica.
+  \item Offrire una ricerca per indirizzo o per località, appoggiandosi a un servizio di geocodifica.
+  \item Permettere all'utente di salvare i centri di interesse tra i preferiti e di inserire, modificare ed eliminare centri propri,
+  conservati localmente sul dispositivo.
+  \item Integrare le azioni che seguono la consultazione, cioè l'avvio della navigazione verso il centro, la chiamata telefonica,
+  l'invio di un'email e la condivisione della scheda.
+  \item Garantire un funzionamento accettabile in assenza di connessione, attraverso una cache persistente dell'ultimo elenco scaricato.
+\end{itemize}
+
+%È altrettanto importante definire ciò che
+Per quanto riguarda gli elementi esclusi dagli obiettivi del progetto: %: delimitare il perimetro rientra a pieno titolo
+%nel lavoro di analisi.
+
+\begin{itemize}
+  \item L'applicazione non formula diagnosi, non esprime valutazioni cliniche e si limita a mostrare dove si trovano le strutture
+  e a fornirne i contatti.
+  \item Non prevede autenticazione né profili utente e, di conseguenza, non trasmette all'esterno alcun dato personale.
+  \item Non include un backend dedicato, e si basa su servizi pubblicamente disponibili. %che agiscono da fonti. %scelta di cui nel capitolo \ref{ch:conclusioni} si discutono costi e conseguenze.
+\end{itemize}
+
+
+
+
+\section{Struttura della tesi}\label{sec:struttura-tesi}
+
+Il capitolo \ref{ch:stato-arte} inquadra il problema, prima dal lato clinico e poi dal lato tecnologico.
+Esamina gli strumenti già disponibili per cercare un centro dermatologico e ne individua i limiti, confronta le piattaforme cartografiche utilizzabili
+in ambito \textit{mobile} e motiva la scelta del framework di sviluppo.
+
+Il capitolo \ref{ch:analisi-dei-requisiti} formalizza attori, requisiti funzionali e requisiti non funzionali, e li raccoglie
+in un diagramma dei casi d'uso seguito dalle schede dei tre scenari principali.
+
+Il capitolo \ref{ch:progettazione} descrive l'architettura a livelli dell'App, la strategia di gestione dello stato,
+l'impianto dell'interfaccia (\textit{UI e UX}) e il modello dei dati adottato per riconciliare sorgenti eterogenee.
+
+Il capitolo \ref{ch:sviluppo} ripercorre l'implementazione dell'App:
+l'acquisizione dei dati da più endpoint, la normalizzazione, la persistenza, il caricamento della mappa, l'algoritmo di clustering dei marker, la macchina a stati,
+i permessi di localizzazione, la ricerca per indirizzo, i filtri e l'integrazione con i servizi esterni. %disponibili sul dispositivo.
+
+Il capitolo \ref{ch:testing} riporta la strategia di verifica e i risultati ottenuti.
+% , incluso un difetto dell'interfaccia
+% emerso proprio durante la loro scrittura.
+
+Il capitolo \ref{ch:conclusioni} raggruppa l'intero operato, elenca i limiti che restano aperti e indica le possibili direzioni di
+sviluppo future.
+
+Ogni capitolo prepara le basi per il successivo, come mostrato nella figura \ref{fig:struttura-tesi}:
+%Il percorso logico dei capitoli, in cui ciascuno prepara le basi del successivo, è riassunto nella figura \ref{fig:struttura-tesi}:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c1) at (1.55,0) {\textbf{1.} Introduzione};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c2) at (5.0,0) {\textbf{2.} Stato dell'Arte};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c3) at (8.45,0) {\textbf{3.} Analisi\\ dei Requisiti};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c4) at (11.9,0) {\textbf{4.} Progettazione};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c5) at (11.9,-2.1) {\textbf{5.} Sviluppo};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c6) at (8.45,-2.1) {\textbf{6.} Testing};
+\node[comp, minimum width=2.9cm, minimum height=0.9cm] (c7) at (5.0,-2.1) {\textbf{7.} Conclusioni};
+\draw[flow] (c1) -- (c2);
+\draw[flow] (c2) -- (c3);
+\draw[flow] (c3) -- (c4);
+\draw[flow] (c4.south) -- (c5.north);
+\draw[flow] (c5) -- (c6);
+\draw[flow] (c6) -- (c7);
+\end{tikzpicture}
+\caption{Struttura della tesi.}
+\label{fig:struttura-tesi}
+\end{figure}

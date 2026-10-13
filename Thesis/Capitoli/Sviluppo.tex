@@ -1,0 +1,1108 @@
+\chapter{Sviluppo}\label{ch:sviluppo}
+
+Questo capitolo ripercorre la realizzazione dell'App.
+L'ordine segue il percorso dei dati, prima l'ambiente e i package, poi l'acquisizione dalle fonti remote e la loro
+successiva normalizzazione, quindi la memorizzazione in \textit{cache} sul dispositivo, la visualizzazione sulla mappa con il
+clustering dei marker, la localizzazione, la ricerca, i filtri, i centri personalizzati inseriti dall'utente e infine
+la delega ai servizi del dispositivo.
+Nei casi in cui il codice realizza dei comportamenti non immediati, ne verranno illustrate prima le ragioni e poi il meccanismo.
+
+\section{Ambiente di sviluppo e librerie utilizzate}\label{sec:ambiente-sviluppo}
+
+Lo sviluppo si è svolto su Windows 11 con Android Studio, impiegando Flutter e il linguaggio Dart \cite{flutterDocs, dartLang}.
+La verifica durante lo sviluppo è avvenuta prevalentemente su emulatore Android 17 e su dispositivo fisico Android 16. %, con la limitazione su iOS discussa al paragrafo \ref{sec:test-compatibilita}.
+L'interfaccia adotta Material 3 \cite{material3}, che fornisce già un'implementazione dei componenti impiegati nei pannelli e nei moduli.
+
+Le dipendenze sono state tenute al minimo indispensabile, secondo un criterio di semplicità.
+Ogni package aggiunto è un componente che può causare errori a un suo aggiornamento e un vincolo sulle versioni degli altri
+sull'intero progetto.
+La tabella \ref{tab:dipendenze} elenca quelle effettivamente impiegate dall'App e la loro funzione.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{4.1cm} P{1.6cm} L@{}}
+\toprule
+\textbf{Package} & \textbf{Versione} & \textbf{Funzione nel modulo} \tabularnewline
+\midrule
+\texttt{flutter\_map} & 8.3.1 & Rendering dei tile, controllo della viewport, livelli dei marker e cerchi del raggio \cite{flutterMapPkg} \tabularnewline
+\texttt{latlong2} & 0.10.1 & Rappresentazione delle coordinate e calcolo delle distanze geodetiche \cite{latlong2Pkg} \tabularnewline
+\texttt{geolocator} & 14.0.3 & Posizione del dispositivo, autorizzazioni di geolocalizzazione e apertura delle impostazioni \cite{geolocatorPkg} \tabularnewline
+\texttt{http} & 1.6.0 & Richieste verso gli elenchi dei centri e verso la geocodifica \cite{httpPkg} \tabularnewline
+\texttt{shared\_preferences} & 2.5.5 & Archivio locale per la cache e per i centri personalizzati \cite{sharedPrefsPkg} \tabularnewline
+\texttt{url\_launcher} & 6.3.2 & Apertura del navigatore, percorso, applicazione telefonica e client di posta elettronica \cite{urlLauncherPkg} \tabularnewline
+\texttt{share\_plus} & 13.3.0 & Condivisione della scheda di un centro \cite{sharePlusPkg} \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Dipendenze impiegate dal modulo mappa e relativa funzione.}
+\label{tab:dipendenze}
+\end{table}
+
+Tutte le dipendenze sono dichiarate con un vincolo che ammette futuri aggiornamenti compatibili, tranne quella per la
+condivisione, fissata a una versione specifica a causa di precedenti aggiornamenti in cui la sua API ha cambiato forma,
+causando errori che si vorrebbe evitare nella nostra App.
+%Questo perché quel package in particolare ha modificato la propria API (\textit{Application Programming Interface}) pubblica fra due versioni, sostituendo la chiamata
+%diretta con un oggetto di parametri passato a un'istanza condivisa; fissare la versione evita che un futuro aggiornamento apparentemente
+%innocuo interrompa la compilazione, anche se solamente per una funzione secondaria.
+
+%Sul fronte del supporto multipiattaforma, sia per Android sia per iOS, l'app richiede alcune dichiarazioni esplicite dei permessi, riassunte nella tabella \ref{tab:permessi}.
+%Su Android sono necessari l'accesso alla rete e l'accesso alla posizione; a questi si aggiunge la dichiarazione
+%degli schemi di collegamento che l'applicazione intende interrogare, introdotta nelle ultime versioni del sistema, senza la quale
+%la verifica della disponibilità di un'applicazione esterna (per esempio, Google Maps) fallirebbe anche quando l'applicazione è installata.
+%Su iOS occorre invece motivare testualmente l'uso della posizione, mostrata all'utente nel momento in cui viene richiesta \cite{androidLocation, appleLocation}.
+%
+%\begin{table}[H]
+%\footnotesize
+%\begin{tabularx}{\textwidth}{@{}P{2.5cm} P{4.4cm} L@{}}
+%\toprule
+%\textbf{Piattaforma} & \textbf{Dichiarazione} & \textbf{Motivo} \tabularnewline
+%\midrule
+%Android & \texttt{INTERNET} & Richieste verso elenchi, \textit{endpoint} di tipo \textit{GET}, geocodifica e tile \tabularnewline
+%Android & \texttt{ACCESS\_FINE\_LOCATION} & Posizione precisa \tabularnewline
+%Android & \texttt{ACCESS\_COARSE\_LOCATION} & Alternativa quando l'utente concede l'accesso solamente alla posizione approssimativa \tabularnewline
+%Android & schemi \texttt{https}, \texttt{tel}, \texttt{mailto} & Verifica della disponibilità delle applicazioni esterne da interrogare \tabularnewline
+%iOS & \texttt{NSLocationWhenInUse\-UsageDescription} & Testo mostrato all'utente alla richiesta del permesso per l'accesso alla posizione \tabularnewline
+%\bottomrule
+%\end{tabularx}
+%\caption{Permessi richiesti dalle due piattaforme e relativa motivazione.}
+%\label{tab:permessi}
+%\end{table}
+
+%Il modulo è realizzato come un albero di widget, che mantiene l'elenco dei centri, la posizione dell'utente, i filtri
+%attivi e i riferimenti ai controller della mappa e del campo per la ricerca.
+%Alla classe dello stato sono applicate due estensioni: la prima consente di dichiarare che il widget deve essere mantenuto
+%in vita quando l'utente perde il \textit{focus} dalla schermata, la seconda fornisce il supporto temporale necessario
+%alle animazioni, impiegato dal comando della bussola descritto al paragrafo \ref{subsec:impl-marker}.
+
+\section{Acquisizione e normalizzazione dei dati}\label{sec:impl-acquisizione}
+
+%L'acquisizione è la parte del modulo che ha richiesto il maggior numero di correzioni, e non per la complessità del protocollo,
+%che si riduce a due richieste HTTP, ma piuttosto a causa della variabilità dei dati nei campi.
+Ogni accorgimento descritto in questo paragrafo corrisponde a un caso reale osservato durante lo sviluppo.
+
+\subsection{Interrogazione delle fonti e fallback}\label{subsec:impl-endpoint}
+
+Le due patologie sono servite da due fonti indipendenti.
+Quella per la dermatite atopica espone un servizio che restituisce un oggetto con \textit{record} annidati raggruppati da una chiave, e non
+richiede alcun criterio particolare.
+Quella per la psoriasi è esposta da un sistema CMS (\textit{Content Management System}), che restituisce l'insieme completo dei marker per una
+mappa, dai quali occorre selezionare la categoria di interesse.
+In quest'ultima, la stessa mappa ospita sia i centri per la psoriasi sia quelli per la dermatite atopica, distinti da
+un campo di categoria che può contenerne più di uno, separati da virgola.
+
+Due particolarità di questa seconda fonte hanno richiesto delle correzioni.
+La prima è che il servizio nega la risposta alle richieste che non dichiarano un'intestazione di identificazione compatibile con
+quella di un normale browser. % la richiesta la dichiara quindi esplicitamente.
+La seconda è che il corpo (\textit{body}) della risposta arriva preceduto da un BOM (\textit{Byte Order Mark}), che il decodificatore non rimuove e che,
+rimanendo come primo carattere della stringa, rende l'intero documento non interpretabile.
+La decodifica avviene perciò in due passi: interpretazione dei byte come testo, tollerando le sequenze invalide invece di interrompersi,
+e rimozione del BOM iniziale quando presente.
+
+%Quando la fonte dei centri per la psoriasi non risponde, o risponde con un contenuto che non produce alcun record utilizzabile, l'applicazione non
+%si ferma ma passa in \textit{fallback} (\textit{asset} di riserva) sull'altra fonte.
+%Questo crea un compromesso, in parte trascurabile, in quanto una parte considerevole delle strutture della prima fonte segue entrambe le patologie.
+%Questo è ragionevole per l'attuale utilizzo dell'App, ma nel caso in cui venga destinata a un uso reale e
+%il \textit{fallback} utilizzato, allora dovrebbe essere accompagnato da un avviso esplicito, che nella versione attuale non è previsto.
+
+Ogni richiesta ha un \textit{timeout} di quarantacinque secondi, come previsto dal requisito RNF-06.
+%Il valore è volutamente alto: le due fonti sono servizi pubblici gratuiti, con tempi di risposta potenzialmente lunghi,
+%e un limite minore avrebbe trasformato una risposta lenta in un errore, facendo ricorrere l'applicazione sulla cache quando
+%l'aggiornamento sarebbe arrivato pochi secondi dopo.
+
+Un ultimo accorgimento riguarda il precaricamento.
+Quando l'elenco della patologia richiesta è stato ottenuto, l'applicazione avvia in \textit{background} il recupero dell'altra, senza
+attenderne il risultato e senza segnalarne l'operazione.
+Il passaggio da una patologia all'altra avviene infatti con un comando a due sole posizioni, e senza
+precaricamento comporterebbe un'attesa della risposta dalla rete a ogni passaggio; con il precaricamento l'esperienza è istantanea. %dopo la prima volta.
+L'eventuale errore del precaricamento viene ignorato, perché riguarda dati che l'utente non ha ancora richiesto di vedere.
+
+La figura \ref{fig:sequenza-endpoint} riassume la sequenza di interrogazione appena descritta, e mostra i tre punti
+in cui il flusso di elaborazione si dirama, ossia il successo della richiesta, l'attivazione del \textit{fallback} e l'avvio del
+precaricamento dell'altra patologia.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=1, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.6cm,
+              minimum height=0.7cm},
+  flw/.style={-{Latex[length=2mm]}, thick},
+  lbl/.style={font=\scriptsize, align=left, text width=3.2cm}
+]
+\node[nd, fill=black!5] (start) at (0, 5.6) {Richiesta per\\ la patologia attiva};
+\node[dcd] (d1) at (0, 3.7) {risposta valida?};
+\node[nd] (use) at (0, 1.8) {Usa i dati ricevuti\\ e mostra la mappa};
+\node[dcd] (d2) at (0, 0.0) {altra patologia\\ già in cache?};
+\node[nd] (preload) at (0, -1.7) {Precarica l'altra\\ patologia in \textit{background}};
+
+\node[nd, fill=black!7] (fb) at (5.8, 3.7) {Chiama sorgente\\ alternativa};
+\node[nd, fill=black!7] (fallback) at (5.8, 1.8) {Utilizza dati ricevuti\\ dalla sorgente alternativa};
+
+\draw[flw] (start) -- (d1);
+\draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (use.north);
+\draw[flw] (use) -- (d2);
+\draw[flw] (d2.south) -- node[midway, right=2pt, font=\scriptsize] {no} (preload.north);
+
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (fb.west);
+\draw[flw] (fb) -- (fallback);
+\draw[flw] (fallback.south) -- ++(0,-0.4) -| (d2.north)
+  node[pos=1.35, right=5pt, font=\scriptsize] {dati validi};
+\draw[flw] (d2.east) -- ++(0.9,0) |- (preload.east)
+  node[pos=0.25, right=2pt, font=\scriptsize] {sì};
+\end{tikzpicture}
+\caption{Sequenza di interrogazione delle sorgenti remote. La diramazione principale avviene sull'esito
+della prima richiesta; il \textit{fallback} converge sul nodo che governa il precaricamento.}
+\label{fig:sequenza-endpoint}
+\end{figure}
+
+\subsection{Normalizzazione dei record}\label{subsec:impl-normalizzazione}
+
+La normalizzazione ha tre compiti distinti:
+\begin{enumerate}
+  \item Ricondurre a un nome unico i campi che le due fonti ritornano in formati diversi.
+  \item Recuperare le informazioni, specialmente quando una delle due non le ritorna in forma strutturata.
+  \item Riconoscere i record inutilizzabili scartandoli senza interrompere l'elaborazione degli altri, come da requisito RF-04.
+\end{enumerate}
+
+La figura \ref{fig:pipeline-normalizzazione} mostra la pipeline che ne risulta.
+Ogni record attraversa in sequenza i tre compiti, e lo scarto di un record non valido interessa soltanto il ramo che
+lo contiene, senza fermare l'elaborazione degli altri.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=1, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
+              minimum height=0.7cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+\node[nd] (in) at (0,4.6) {Record grezzo\\ dalla sorgente};
+\node[nd] (alias) at (0,2.9) {Risoluzione dei campi\\ tramite catene di \textit{alias}};
+\node[nd] (contatti) at (0,1.2) {Estrazione dei contatti\\ dal testo (\textit{regex})};
+\node[nd] (coord) at (0,-0.5) {Conversione\\ delle coordinate};
+\node[dcd] (d1) at (0,-2.4) {coordinate\\ valide?};
+\node[nd, fill=black!8] (scarto) at (5.4,-2.4) {Record scartato};
+\node[nd, fill=black!5] (ok) at (0,-4.2) {Record normalizzato\\ aggiunto all'elenco};
+
+\draw[flw] (in) -- (alias);
+\draw[flw] (alias) -- (contatti);
+\draw[flw] (contatti) -- (coord);
+\draw[flw] (coord) -- (d1);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (scarto.west);
+\draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (ok.north);
+\end{tikzpicture}
+\caption{Pipeline di normalizzazione di un record: i tre compiti in sequenza e lo scarto per coordinate invalide.}
+\label{fig:pipeline-normalizzazione}
+\end{figure}
+
+Il primo punto si risolve con le catene di \textit{alias} già discusse al paragrafo \ref{subsec:modello-centri},
+ove la denominazione viene quindi cercata in sequenza fra i nomi già noti, la longitudine viene cercata sotto
+due chiavi distinte, e in entrambi i casi il primo valore trovato vince sul secondo.
+
+Il secondo punto riguarda i contatti, come email e numeri di telefono, dalla fonte dei centri per la psoriasi,
+che non li espone in campi propri ma li lascia dentro un frammento di codice HTML.
+Il recupero avviene in due passaggi: rimozione dei \textit{tag} HTML dal testo e relativa ricerca dei recapiti tramite \textit{regex}.
+
+%Per cercare e riconoscere nel testo i numeri di telefono, sono necessarie ulteriori operazioni e filtri.
+%Una \textit{regex} sufficientemente aperta da accettare tutte le forme in cui un recapito telefonico viene scritto nei dati ricevuti,
+%con spazi, punti, barre e prefissi fra parentesi o meno, e anche abbastanza aperta per riconoscere come numero il caso particolare in cui
+%la parte iniziale di un indirizzo di posta elettronica che cominci con delle cifre.
+%Il filtro scarta perciò le corrispondenze che contengono la chiocciola (@) e quelle con meno di cinque cifre complessive,
+%che nella pratica sono frammenti di codice, email, e comunque non dei recapiti validi.
+
+Il terzo punto riguarda le coordinate.
+Alcuni record riportano valori con più di un solo separatore decimale, come conseguenza di un errore di trascrizione della fonte.
+La normale conversione su un valore di questo tipo fallisce restituendone uno nullo, e il record verrebbe scartato pur
+contenendo un'informazione che sarebbe in realtà recuperabile.
+In tal caso, le cifre ci sono tutte, ma è il formato a essere errato.
+La conversione, riportata nel listato \ref{lst:coordinate}, conserva il primo separatore e rimuove i successivi,
+riportando la stringa a una forma corretta e interpretabile.
+
+\begin{listing}[H]
+\begin{minted}{dart}
+double? _parseCoordinate(dynamic value) {
+  if (value == null) return null;
+  var s = value.toString().trim();
+  if (s.isEmpty) return null;
+  final parts = s.split('.');
+  if (parts.length > 2) {
+    s = '${parts.first}.${parts.skip(1).join()}';
+  }
+  return double.tryParse(s);
+}
+\end{minted}
+\caption{Conversione di una coordinata, con recupero dei valori che riportano più separatori decimali.}
+\label{lst:coordinate}
+\end{listing}
+
+%La funzione restituisce un valore nullo quando la conversione non è possibile.
+%Non è previsto un valore predefinito.
+%Questo per un buon motivo: un valore predefinito, per esempio l'origine delle coordinate, collocherebbe il centro in una posizione totalmente errata,
+%dove comparirebbe come un marker perfettamente legittimo ma nella realtà, inutile.
+%Restituire un valore nullo invece obbliga ogni chiamante, nel nostro caso, a ignorare il record.
+%È l'applicazione pratica del requisito RF-04.
+
+%Questa funzione viene chiamata più volte sullo stesso record, per esempio durante la selezione dei punti visibili,
+%il clustering e il calcolo delle distanze la richiamano ciascuno per conto proprio.
+%Su elenchi nell'ordine delle centinaia di elementi il costo computazionale non è percepibile e non ho ritenuto necessario introdurre una
+%memorizzazione dei risultati; tuttavia su elenchi di ordine superiore sarebbe il primo punto da rivedere, specialmente nella struttura dei dati,
+%di cui viene discussa in \ref{subsec:modello-centri}.
+
+\subsection{Salvataggio sul dispositivo}\label{subsec:impl-persistenza}
+
+Il salvataggio locale impiega l'archivio di coppie chiave-valore fornito dalla piattaforma, che memorizza tipi elementari e
+che viene usato per custodire i dati serializzati in formato JSON. Per i tre archivi \textit{cache} descritti al paragrafo \ref{subsec:strategia-cache}
+le chiavi sono distinte, come riassunto nella tabella \ref{tab:chiavi-cache}.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{4.4cm} P{4.6cm} L@{}}
+\toprule
+\textbf{Archivio} & \textbf{Chiave} & \textbf{Contenuto} \tabularnewline
+\midrule
+Cache dell'elenco, una per patologia & Prefisso fisso e nome della patologia & Ultimo elenco remoto scaricato, in forma originale \tabularnewline
+Centri personalizzati & Chiave fissa con suffisso versione (\textit{version tag}) & Voci inserite dall'utente, in forma tipizzata \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Chiavi degli archivi locali: due per gli elenchi delle patologie, una per i centri personalizzati.}
+\label{tab:chiavi-cache}
+\end{table}
+
+%Il \textit{version tag} nella chiave dei centri personalizzati è necessario per il seguente motivo.
+%L'archivio contiene anche dati che l'utente ha inserito a mano e che non possono essere riscaricati; se una futura versione
+%dovesse cambiare la struttura del record in modo da renderlo incompatibile, quel suffisso permette di leggere il vecchio contenuto
+%sotto la precedente chiave e di convertirlo, invece di trovarsi davanti dati non interpretabili sotto la nuova chiave attesa.
+%È lo stesso ragionamento che si applica alla migrazione di uno schema di database,
+%(che è stato anche trattato in un tirocinio esterno),
+%ridotto alla scala dell'app.
+
+All'avvio vengono eseguite le operazioni definite al paragrafo \ref{subsec:strategia-cache} per la gestione della \textit{cache}.
+Vengono prima letti i \textit{record} salvati sul dispositivo per entrambe le patologie e riportati nella mappa,
+poi viene effettuata una richiesta alla fonte.
+Il vantaggio è che all'apertura la mappa ha già dei marker da disegnare, e l'attesa della risposta dalla rete non blocca
+l'interazione; il precaricamento dell'altra patologia, descritto al paragrafo \ref{subsec:impl-endpoint}, viene eseguito
+sempre basandosi su questo meccanismo.
+
+%Il salvataggio in locale viene avviato subito prima di aggiornare lo stato da cui dipende il ridisegno della mappa.
+%In questo modo l'utente vede subito i marker senza dover aspettare che vengano prima scritti su disco, e un eventuale
+%errore di scrittura non ha conseguenze sulla sessione in corso, poiché i dati sono comunque presenti in memoria.
+%L'errore viene comunque registrato nei \textit{log}, così che uno sviluppatore possa diagnosticare e trovare una soluzione al problema.
+
+Tutte le letture in locale sono racchiuse in una gestione degli errori che, in caso di contenuto illeggibile o di errore, restituisce un elenco vuoto.
+La lettura inoltre verifica che il contenuto interpretato sia effettivamente un elenco, perché un documento JSON sintatticamente
+valido ma di forma diversa o malformato, per esempio un oggetto, supererebbe l'interpretazione per poi fallire durante un utilizzo reale.
+%I due casi sono verificati nei test descritti al paragrafo \ref{sec:test-unitari}.
+
+\section{Caricamento mappa e gestione dei marker}\label{sec:impl-mappe}
+
+\subsection{Livelli, marker e controlli della mappa}\label{subsec:impl-marker}
+
+La schermata è costruita per sovrapposizione, secondo l'ordine di disegno riportato nella tabella \ref{tab:strati}.
+Alla base sta il livello dei tile, che richiede due soli parametri:
+
+\begin{enumerate}
+  \item L'URL del template da cui ricavare l'immagine di ciascun tile a
+  partire da un determinato zoom, riga e colonna, secondo lo schema descritto al paragrafo \ref{sec:piattaforme-cartografiche}.
+  \item Un identificativo dell'applicazione.
+\end{enumerate}
+
+Sopra i tile, quando il filtro per raggio è attivo, viene disegnato il cerchio che ne rappresenta l'estensione.
+Il raggio è espresso in chilometri, così che il cerchio resti ancorato al territorio e si dilati o
+si contragga con lo zoom.%, come l'utente si aspetterebbe da una grandezza geografica.
+
+Il livello dei marker dei centri pubblici è l'unico che si appoggia a un costruttore che si lega all'oggetto osservabile
+discusso al paragrafo \ref{subsec:gestione-stato}.
+A livello pratico l'unico effetto è che l'aggiornamento dell'elenco dei centri visibili ridisegna quel solo livello,
+di fatto i tile non vengono nuovamente richiesti, i comandi non vengono ricostruiti, e il costo del ridisegno resta
+proporzionale al numero di marker e non alla complessità dell'intera schermata.
+
+La selezione dei centri da disegnare avviene confrontando le coordinate di ciascun record con i limiti della viewport attiva.
+%allargati di metà della loro estensione su ciascun lato.
+%se non ci fosse un tale margine, un marker appena fuori dal bordo comparirebbe soltanto al termine dello
+%spostamento, producendo un effetto di comparsa improvvisa lungo i lati dello schermo.
+%Con un margine pari a metà dell'ampiezza per lato l'area interrogata ha una superficie più ampia:
+%si disegnano più marker di quelli necessari, in cambio di un ingresso graduale ai bordi.
+%Inoltre, quando il filtro per raggio è attivo, viene scartato ciò che si trova al di fuori della distanza ammessa, così che le due
+%condizioni siano valutate in un'unica elaborazione senza dover rileggere più volte l'intera lista dei centri.
+%
+%L'aggiornamento è governato da due meccanismi che agiscono in sequenza.
+%Il primo è il rinvio temporale: gli eventi della mappa sono numerosi durante lo spostamento su di essa, quindi invece
+%di aggiornarla a ogni movimento viene avviato un timer e alla sua scadenza la mappa viene aggiornata.
+%Il secondo è il confronto con il risultato precedente: se l'elenco aggiornato coincide con quello già in uso, ne viene
+%annullato l'aggiornamento.
+
+Non tutti gli eventi della mappa provocano un ricalcolo.
+Vengono considerati solo quelli che segnalano la conclusione di un movimento, uno spostamento, uno zoom per doppio
+tocco, l'utilizzo di un controllo.
+Gli eventi intermedi, emessi a ogni fotogramma mentre il dito è ancora sullo schermo, vengono ignorati.
+Questo è in linea con il requisito RNF-04.
+
+La figura \ref{fig:aggiornamento-marker} riassume l'intera catena, dal tipo di evento al ridisegno del solo livello dei marker.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=1, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.6cm,
+              minimum height=0.7cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+\node[nd] (ev) at (0,6.2) {Evento della mappa\\ (spostamento, zoom, controllo)};
+\node[dcd] (d1) at (0,4.4) {evento conclusivo?};
+\node[nd, fill=black!8] (ign) at (5.0,4.4) {Evento ignorato};
+\node[nd] (tmr) at (0,2.6) {Riavvio attesa temporale};
+\node[nd] (sel) at (0,0.9) {Selezione dei centri visibili\\ (viewport allargata, filtro per raggio)};
+\node[dcd] (d2) at (0,-1.0) {elenco identico\\ al precedente?};
+\node[nd, fill=black!8] (no) at (5.0,-1.0) {Nessun ridisegno};
+\node[nd] (upd) at (0,-2.8) {Aggiornamento dell'oggetto\\ osservabile dei marker};
+\node[nd, fill=black!5] (drw) at (0,-4.4) {Ridisegno del solo\\ livello dei marker};
+
+\draw[flw] (ev) -- (d1);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (ign.west);
+\draw[flw] (d1.south) -- node[midway, right=2pt, font=\scriptsize] {sì} (tmr.north);
+\draw[flw] (tmr) -- node[midway, right=2pt, font=\scriptsize] {al termine} (sel.north);
+\draw[flw] (sel) -- (d2);
+\draw[flw] (d2.east) -- node[midway, above, font=\scriptsize] {sì} (no.west);
+\draw[flw] (d2.south) -- node[midway, right=2pt, font=\scriptsize] {no} (upd.north);
+\draw[flw] (upd) -- (drw);
+\end{tikzpicture}
+\caption{Catena di aggiornamento dei marker. Solo gli eventi conclusivi riavviano l'attesa temporale, e il ridisegno
+avviene soltanto se l'elenco selezionato è cambiato.}
+\label{fig:aggiornamento-marker}
+\end{figure}
+
+Il controllo della mappa tramite bussola si occupa del riallineamento della vista al valore predefinito dopo una rotazione.
+Il comando compare soltanto quando si ruota la mappa di oltre due gradi, per questione pratica ed estetica,
+e la rotazione viene registrata nello stato solo quando si discosta di oltre mezzo grado dall'ultimo valore noto, per
+non provocare un aggiornamento sulla schermata a ogni fotogramma durante la rotazione.
+Per far ruotare la mappa a nord, non viene spostata istantaneamente a zero, ma viene interpolata seguendo il percorso
+più breve.
+Se la mappa è ruotata di, per esempio, trecentocinquanta gradi, l'orientamento corretto si raggiunge ruotando di dieci gradi in avanti e non di
+trecentocinquanta all'indietro, e senza un controllo esplicito a livello di codice l'animazione compierebbe il giro lungo.
+Viene quindi calcolato prima di essere animato lo scarto basandosi sull'intervallo fra meno e più centottanta gradi, con l'espressione
+riportata nel listato \ref{lst:bussola}.
+
+\begin{listing}[H]
+\begin{minted}{dart}
+final double start = _mapController.camera.rotation;
+double delta = -start;
+delta = ((delta + 180) % 360) - 180;
+final double target = start + delta;
+\end{minted}
+\caption{Calcolo percorso più breve della bussola per puntare a nord.}
+\label{lst:bussola}
+\end{listing}
+
+%L'animazione dura trecentocinquanta millisecondi con una funzione di \textit{easing} (interpolazione),
+%al termine della quale la rotazione viene impostata esattamente a zero.
+
+\subsection{Algoritmo di clustering dei marker}\label{subsec:impl-clustering}
+
+La funzionalità di clustering è stata riscritta in modo nativo, come discusso al paragrafo \ref{subsec:scelta-flutter}, a causa di problemi di
+compatibilità tra le versioni.
+Questo serve quando i centri dermatologici si concentrano, per esempio, nelle aree urbane, come nella zona di Milano o
+di Roma dove decine di marker finiscono a pochi punti di distanza l'uno dall'altro, sovrapponendosi fino a rendere impossibile
+sia contarli sia selezionarli.
+
+L'approccio adottato è il \textit{grid-based clustering} (clustering a griglia).
+Lo spazio delle coordinate viene suddiviso in celle quadrate, ogni centro visibile viene assegnato alla cella che lo
+contiene, e ogni cella non vuota produce un cluster collocato nel baricentro dei propri membri.
+Le celle con un solo membro danno luogo a un normale marker, quelle con più membri a un cluster (una bolla) che ne riporta il numero.
+
+La dimensione della cella dipende dallo zoom, perché la sovrapposizione è un fenomeno che avviene sullo schermo e non sul territorio:
+due centri distanti dieci chilometri si sovrappongono in una vista ampia ma sono ben separati in una vista ravvicinata.
+La formula impiegata è
+\begin{equation}
+c(z) = \frac{84}{2^{z}}
+\label{eq:cella}
+\end{equation}
+dove $z$ è il livello di zoom corrente e $c(z)$ il lato della cella in gradi.
+La struttura della formula segue direttamente la relazione esponenziale dello schema slippy map richiamata al
+paragrafo \ref{sec:piattaforme-cartografiche}: se ogni incremento unitario dello zoom raddoppia il numero di tile per
+lato, il lato della cella deve dimezzarsi allo stesso modo perché il suo effetto visivo resti invariato.
+
+%La costante al numeratore, fissata per tentativi successivi, a prima vista può sembrare arbitraria.
+%Il suo significato si chiarisce traducendo il lato della cella dai gradi ai punti dello schermo.
+%Nella proiezione di Web Mercator la larghezza del mondo al livello $z$ misura $256 \cdot 2^{z}$ punti per $360$ gradi di longitudine,
+%e dunque il lato della cella in punti vale
+%\begin{equation}
+%w(z) = \frac{84}{2^{z}} \cdot \frac{256 \cdot 2^{z}}{360} = \frac{84 \cdot 256}{360} \approx 59{,}7 \ \text{punti}.
+%\label{eq:cella-px}
+%\end{equation}
+
+%Gli errori dipendenti dallo zoom si annullano, e il lato della cella sullo schermo risulta costante a qualunque livello di ingrandimento.
+%È questa la proprietà per cui si rende necessaria la formula; la cella non è una distanza geografica ma una distanza sullo schermo, di
+%circa sessanta punti, cioè circa un quarto del lato di un tile.
+%La costante $84$ non è quindi un valore calcolato privo di senso, ma il numero di gradi che a ogni zoom corrisponde a
+%quella distanza sullo schermo.
+%
+%L'asse verticale si comporta in modo leggermente diverso, e la differenza è una conseguenza della proiezione.
+%La scala della latitudine in \textit{Mercator} cresce con il fattore $1/\cos\varphi$, dove $\varphi$ è la latitudine, e quindi l'altezza della cella
+%in punti vale $w(z)/\cos\varphi$: alle latitudini italiane, comprese fra circa trentasei e quarantasette gradi, si ottengono valori fra
+%settantaquattro e ottantotto punti.
+Le celle sono dunque quadrate in gradi ma leggermente più alte che larghe sullo schermo, con una distorsione che cresce verso nord.
+La tabella \ref{tab:celle} riporta i valori a diversi livelli di zoom.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}c r r r r r@{}}
+\toprule
+\textbf{Zoom} & \textbf{Lato (gradi)} & \textbf{Lato N-S} & \textbf{Lato E-O} & \textbf{Largh. (pt)} & \textbf{Alt. (pt)} \tabularnewline
+\midrule
+6  & 1,312500  & 146,1 km & 103,3 km & 59,7 & 84,5 \tabularnewline
+9  & 0,164063  & 18,3 km  & 12,9 km  & 59,7 & 84,5 \tabularnewline
+12 & 0,020508  & 2283 m   & 1614 m   & 59,7 & 84,5 \tabularnewline
+14 & 0,005127  & 571 m    & 404 m    & 59,7 & 84,5 \tabularnewline
+16 & 0,001282  & 143 m    & 101 m    & 59,7 & 84,5 \tabularnewline
+18 & 0,000320  & 36 m     & 25 m     & 59,7 & 84,5 \tabularnewline
+\bottomrule
+\end{tabular}
+\caption{Dimensione della cella di clustering ai vari livelli di zoom. Le distanze in metri e l'altezza in punti sono calcolate
+alla latitudine di 45 gradi.}
+\label{tab:celle}
+\end{table}
+
+%La colonna delle larghezze in punti, costante lungo tutta la tabella, è la verifica numerica dell'equazione \ref{eq:cella-px}:
+%al variare dello zoom cambia radicalmente l'estensione geografica della cella, da centoquarantasei chilometri a trentasei metri,
+%mentre la sua dimensione percepita resta la stessa.
+
+Il listato \ref{lst:clustering} riporta la costruzione dei cluster.
+L'assegnazione alla cella avviene dividendo le coordinate per il lato e troncando all'intero inferiore.
+Le celle sono conservate in una struttura associativa a due livelli, indicizzata prima per colonna e poi per riga, e
+ogni cella non vuota produce un cluster nel baricentro dei propri membri.
+
+\begin{listing}[H]
+\begin{minted}{dart}
+List<_Cluster> _buildClusters(List<dynamic> centers, double zoom) {
+  final double cell = 84.0 / math.pow(2, zoom);
+  final Map<int, Map<int, List<dynamic>>> grid = {};
+  for (final d in centers) {
+    final lat = _parseCoordinate(d['lat']);
+    final lon = _parseCoordinate(d['lon'] ?? d['lng']);
+    if (lat == null || lon == null) continue;
+    final gx = (lon / cell).floor();
+    final gy = (lat / cell).floor();
+    (grid[gx] ??= {}).putIfAbsent(gy, () => []).add(d);
+  }
+  final clusters = <_Cluster>[];
+  grid.forEach((_, col) {
+    col.forEach((_, members) {
+      double sumLat = 0, sumLon = 0;
+      for (final d in members) {
+        sumLat += _parseCoordinate(d['lat'])!;
+        sumLon += _parseCoordinate(d['lon'] ?? d['lng'])!;
+      }
+      clusters.add(_Cluster(
+        LatLng(sumLat / members.length, sumLon / members.length),
+        members,
+      ));
+    });
+  });
+  return clusters;
+}
+\end{minted}
+\caption{Costruzione dei cluster a griglia dipendente dallo zoom.}
+\label{lst:clustering}
+\end{listing}
+
+%Il costo dell'algoritmo è lineare nel numero di centri esaminati, perché ciascuno viene collocato nella propria cella con un
+%numero costante di operazioni e nessun punto viene confrontato con nessun altro.
+
+%Un dettaglio dell'implementazione ha una conseguenza che vale rendere esplicita, perché non è evidente dal codice.
+%La griglia è ancorata all'origine delle coordinate, cioè all'intersezione fra equatore e meridiano fondamentale, e non all'angolo
+%dell'area visibile.
+%Ne segue che la cella di appartenenza di un centro dipende soltanto dalle sue coordinate e dallo zoom, e non da dove l'utente
+%stia guardando: spostando la viewport senza modificare l'ingrandimento, i cluster restano identici e si limitano a entrare e
+%uscire dallo schermo.
+%Se la griglia fosse ancorata alla vista, ogni spostamento ne modificherebbe l'allineamento e le bolle si ricomporrebbero
+%continuamente durante lo scorrimento.
+
+La figura \ref{fig:clustering} riassume il principio con un breve esempio, dove le coordinate sono state riportate in unità di
+cella per rendere la lettura indipendente dal livello di zoom.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[font=\footnotesize]
+
+    \draw[cellgrid] (0,0) grid (3,3);
+    \draw[black!70, thick] (0,0) rectangle (3,3);
+    \node[below=2pt, font=\scriptsize] at (0,0) {$x_{0}$, $y_{0}$};
+
+    \fill[pin] (1.4,0.35) circle (3pt);
+
+    \fill[pin] (0.3,0.25) circle (3pt);
+    \fill[pin] (0.6,0.75) circle (3pt);
+    \node[bubble, minimum size=0.55cm] at (0.45,0.5) {2};
+
+    \fill[pin] (2.25,2.15) circle (3pt);
+    \fill[pin] (2.65,2.35) circle (3pt);
+    \fill[pin] (2.35,2.85) circle (3pt);
+
+    \node[bubble, minimum size=0.55cm] at (2.42,2.45) {3};
+
+    \fill[black!8] (0.9,0.05) rectangle (1.2,0.35);
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,2.42) {baricentro dei membri};
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,1.5) {cella con un solo membro: marker ordinario};
+    \node[font=\scriptsize, align=left, anchor=west] at (3.15,0.6) {cella vuota: nessun cluster};
+    \draw[flowdash, shorten >=1pt] (2.62,2.42) -- (3.15,2.42);
+    \draw[flowdash, shorten >=1pt] (1.4,0.35) -- (3.15,1.5);
+    \draw[flowdash, shorten >=1pt] (1.05,0.2) -- (3.15,0.6);
+  \end{tikzpicture}
+   \caption{Principio clustering a griglia: le celle sono ancorate all'origine delle coordinate e ogni cella non vuota produce un cluster nel baricentro dei propri membri, oppure un marker qualora contenga un solo centro.}
+  \label{fig:clustering}
+\end{figure}
+
+%L'approccio ha un limite strutturale, che nessuna taratura elimina.
+%Due centri molto vicini ma situati su lati opposti del confine fra due celle non vengono clusterizzati, e compaiono come due
+%marker distinti a breve distanza; il clustering per distanza, con tutti i suoi difetti, non ha questo problema.
+%Ho considerato accettabile l'inconveniente per due ragioni: si manifesta su una frazione ridotta delle configurazioni possibili, e produce
+%comunque una scena leggibile: nel peggiore dei casi si vedono due bolle dove una sarebbe bastata.
+%La stabilità del risultato mi è sembrata un requisito più importante della completezza dell'aggregazione.
+
+La selezione della bolla, per esempio tramite tocco, provoca un avvicinamento di due livelli di zoom, con un limite massimo di diciotto livelli.
+Questo segue il requisito RF-09, che chiede la scomposizione del clustering negli elementi che lo costituiscono.
+Due livelli comportano, per l'equazione \ref{eq:cella}, una riduzione del lato della cella a un quarto e quindi la suddivisione della cella di
+partenza in un massimo di sedici nuove celle.
+%Un singolo livello di zoom sarebbe stato insufficiente in molte configurazioni urbane, imponendo all'utente più tocchi successivi sulla stessa
+%bolla; tre avrebbero fatto perdere il contesto circostante.
+
+\section{Localizzazione e gestione dei permessi}\label{sec:impl-localizzazione}
+
+La posizione dell'utente serve a tre cose: centrare la mappa all'apertura, calcolare le distanze e valutare il filtro per raggio.
+Nessuna delle tre è indispensabile al funzionamento del modulo, di fatto a livello di gestione dei permessi
+l'applicazione deve restare utilizzabile anche quando la posizione non c'è, come prevede il requisito RF-12.
+
+%Il permesso non viene richiesto all'avvio.
+La schermata riceve la posizione, se questa è già disponibile, e in quel caso si limita ad avviare il flusso di
+aggiornamento senza alcuna richiesta all'utente; quando invece la posizione sia assente, la richiesta viene rinviata al momento in cui
+l'utente attiva una funzione che ne ha bisogno, come il ritorno alla propria posizione, la ricerca del centro più vicino o l'elenco dei centri vicini.
+%Soddisfa il requisito RF-10.
+%Un permesso chiesto prima che ne sia evidente il motivo viene negato con maggiore
+%frequenza di uno chiesto in risposta a un comando esplicito.
+
+La procedura di acquisizione attraversa gli stati riportati nella figura \ref{fig:permessi}.
+Il flusso è suddiviso in quattro casi, ciascuno dei quali richiede una risposta diversa: il servizio di localizzazione del
+dispositivo può essere disattivato, il permesso può non essere ancora stato richiesto, può essere stato negato una
+volta, oppure può essere stato negato in modo permanente.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1, transform shape, font=\footnotesize, node distance=0.6cm]
+  \node[comp, text width=2.6cm, minimum height=0.9cm] (start) at (0,7.8) {Comando che richiede la posizione};
+  \node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d1) at (0,5.7) {servizio attivo?};
+  \node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp1) at (5.2,5.7) {Impostazioni di sistema};
+  \node[decision, aspect=2.6, minimum width=2.4cm, fill=white, draw=black!60, font=\scriptsize] (d2) at (0,3.9) {permesso?};
+  \node[comp, text width=3.0cm, minimum height=0.9cm, fill=black!5] (imp2) at (5.2,3.9) {Impostazioni dell'app};
+  \node[comp, text width=3.0cm, minimum height=0.9cm] (req) at (-4.8,3.9) {Richiesta all'utente};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (last) at (0,1.5) {Ultima posizione nota};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (fresh) at (0,0.1) {Posizione aggiornata};
+  \node[comp, text width=3.4cm, minimum height=0.9cm] (stream) at (0,-1.4) {Flusso di aggiornamento};
+  \draw[flow] (start) -- (d1);
+  \draw[flow] (d1) -- node[above, font=\scriptsize] {no} (imp1);
+  \draw[flow] (d1) -- node[right, font=\scriptsize, xshift=1pt] {sì} (d2);
+  \draw[flow] (d2) -- node[above, font=\scriptsize] {negato sempre} (imp2);
+  \draw[flow] (d2) -- node[above, font=\scriptsize] {da chiedere} (req);
+  \draw[flow] (req.south) |- (0,2.8) -| (imp2.south) node[midway, above, font=\scriptsize] {negato};
+  \draw[flow] (req.south) |- (-4.6,1.5) -- (last.west) node[midway, above, font=\scriptsize] {concesso};
+  \draw[flow] (d2) -- node[right, font=\scriptsize, xshift=1pt] {sì} (last);
+  \draw[flow] (last) -- (fresh);
+  \draw[flow] (fresh) -- (stream);
+  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,1.5) {se presente};
+  \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,0.1) {appena disponibile};
+   \node[anchor=west, font=\scriptsize, text width=3.2cm, align=left] at (2.0,-1.4) {aggiornamento ogni 25 metri};
+  \end{tikzpicture}
+  \caption{Stati attraversati nell'acquisizione della posizione, sia in caso di posizione concessa sia negata.}
+  \label{fig:permessi}
+\end{figure}
+
+%La distinzione fra il servizio disattivato e il permesso negato in modo permanente non è una sottigliezza, perché le due
+%condizioni si risolvono in schermate di sistema diverse: la prima nelle impostazioni di localizzazione del dispositivo,
+%la seconda nella scheda dell'applicazione.
+%Portare l'utente nella schermata sbagliata equivale a non aiutarlo: l'interruttore che cerca non si trova lì.
+%Il negato permanente, in particolare, si riconosce dal fatto che da quello stato il sistema operativo non ripresenta più la richiesta:
+%insistere con una nuova domanda non produrrebbe alcuna finestra e l'utente vedrebbe un comando che non fa nulla.
+%In quel caso l'unica strada è il collegamento diretto alle impostazioni.
+%
+%L'acquisizione riuscita procede in due tempi, e la ragione è la reattività percepita.
+%La posizione di alta precisione richiede alcuni secondi, durante i quali l'interfaccia non avrebbe nulla da mostrare; l'ultima posizione
+%nota, conservata dal sistema operativo, è invece disponibile immediatamente ed è sufficiente per centrare la mappa in modo approssimativo.
+%Viene quindi impiegata subito, se presente, e sostituita dalla posizione precisa quando questa arriva.
+%Al termine viene attivato un flusso di aggiornamento con una soglia di venticinque metri, valore scelto per aggiornare
+%l'indicatore durante uno spostamento reale senza reagire alle oscillazioni del rilevamento a utente fermo.
+%
+%Un accorgimento minore ma necessario riguarda le richieste sovrapposte.
+%I comandi che necessitano della posizione sono tre e sono tutti raggiungibili in rapida successione; senza una protezione, due
+%pressioni ravvicinate avvierebbero due procedure concorrenti, con la possibilità di presentare all'utente due finestre di
+%richiesta sovrapposte.
+%Un indicatore di procedura in corso impedisce l'avvio di una seconda acquisizione mentre la prima non si è conclusa.
+
+\section{Ricerca per indirizzo e geocodifica}\label{subsec:impl-ricerca}
+
+La ricerca per indirizzo si appoggia al servizio di geocodifica dell'ecosistema OpenStreetMap descritto al
+paragrafo \ref{subsec:geocodifica}. % interrogato in due modalità distinte.
+Durante la digitazione il sistema richiede fino a cinque risultati con i dettagli dell'indirizzo, che alimentano l'elenco
+dei suggerimenti.
+Alla conferma, con il tasto di invio o con il comando di ricerca, la richiesta utilizza
+solo il primo risultato e sposta direttamente la viewport.
+
+%Il vincolo che governa questa parte non è tecnico ma di conformità.
+%Per essere conformi alla politica d'uso del servizio, il quale ammette al massimo una richiesta al secondo,
+%richiede che l'applicazione si identifichi e invita a conservare i risultati per non ripetere interrogazioni identiche \cite{nominatimPolicy}.
+%Una barra di ricerca che interrogasse il servizio a ogni carattere digitato supererebbe quel limite dopo poche lettere, e
+%il requisito RF-14 nasce proprio da questa considerazione.
+
+Per rispettare la politica d'uso del servizio di ricerca, l'interrogazione è quindi rinviata di mezzo secondo dall'ultimo
+carattere digitato, e ogni nuovo carattere annulla il rinvio in coda e ne programma un altro.
+Il risultato è che una digitazione continua non produce alcuna richiesta fino alla prima pausa, e che il numero di richieste
+dipende dal numero di pause invece che dal numero di caratteri.
+%Il valore di mezzo secondo è il doppio di quello impiegato per il ricalcolo dei marker descritto al paragrafo \ref{subsec:impl-marker},
+%e la differenza è voluta: nel primo caso si tratta di rispettare un limite d'uso esterno, nel secondo soltanto di non sprecare calcolo locale.
+La figura \ref{fig:debounce} mostra il comportamento della digitazione con il rinvio.%.: ogni nuovo carattere annulla il rinvio
+%in attesa e ne programma uno nuovo, quindi la richiesta parte solo dopo l'ultima pausa.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=0.92, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=5pt, minimum height=0.75cm}]
+
+  \draw[black!70, thick, -{Latex[length=2mm]}] (-0.3,0) -- (11.2,0);
+\foreach \x/\lab in {0/{0\,s}, 2/{0{,}5\,s}, 4/{1{,}0\,s}, 6/{1{,}5\,s}, 8/{2{,}0\,s}, 10/{2{,}5\,s}} {
+  \draw[black!70, thin] (\x,-0.08) -- (\x,0.08);
+  \node[below=3pt, font=\scriptsize] at (\x,0) {\lab};
+}
+
+\foreach \x in {0.3, 0.9, 1.5, 6.3, 6.9} {
+  \node[circle, fill=black!75, inner sep=0pt, minimum size=4pt] at (\x,0) {};
+}
+
+\draw[black!55, dashed, thick] (1.5,0) -- (1.5,1.5) -- (2.5,1.5);
+\draw[black!55, dashed, thick] (2.5,1.5) -- (2.5,0);
+\node[font=\scriptsize, align=left, anchor=west] at (2.7,1.6) {rinvio 1: avviato e riavviato due volte};
+
+  \draw[black!55, dashed, thick] (6.9,0) -- (6.9,0.9) -- (7.9,0.9);
+\draw[black!55, dashed, thick] (7.9,0.9) -- (7.9,0);
+\node[font=\scriptsize, align=left, anchor=west] at (8.1,1.0) {rinvio 2};
+
+  \node[nd] (r1) at (2.5,-1.1) {richiesta 1};
+\node[nd] (r2) at (7.9,-1.1) {richiesta 2};
+\draw[flowdash] (2.5,-0.1) -- (r1.north);
+\draw[flowdash] (7.9,-0.1) -- (r2.north);
+
+  \node[font=\scriptsize, align=center, anchor=east] at (1.35,0.55) {3 caratteri};
+\node[font=\scriptsize, align=center, anchor=east] at (6.75,0.55) {2 caratteri};
+\end{tikzpicture}
+\caption{Comportamento del rinvio sull'input di ricerca: la richiesta parte soltanto quando la digitazione si interrompe
+per mezzo secondo, quindi il numero di richieste dipende dalle pause e non dai caratteri.}
+\label{fig:debounce}
+\end{figure}
+
+%Questo accorgimento riduce il numero di richieste ma non garantisce formalmente il limite di frequenza.
+%Una digitazione a scatti, con pause di poco superiori al mezzo secondo, produce una richiesta per ciascuna pausa e può
+%avvicinarsi alla soglia; una garanzia effettiva richiederebbe una coda con temporizzazione propria, che regolasse le partenze
+%invece di limitarsi a rinviarle.
+%Manca inoltre la conservazione dei risultati suggerita dalla politica: interrogazioni ripetute con lo stesso testo, che si verificano
+%quando l'utente cancella e riscrive la stessa località, vengono inoltrate di nuovo al servizio invece di essere soddisfatte in locale.
+%Sono due debolezze note e non risolte, ridimensionate soltanto dal fatto che si tratta di un'applicazione dimostrativa con un unico
+%utilizzatore.
+
+%Sul piano dell'interfaccia la ricerca rappresenta la soluzione del problema di sovrapposizione descritto al paragrafo \ref{subsec:design-mappa-centri}.
+%Mentre i comandi sono nascosti vengono anche resi insensibili al tocco: un elemento reso trasparente resta altrimenti capace di
+%intercettare i tocchi, e l'utente si troverebbe a premere un pulsante invisibile mentre cerca di selezionare un suggerimento.
+
+\section{Filtri e ricerca per prossimità}\label{sec:impl-filtri}
+
+\subsection{Distanze geodetiche e filtro per raggio}\label{subsec:impl-filtraggio}
+
+Il requisito RF-19 chiede che il calcolo delle distanze tenga conto della curvatura terrestre. %, e la richiesta non è un eccesso di rigore.
+Trattare latitudine e longitudine come coordinate cartesiane, cioè applicare il teorema di Pitagora ai gradi, produce un errore che
+dipende dalla latitudine e che alle latitudini italiane è dell'ordine del trenta per cento sulle distanze in direzione est-ovest,
+perché un grado di longitudine misura circa settantotto chilometri a Milano e centoundici all'equatore.
+Su un elenco ordinato per distanza un errore di quell'entità non si limita a sbagliare i numeri ma cambia l'ordine dei risultati,
+ed è quindi visibile all'utente come un centro più lontano collocato prima di uno più vicino.
+
+Il calcolo impiega la funzione di distanza della libreria geografica, che applica la formula dell'emisenoverso \cite{sinnottHaversine}.
+La formula fornisce la lunghezza dell'arco di cerchio massimo fra due punti su una sfera, e per le distanze in gioco in questa applicazione,
+dell'ordine delle decine o centinaia di chilometri, l'approssimazione sferica è più che adeguata.%: lo scostamento rispetto a un calcolo su
+%ellissoide resta entro qualche parte per mille, ben al di sotto della precisione con cui i risultati vengono presentati all'utente.
+
+La presentazione delle distanze segue tre scaglioni:%, scelti in base a quello che l'utente può fare con il dato.
+
+\begin{itemize}
+  \item Sotto il chilometro la distanza è espressa in metri arrotondati.
+  \item Fra uno e dieci chilometri viene usato un decimale.
+  \item Oltre i dieci chilometri l'arrotondamento è al chilometro intero.%, perché i decimali su una distanza di cinquanta
+  %chilometri suggerirebbero una precisione che il dato non ha, trattandosi comunque di una distanza in linea d'aria e non
+  %di un percorso stradale.
+\end{itemize}
+
+%, perché a quella scala la differenza fra trecento e
+%ottocento metri decide se andare a piedi.
+
+La figura \ref{fig:scaglioni-distanza} rappresenta i tre scaglioni come fasce adiacenti su un asse, associate ciascuna
+all'unità di misura e all'azione tipica che il dato suggerisce all'utente.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, xscale=0.9, yscale=0.84, transform shape]
+\draw[black!70, thick, -{Latex[length=2mm]}] (-0.3, 0) -- (12.6, 0);
+\foreach \x/\lab in {0/{0}, 1/{1 km}, 10/{10 km}} {
+  \draw[black!70, thick] (\x, -0.10) -- (\x, 0.10);
+  \node[below=4pt, font=\scriptsize] at (\x, 0) {\lab};
+}
+\foreach \x in {0.25, 0.5, 0.75} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
+\foreach \x in {2, 3, 4, 5, 6, 7, 8, 9} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
+\foreach \x in {11, 12} {
+  \draw[black!55, thin] (\x, -0.06) -- (\x, 0.06);
+}
+
+\fill[black!8] (0, 0.25) rectangle (1, 1.8);
+\draw[black!55, thin] (0, 0.25) rectangle (1, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (0.5, 1.4) {metri};
+
+\fill[black!5] (1, 0.25) rectangle (10, 1.8);
+\draw[black!55, thin] (1, 0.25) rectangle (10, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (5.5, 1.4) {chilometri con un decimale};
+
+\fill[black!10] (10, 0.25) rectangle (12, 1.8);
+\draw[black!55, thin] (10, 0.25) rectangle (12, 1.8);
+\node[font=\scriptsize\bfseries, align=center] at (11, 1.4) {chilometri};
+
+\node[font=\scriptsize, align=center, text width=2.4cm] at (0.5, -1.3) {andare a piedi};
+\node[font=\scriptsize, align=center, text width=2.6cm] at (5.5, -1.3) {spostarsi in città};
+\node[font=\scriptsize, align=center, text width=2.4cm] at (11, -1.3) {spostarsi fra\\ comuni};
+\end{tikzpicture}
+\caption{Scaglioni della distanza, con l'unità di misura e l'azione tipica associata a ciascuno.}
+\label{fig:scaglioni-distanza}
+\end{figure}
+
+%Su quest'ultimo punto c'è una limitazione di fondo, che nessuna scelta di formattazione può mascherare.
+%Tutte le distanze mostrate sono geodetiche, cioè in linea d'aria, mentre l'utente è interessato al percorso reale, che in
+%territorio montano o attraverso un centro urbano può essere notevolmente più lungo.
+%Un calcolo su rete stradale richiederebbe un servizio di instradamento, cioè un'altra dipendenza esterna con i propri limiti d'uso,
+%e non è stato introdotto; l'ordinamento per distanza in linea d'aria resta comunque una approssimazione utile del più vicino, e la
+%distanza reale viene poi mostrata dall'applicazione di navigazione a cui il percorso viene delegato.
+
+Il filtro per raggio ammette quattro valori: nessun limite, venticinque, cinquanta e cento chilometri, presentati come
+scelte a \textit{chip}. %invece che con un selettore continuo.
+%La decisione risponde al contesto d'uso: un selettore a scorrimento richiede una regolazione fine con il pollice e restituisce
+%valori arbitrari come trentasette chilometri, che non corrispondono a nessuna domanda che l'utente si ponga davvero.
+%Valori discreti si selezionano con un tocco solo e coprono le tre domande effettive, cioè la città, la provincia e la regione.
+
+L'attivazione del filtro nasconde quindi i centri oltre il raggio, ne aggiorna la lista, e mostra il cerchio che ne
+rappresenta l'estensione.
+
+%L'attivazione del filtro produce tre effetti:
+%la selezione dei centri visibili scarta quelli oltre la distanza, l'elenco
+%dei centri vicini si restringe di conseguenza, e sulla mappa compare il cerchio che ne rappresenta l'estensione.
+%Il terzo effetto è quello che rende comprensibili i primi due.
+%Senza una rappresentazione grafica del raggio l'utente non ha modo di collegare la scomparsa di alcuni marker al
+%filtro che ha appena impostato, e la mappa sembra semplicemente aver perso dei dati.
+
+%Il filtro si applica anche ai centri inseriti dall'utente, come impone il requisito RF-20, ma per una via diversa.
+%I centri pubblici lo attraversano nella selezione per viewport descritta al paragrafo \ref{subsec:impl-marker}, dove il controllo
+%sulla distanza è valutato nello stesso attraversamento; i centri personalizzati, che quella selezione non attraversano, sono
+%filtrati per raggio soltanto nell'elenco dei centri vicini.
+%Ne segue una differenza di comportamento che va registrata: con un filtro per raggio attivo, un centro personalizzato fuori dal
+%raggio scompare dall'elenco ma resta disegnato sulla mappa.
+%è una incoerenza reale fra i due insiemi, di conseguenze modeste ma che il requisito RF-23, letto alla lettera, non ammette.
+
+\subsection{Individuazione del centro più vicino}\label{subsec:impl-piu-vicino}
+
+La funzione che porta l'utente al centro più vicino attraversa entrambi gli insiemi, sia quello remoto che quello personale. %, mantenendo
+%il minimo corrente insieme all'azione che ne aprirà la scheda.
+Funziona tramite una singola lettura dell'intero elenco, individuando e memorizzando il centro situato alla distanza minore.
+Una volta individuato il centro, la schermata si sposta su di esso tramite un'animazione di movimento e zoom appropriati,
+in base alla posizione di entrambi.
+%Di fatto, in questo scenario sarebbe inutile un ordinamento dell'intero insieme, e comporterebbe solamente un costo evitabile.
+%Sui centri personalizzati l'attraversamento considera soltanto quelli pertinenti alla patologia selezionata.
+%Sui centri remoti il filtro per patologia è implicito nell'insieme stesso, secondo l'asimmetria discussa al
+%paragrafo \ref{subsec:modello-centri}, e i record privi di coordinate valide vengono scartati.
+%
+%Individuato il centro, la viewport non viene semplicemente spostata su di esso ma adattata perché comprenda sia la posizione
+%dell'utente sia quella del centro trovato.
+%Questo perchè l'utente che chiede il centro più vicino non vuole solamente vederlo,
+%vuole vedere quanto è lontano, e una viewport centrata sul solo centro perderebbe tale informazione.
+%
+%La scheda del centro viene aperta poco dopo l'inizio dello spostamento su di esso.
+%Il ritardo è voluto, per dare il tempo alla mappa e all'animazione di spostarsi sul centro prima di aprirne la scheda.
+
+\section{Inserimento dei centri personalizzati}\label{subsec:impl-validazione}
+
+L'inserimento di un centro personalizzato parte da un vincolo di interfaccia dichiarato nel requisito RF-22, ossia che le coordinate non si digitano.
+Chiedere a un utente di scrivere latitudine e longitudine significa chiedergli un dato che potenzialmente non conosce, in un formato poco intuitivo
+che potrebbe sbagliare, e per un punto che sta guardando sullo schermo; la posizione viene quindi acquisita dalla mappa.
+
+In base al tipo di situazione, i centri possono essere inseriti nei seguenti modi:
+%Le vie di acquisizione sono due, e corrispondono a due situazioni d'uso diverse:
+
+\begin{enumerate}
+  \item Tramite pressione prolungata sulla mappa nel punto desiderato, si apre il modulo assumendo quel punto come posizione.%: è la via precisa, disponibile quando l'utente sa dove si trova la struttura.
+  \item Tramite apertura del modulo dall'elenco dei centri personalizzati e dei preferiti, dove non esiste alcun punto indicato e viene quindi assunto
+  il centro della schermata corrente; il modulo mantiene un comando che riporta la posizione sul centro della mappa, così che
+  l'utente possa spostarsi e poi ottenere il dato.
+\end{enumerate}
+
+Successivamente, la validazione è organizzata su due livelli.%, e la separazione non è arbitraria ma imposta da ciò che ciascun livello può esprimere.
+
+\begin{enumerate}
+  \item Il livello dei validatori associati ai singoli campi, che il modulo valuta insieme e che riguardano le proprietà
+  del campo in sé: la denominazione, l'indirizzo e la città sono obbligatori, il numero di telefono deve rispettare il
+  formato nazionale, l'indirizzo di posta elettronica deve essere sintatticamente corretto.
+  \item Il livello riguardante le condizioni che coinvolgono più campi contemporaneamente, e che un validatore di campo non può
+  formulare: la presenza di almeno un contatto fra telefono e posta elettronica, e la selezione di almeno una patologia.
+  Queste sono verificate al momento della conferma, dopo che il primo livello ha dato esito positivo.
+\end{enumerate}
+
+La verifica dei campi avviene mentre l'utente scrive e non soltanto alla conferma.
+Questo migliora l'esperienza d'uso, in quanto un modulo che segnala tutti gli errori al termine della
+compilazione obbliga a ricostruire quale campo abbia prodotto quale messaggio, mentre una segnalazione immediata collega
+l'errore al campo nel momento in cui vi si sta lavorando.
+%È anche una risposta al requisito RNF-02, che chiede un riscontro visivo immediato per ogni azione.
+
+Il controllo sul numero di telefono, riportato nel listato \ref{lst:telefono},
+riflette il formato della numerazione italiana. %e non una convenzione generica.
+
+\begin{listing}[H]
+\begin{minted}{dart}
+String? _validateItalianPhone(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  var cleaned = value.replaceAll(RegExp(r'[^\d]'), '');
+  if (cleaned.startsWith('39') && cleaned.length > 10) {
+    cleaned = cleaned.substring(2);
+  }
+  if (cleaned.length < 6 || cleaned.length > 11) {
+    return 'Il numero deve avere tra 6 e 11 cifre';
+  }
+  if (!cleaned.startsWith('0') && !cleaned.startsWith('3') &&
+      !cleaned.startsWith('1') && !cleaned.startsWith('8')) {
+    return 'Inserisci un numero italiano valido (es. +39 02 12345678)';
+  }
+  return null;
+}
+\end{minted}
+\caption{Validazione del numero di telefono secondo il formato della numerazione italiana.}
+\label{lst:telefono}
+\end{listing}
+
+%Il controllo procede in tre passi.
+%Prima rimuove ogni carattere che non sia una cifra, perché i recapiti vengono scritti nei modi più vari, con spazi,
+%punti, barre e prefissi fra parentesi, e nessuna di quelle forme è sbagliata dal punto di vista dell'utente.
+%Poi riconosce e rimuove il prefisso internazionale, ma soltanto quando la lunghezza residua lo giustifica: la condizione
+%sulla lunghezza evita di scambiare per prefisso internazionale le prime due cifre di un numero di cellulare che cominci
+%per trentanove, che altrimenti verrebbe privato di quel frammento.
+%Infine verifica che la prima cifra sia compatibile con la numerazione nazionale, cioè zero per la rete fissa, tre per la
+%rete mobile, uno e otto per i numeri di servizio e per le numerazioni gratuite o a pagamento.
+
+La figura \ref{fig:validazione-telefono} riassume i tre passi, dall'ingresso della stringa grezza fino all'esito, ed evidenzia
+il punto in cui il valore vuoto prende un percorso diverso. %che non applica alcun rifiuto di campo.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, scale=1, transform shape,
+  nd/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!4,
+             align=center, font=\scriptsize, inner sep=6pt, minimum height=0.9cm},
+  dcd/.style={diamond, aspect=2.4, draw=black!60, thick, fill=white,
+              align=center, font=\scriptsize, inner sep=2pt, minimum width=2.8cm,
+              minimum height=0.7cm},
+  ok/.style={rectangle, rounded corners=2pt, draw=black!60, thick, fill=black!15,
+             align=center, font=\scriptsize\bfseries, inner sep=6pt, minimum height=0.9cm},
+  flw/.style={-{Latex[length=2mm]}, thick}
+]
+% Ingresso
+\node[nd] (in) at (0, 5.4) {Stringa grezza\\ dal campo di input};
+
+% Passo 1
+\node[nd, fill=black!5] (p1) at (0, 3.7) {Passo 1.\\ Rimozione dei caratteri non numerici};
+
+% Bivio campo vuoto
+\node[dcd] (empty) at (0, 1.9) {stringa vuota?};
+\node[ok] (okEmpty) at (5.2, 1.9) {Esito positivo\\ (campo opzionale)};
+
+% Passo 2
+\node[nd, fill=black!5] (p2) at (0, 0.1) {Passo 2.\\ Rimozione del prefisso\\ internazionale, se presente};
+
+% Passo 3
+\node[nd, fill=black!5] (p3) at (0, -1.7) {Passo 3.\\ Verifica della prima cifra\\ e del numero di cifre};
+
+% Esiti
+\node[dcd] (d1) at (0, -3.3) {cifre e prefisso\\ coerenti?};
+\node[ok, fill=black!10] (okYes) at (-3.2, -4.8) {Esito positivo};
+\node[ok, fill=black!20] (errNo) at (3.2, -4.8) {Segnalazione errore};
+
+% Frecce
+\draw[flw] (in) -- (p1);
+\draw[flw] (p1) -- (empty);
+\draw[flw] (empty.east) -- node[midway, above, font=\scriptsize] {sì} (okEmpty.west);
+\draw[flw] (empty.south) -- node[midway, right=2pt, font=\scriptsize] {no} (p2.north);
+\draw[flw] (p2) -- (p3);
+\draw[flw] (p3) -- (d1);
+\draw[flw] (d1.west) -- node[midway, above, font=\scriptsize] {sì} (okYes.north);
+\draw[flw] (d1.east) -- node[midway, above, font=\scriptsize] {no} (errNo.north);
+\end{tikzpicture}
+\caption{Validazione del numero di telefono: i tre passi del controllo e il percorso separato previsto per il valore vuoto.}
+\label{fig:validazione-telefono}
+\end{figure}
+
+Un valore vuoto restituisce esito positivo, di fatto il telefono è opzionale, ed è la verifica di secondo
+livello a stabilire che almeno un contatto sia presente.
+Se il controllo di campo rifiutasse il valore vuoto, un centro con il solo indirizzo di posta elettronica diventerebbe impossibile da salvare.
+
+%L'intervallo ammesso fra sei e undici cifre è volutamente ampio, e comprende numerazioni che nella pratica non appartengono a
+%un centro sanitario.
+%La scelta risponde a un criterio di prudenza: un controllo troppo severo su una numerazione che conosce molte eccezioni rischia
+%di rifiutare un recapito valido, e il costo di quel rifiuto, cioè un dato corretto che l'utente non riesce a inserire, è superiore
+%al costo di accettare una cifra in più.
+
+Ogni centro riceve alla creazione un identificatore ricavato dall'istante di creazione. %, e quell'identificatore non cambia più.
+La modifica di un centro esistente non ne genera uno nuovo ma riscrive la voce con lo stesso identificatore, che è la
+chiave con cui l'aggiornamento distingue la sostituzione dall'inserimento.
+%I centri salvati a partire da una voce dell'elenco pubblico portano un identificatore con un prefisso distinto, il che
+%permette di riconoscerne l'origine in una eventuale versione futura, quando servisse per esempio riallinearli al dato remoto.
+
+\section{Integrazione con i servizi del dispositivo}\label{sec:impl-integrazione}
+
+Le azioni che seguono la consultazione, cioè raggiungere un centro, telefonargli, scrivergli o condividerne la scheda, non sono
+realizzate dall'applicazione ma delegate ai programmi installati sul dispositivo.
+La delega avviene componendo un collegamento e chiedendo al sistema operativo di aprirlo con l'applicazione competente.
+
+Per le indicazioni stradali sono previste tre destinazioni, riassunte nella tabella \ref{tab:navigazione}.
+La scelta di impiegare collegamenti universali di tipo web, invece degli schemi nativi delle singole applicazioni, ha
+una conseguenza pratica utile: se l'applicazione è installata il sistema la apre direttamente, mentre se non lo è il
+collegamento viene aperto dal browser, che mostra la stessa mappa.
+Con uno schema nativo il secondo caso produrrebbe un errore.
+
+\begin{table}[H]
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{2.5cm} P{2.6cm} L@{}}
+\toprule
+\textbf{Destinazione} & \textbf{Disponibilità} & \textbf{Trattamento del mezzo di trasporto} \tabularnewline
+\midrule
+Google Maps & entrambe le piattaforme & Automobile, piedi, mezzi pubblici e bicicletta, tutti trasmessi \tabularnewline
+Waze & entrambe le piattaforme & Non previsto dal collegamento: si avvia con la modalità predefinita \tabularnewline
+Apple Maps & solo iOS & Automobile, piedi e mezzi pubblici; la bicicletta ricade sull'automobile \tabularnewline
+\bottomrule
+\end{tabularx}
+\caption{Destinazioni di navigazione e trattamento del mezzo di trasporto selezionato.}
+\label{tab:navigazione}
+\end{table}
+
+%I due \textit{fallback} riportati nella terza colonna corrispondono agli scenari alternativi del caso d'uso UC-07 e sono stati
+%verificati sui rispettivi collegamenti.
+%Nessuna delle due produce un errore visibile: l'applicazione si apre con la destinazione corretta e una modalità di percorso
+%diversa da quella richiesta, che l'utente può cambiare sul posto.
+%Si è preferito questo comportamento all'alternativa di nascondere la destinazione quando il mezzo selezionato non è trasmissibile,
+%che avrebbe reso incomprensibile la scomparsa di una voce dall'elenco.
+
+Per la chiamata e per l'indirizzo di posta elettronica il collegamento è composto da schemi dedicati, e la richiesta si arresta all'apertura del
+programma con il recapito già inserito, successivamente la conferma resta all'utente.
+%I campi dei dati di origine, però, contengono spesso più recapiti nello stesso campo, ed è necessario isolarne uno; viene
+%preso il primo, separando la stringa sui caratteri che nei dati fungono da separatore.
+
+%Su questo punto c'è un difetto da segnalare, emerso durante la stesura del capitolo e non prima.
+%La composizione dei recapiti estratti dalla sorgente li unisce con un trattino, e la separazione in lettura divide di conseguenza
+%anche sul trattino; ne segue che un numero singolo che contenga un trattino al proprio interno, forma di scrittura tutt'altro
+%che rara come in \texttt{02-1234567}, viene troncato alla parte precedente il trattino, e il programma telefonico si apre con le
+%sole cifre iniziali.
+%Il difetto è circoscritto ai recapiti scritti in quella forma e non provoca alcuna chiamata errata, perché l'utente vede il numero
+%incompleto prima di confermare, ma resta un errore effettivo.
+%La correzione consiste nel separare su una sequenza più specifica, comprensiva degli spazi che accompagnano il trattino di unione,
+%oppure nell'adottare in composizione un separatore che non possa comparire dentro un numero.
+
+La condivisione compone un testo con la denominazione, l'indirizzo, il recapito telefonico quando presente e un collegamento
+alla posizione sulla mappa, e lo consegna al pannello di condivisione del sistema.
+%Il collegamento alla posizione è la parte che rende utile la condivisione: un messaggio con il solo nome della struttura obbliga
+%il destinatario a cercarla, mentre un collegamento apre direttamente il punto sulla mappa.
+%Tutte le aperture di collegamento sono racchiuse in una gestione degli errori che copre due casi distinti, cioè il fallimento
+%dell'apertura con eccezione e la restituzione di un esito negativo senza eccezione, che si verifica quando nessuna applicazione
+%installata dichiara di saper gestire quello schema.
+%In entrambi i casi l'utente riceve un avviso testuale e la scheda del centro resta aperta, come prevede lo scenario alternativo
+%del caso d'uso UC-07.
+
+\section{Il modulo in esecuzione}\label{sec:impl-screenshot}
+
+Le figure \ref{fig:screen-mappa} e \ref{fig:screen-schede} mostrano il modulo in funzione su dispositivo Android, e permettono di
+verificare visivamente alcune delle scelte descritte nelle pagine precedenti.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{mappa-cluster}
+  \caption{Cluster}
+  \label{fig:sub-cluster}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{mappa-raggio-2}
+  \caption{Filtro per raggio}
+  \label{fig:sub-raggio}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.3\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{centri-vicini}
+  \caption{Centri vicini}
+  \label{fig:sub-vicini}
+\end{subfigure}
+\caption{Vista cartografica: cluster numerati, cerchio del filtro per raggio ed elenco ordinato per distanza.}
+\label{fig:screen-mappa}
+\end{figure}
+
+%Nella figura \ref{fig:sub-cluster} si riconoscono le bolle numerate prodotte dall'algoritmo del paragrafo \ref{subsec:impl-clustering},
+%con i marker singoli che convivono con i cluster nella stessa vista: sono le celle con un solo membro, disegnate come marker ordinari.
+%Si nota anche la colonna dei comandi sul lato destro, nella metà inferiore dello schermo come richiede il requisito RNF-01.
+%
+%La figura \ref{fig:sub-raggio} mostra il cerchio del filtro attivo, con il riempimento tenue che delimita senza coprire
+%il territorio sottostante.
+%La figura \ref{fig:sub-vicini} riporta l'elenco per prossimità, con le scelte discrete del raggio in testa al pannello
+%e la distanza formattata secondo gli scaglioni descritti al paragrafo \ref{subsec:impl-filtraggio}.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{popup-centro}
+  \caption{Scheda}
+  \label{fig:sub-popup}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{indicazioni}
+  \caption{Percorso}
+  \label{fig:sub-indicazioni}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{form-centro}
+  \caption{Inserimento}
+  \label{fig:sub-form}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{miei-centri}
+  \caption{Centri propri}
+  \label{fig:sub-miei}
+\end{subfigure}
+\caption{Pannelli modali: scheda della struttura, scelta del mezzo e dell'applicazione di navigazione, modulo di
+inserimento ed elenco dei centri personalizzati.}
+\label{fig:screen-schede}
+\end{figure}
+
+%I quattro pannelli della figura \ref{fig:screen-schede} rendono evidente la scelta discussa al paragrafo \ref{subsec:flusso-navigazione}:
+%nessuno di essi occupa l'intero schermo, e la mappa resta visibile al di sopra, così che il contesto geografico non venga
+%perso nel momento in cui si consultano i dettagli.
+%Nella figura \ref{fig:sub-indicazioni} si vedono le scelte del mezzo di
+%trasporto sopra l'elenco delle applicazioni di navigazione, disposizione che rispecchia l'ordine dei passi del caso d'uso UC-07,
+%dove il mezzo viene scelto prima dell'applicazione.
+%La figura \ref{fig:sub-form} mostra il modulo di inserimento con il riquadro
+%della posizione acquisita dalla mappa e il comando di riallineamento descritto al paragrafo \ref{subsec:impl-validazione}.
