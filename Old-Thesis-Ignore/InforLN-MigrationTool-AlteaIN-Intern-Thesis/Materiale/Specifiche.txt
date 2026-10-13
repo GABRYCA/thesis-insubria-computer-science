@@ -1,0 +1,5 @@
+Realizzazione di uno strumento di migrazione dati da integrare con uno strumento già presente per la produzione delle 
+specifiche di migrazione e la documentazione della stessa. Lo strumento sarà in grado di generare dinamicamente codice, 
+estendibile con funzioni ad hoc, per migrare dati su sistemi Cloud Multitenant e in particolare per la Infor Cloudsuite Enterprise. 
+Sarà necessario sviluppare anche un importer che sia in grado di interpretare il formato di import/export di Infor Exchange per 
+ricreare le definizioni dei file da migrare.

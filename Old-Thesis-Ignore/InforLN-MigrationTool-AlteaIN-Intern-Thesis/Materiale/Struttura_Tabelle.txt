@@ -1,0 +1,165 @@
+txamg000 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	indt		tc date	UTC Date/Time	22	txamg000.indt – Introduction Date
+2	dsca		tc mcs.str50m	Multibyte String	50	txadv001.dsca – Description
+3	lopk		tx amg.cpac	String	2	txamg000.lopk – Load Library Package
+4	lomd		tx amg.cmod	String	3	txamg000.lomd – Load Library Module
+5	loff		tc mcs.long	Long	10	txamg000.loff – Load Library First Free Number
+6	prpk		tx amg.cpac	String	2	txamg000.prpk – Process Library Package
+7	prmd		tx amg.cmod	String	3	txamg000.prmd – Process Library Module
+8	prff		tc mcs.long	Long	10	txamg000.prff – Process Library First Free Number
+9	bpat		tc path2	String	128	txamg000.bpat – Base Path for Files
+
+txamg100 - Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	grou		tx amg.grou	String	20	txamg100.grou – Table Group
+2	dsca		tc dsca	Multibyte String	30	txamg100.dsca – Description
+3	bpat		tc path2	String	128	txamg100.bpat – Subfolder
+
+txamg110 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	grou		tx amg.grou	String	20	txamg101.grou – Table Group
+2	dfil		tx amg.dfil	String	20	txamg110.dfil – Data File
+3	dsca		tc dsca	Multibyte String	30	txamg100.dsca – Description
+4	fast		tx amg.fast	Enumerated	10	txamg110.fast – File Type
+5	sepa		tc mcs.str1	String	1	txamg110.sepa – Separator
+6	frzn		tc yesno	Enumerated	5	txamg110.frzn – Frozen
+7	cprs		tx amg.cprs	String	9	txamg110.cprs – Load Library
+8	cpac		tx amg.cpac	String	2	txamg110.cpac – Ref Table Package
+9	cmod		tx amg.cmod	String	3	txamg110.cmod – Ref Table Module
+10	flno		tx amg.flno	String	3	txamg110.flno – Ref Table
+11	cmba	0				txamg110.cmba – Group, DataFile
+12	mufi		tc yesno	Enumerated	5	txamg110.mufi – Multifile Datafile
+13	bpat		tc path2	String	128	txamg110.bpat – Subfolder
+
+txamg111 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	grou		tx amg.grou	String	20	txamg101.grou – Table Group
+2	dfil		tx amg.dfil	String	20	txamg110.dfil – Data File
+3	fdno		tx amg.fdno	Integer	4	txamg111.fdno – Field Number
+4	fdnm		tx amg.dfnm	String	20	txamg111.fdnm – Field Name
+5	dsca		tc dsca	Multibyte String	30	txamg100.dsca – Description
+6	stpn		tx amg.fdno	Integer	4	txamg111.stpn – Start Position
+7	leng		tx amg.fdno	Integer	4	txamg111.leng – Length
+8	atyp		tx amg.atyp	Enumerated	10	txamg111.atyp – Dafile Field Type
+9	adgb		tc mcs.int	Integer	3	txamg111.adgb – Digits Before
+10	adga		tc mcs.int	Integer	3	txamg111.adga – Digits After
+11	cpac		tx amg.cpac	String	2	txamg110.cpac – Ref Table Package
+12	cmod		tx amg.cmod	String	3	txamg110.cmod – Ref Table Module
+13	flno		tx amg.flno	String	3	txamg110.flno – Ref Table
+14	rfnm		tx amg.fdnm	String	8	txamg111.rfnm – Ref Field Name
+15	cmba	0				txamg111.cmba – Group, DataFile, Field N°
+16	cmbb	0				txamg111.cmbb – Group, DataFile
+
+txamg200 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg200.cbat – Batch
+2	dsca		tc dsca	Multibyte String	30	txamg200.dsca – Description
+3	bpat		tc path2	String	128	txamg200.bpat – Subfolder
+
+txamg201 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg200.cbat – Batch
+2	sequ		tc mcs.int	Integer	3	txamg201.sequ – Seq.
+3	grou		tx amg.grou	String	20	txamg100.grou – Table Group
+4	dfil		tx amg.dfil	String	20	txamg110.dfil – Data File
+5	migt		tx amg.migt	Enumerated	10	txamg201.migt – Migration Type
+6	cprs		tx amg.cprs	String	9	txamg201.cprs – Process Library
+7	ilgn		tx amg.logn	String	8	txamg201.ilgn – Internal Owner
+8	elgn		tx amg.logn	String	8	txamg201.elgn – External Owner
+9	txta		tc txtn	Text	0	txamg201.txta – Notes
+10	frzn		tc yesno	Enumerated	5	txamg201.frzn – Frozen
+11	cmba	0				txamg201.cmba – Batch, Seqn.
+12	cmbb	0				txamg201.cmbb – Group, Datafile
+
+txamg202 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg200.cbat – Batch
+2	sequ		tc mcs.int	Integer	3	txamg202.sequ – Seq.
+3	sseq		tc mcs.int	Integer	3	txamg202.sseq – SubSeq.
+4	cpac		tx amg.cpac	String	2	txadv100.cpac – Package
+5	cmod		tx amg.cmod	String	3	txamg202.cmod – Module
+6	flno		tx amg.flno	String	3	txamg202.flno – Table
+7	flnm		tc dsca	Multibyte String	30	txamg201.flnm – Table Name
+12	ilgn		tx amg.logn	String	8	txamg202.ilgn – Internal Owner
+13	elgn		tx amg.logn	String	8	txtamg202.elgn – External Owner
+14	shrd		tc yesno	Enumerated	5	txamg202.shrd – Shared
+15	udal		tc yesno	Enumerated	5	txamg202.udal – Use DAL
+16	utyp		tx amg.utyp	Enumerated	10	txamg202.utyp – DB Operation
+17	txta		tc txtn	Text	0	txamg202.txta – Functional Notes
+19	cmba	✓			0	txamg202.cmba – Batch, Seq., SubSeq.
+20	cmbb	✓			0	txamg202.cmbb – Table (BatchSeq)
+
+txamg203 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg200.cbat – Batch
+2	sequ		tc mcs.int	Integer	3	txamg201.sequ – Seq.
+3	sseq		tc mcs.int	Integer	3	txamg201.sseq – SubSeq.
+4	cpac		tx amg.cpac	String	2	txamg203.cpac – Package
+5	cmod		tx amg.cmod	String	3	txadv201.cmod – Module
+6	flno		tx amg.flno	String	3	txadv201.flno – Table
+7	fdno		tx amg.fdno	Integer	4	txamg203.fdno – Field N.
+8	fdnm		tx amg.fdnm	String	8	txamg203.fdnm – Field Name
+9	icdf		tc yesno	Enumerated	5	txamg203.icdf – CDF
+10	isml		tc yesno	Enumerated	5	txamg203.isml – ML
+11	fdsc		tc dsca	Multibyte String	30	txamg203.fdsc – Field Desc
+12	comb		tc yesno	Enumerated	5	txamg203.comb – Comb.
+13	pacd		tx amg.cpac	String	2	txamg203.pacd – Domain Package
+14	cdom		tx amg.cdom	String	12	txamg203.cdom – Domain
+15	type		tx amg.type	Enumerated	10	txamg203.type – Data Type
+16	digb		tc mcs.int	Integer	3	txamg203.digb – Digit Before
+17	diga		tc mcs.int	Integer	3	txamg203.diga – Digit After
+18	iniv		tc dsca	Multibyte String	30	txamg203.iniv – Initial Value
+19	mand		tc yesno	Enumerated	5	txamg203.mand – Mandatory
+20	rfpa		tx amg.cpac	String	2	txamg203.rfpa – Ref. Table Package
+21	rfmo		tx amg.cmod	String	3	txamg203.rfmo – Ref. Table Module
+22	rffn		tx amg.cmod	String	3	txamg203.rffn – Ref. Table
+23	rffd		tx amg.fdnm	String	8	txamg203.rffd – Ref. Field
+24	dept		tc mcs.int	Integer	3	txamg203.dept – (label missing in paste)
+
+txamg300 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg300.cbat – Batch
+2	runs		tc mcs.long	Long	10	txamg300.runs – Run
+3	ncmp		tc ncmp	Integer	4	txamg300.ncmp – Target Company
+4	stdt		tc date	UTC Date/Time	22	txamg300.stdt – Start Date
+5	endt		tc date	UTC Date/Time	22	txamg300.endt – End Date
+6	cmba	✓			0	(label missing)
+
+txamg301 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg301.cbat – Batch
+2	runs		tc mcs.long	Long	10	txamg301.runs – Run
+3	sequ		tc mcs.long	Long	10	
+4	stdt		tc date	UTC Date/Time	22	txamg301.stdt – Start Date
+5	endt		tc date	UTC Date/Time	22	txamg301.endt – End Date
+6	rere		tc mcs.long	Long	10	txamg301.rere – Records Read
+7	repr		tc mcs.long	Long	10	txamg301.repr – Record Processed
+8	reer		tc mcs.long	Long	10	txamg301.reer – Records Discarded
+9	cmba	✓			0	
+10	cmbb	✓			0	
+
+txamg302 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg302.cbat – Batch
+2	runs		tc mcs.long	Long	10	txamg302.runs – Run
+3	sequ		tc mcs.long	Long	10	
+4	sseq		tc mcs.long	Long	10	
+5	stdt		tc date	UTC Date/Time	22	txamg302.stdt – Start Date
+6	endt		tc date	UTC Date/Time	22	txamg302.endt – End Date
+7	cmba	✓			0	
+8	cmbb	✓			0	
+
+txamg303 – Table Structure
+#	Field	Comb.	Domain	Data Type	Length	Label / Description
+1	cbat		tx amg.cbat	String	20	txamg303.cbat – Batch
+2	runs		tc mcs.long	Long	10	txamg303.runs – Run
+3	sequ		tc mcs.long	Long	10	
+4	sseq		tc mcs.long	Long	10	
+5	rere		tc mcs.long	Long	10	txamg303.rere – Read Record
+6	line		tc mcs.long	Long	10	txamg303.line – Line
+7	errc		tc mcs.int	Integer	3	txamg303.errc – Error Code
+8	errm		tc mcs.s999m	Multibyte String	999	txamg303.errm – Error Message
+9	cmba	✓			0	
+10	cmbb	✓			0	
+

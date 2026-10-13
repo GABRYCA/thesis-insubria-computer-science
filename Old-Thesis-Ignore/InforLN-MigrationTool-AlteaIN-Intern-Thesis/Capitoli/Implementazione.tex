@@ -1,0 +1,517 @@
+\chapter{Implementazione e Sviluppo}\label{ch:implementazione-e-sviluppo}
+
+
+\section{Sviluppo dell'Importer Infor Exchange}\label{sec:sviluppo-dell'importer-infor-exchange}
+
+\subsection{Gestione dei Formati e Parsing}\label{subsec:gestione-dei-formati-e-parsing}
+L'importer è stato sviluppato come un modulo d'\textit{input} che si interpone tra i file d'ingresso
+(prodotti dai vecchi server o estratti tramite \textit{tool} \textit{legacy}, a volte anche Access) e le tabelle di definizione del nuovo sistema.
+
+La libreria dedicata alla gestione dei \textit{metadata} (\texttt{txamgdll0011}) prende in carico l'interpretazione dei metadati
+(quali formati delimitati o logiche \textit{ASCII} a lunghezza fissa) eseguendo conversioni su base parametrica secondo
+l'enumerato \texttt{txamg.fast}.
+
+Ogni riga recuperata viene controllata per garantire la conformità delle codifiche testo e i troncamenti (\textit{trim}) o \textit{padding} dei campi vuoti.
+Durante questa fase il generatore effettua operazioni di \textit{concatenazione stringhe} (utilizzando funzioni come \texttt{concat} e \texttt{string.scan}). 
+L'implementazione di un sistema con concatenazione di stringhe in linguaggi \textit{legacy}/Baan C richiede particolare attenzione poiché le stringhe spesso non hanno dimensionamenti
+fissi.
+Tuttavia, un vantaggio della manipolazione nativa e deterministica con domini è la limitazione dei \textit{Buffer Overflow} e l'ottimizzazione dell'utilizzo della \textit{RAM},
+ma d'altro canto, sono necessari continui \texttt{offset-trimming} e calcoli (come la lunghezza in base all'\textit{ASCII subset}).
+
+L'\textit{importer} esegue il \textit{parsing} del flusso estrapolandolo da un singolo file sorgente (o su limitati file macro per l'intero transazionale).
+Questo design permette un \textit{overhead} minore per ciascuna interazione.
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function void GeneraImportUnpack(domain txamg.dfil datafile)
+{
+    |* Generazione dinamica della scansione della riga ASCII
+    |* print_format conterrà una stringa tipo "|%s|%s|%s|"
+    |* string_list conterrà la lista delle variabili di destinazione
+
+    select txamg111.* from txamg111
+    where txamg111._index1 = {:txamg110.grou, :txamg110.dfil}
+    order by txamg111.fdno
+    selectdo
+        print_format = print_format & first.pipe & "%s|"
+        string_list = string_list & comma & "imp.str."
+                      & trim$(txamg111.fdnm)
+        comma = ","
+        first.pipe = ""
+    endselect
+
+    Riga("function extern long unpack."&datafile&"(...) {")
+    Riga("    ret = string.scan(buffer_"
+              &trim$(datafile)&","""
+              &trim$(print_format)&""","&trim$(string_list)&")")
+    Riga("    ...")
+    Riga("}")
+}
+\end{minted}
+\caption{Esempio di generazione del codice per il \textit{parsing} di stringhe \textit{ASCII} (da \texttt{txamgdll0012}).}
+\label{lst:parsing_gen}
+\end{listing}
+
+In questo estratto viene mostrato come il generatore iteri sui campi definiti per
+il \textit{datafile} (\texttt{txamg111}) per costruire una chiamata a \texttt{string.scan}.
+Questa funzione Baan C viene poi usata nello \textit{script} generato per \enquote{spacchettare} la riga letta dal file \textit{ASCII} nelle
+variabili corrispondenti ai singoli campi.
+
+\subsection{Ricostruzione delle Definizioni dei File}\label{subsec:ricostruzione-delle-definizioni-dei-file}
+L'obiettivo secondario dell'\textit{importer} è auto-compilare il \textit{setup} dello stesso \textit{Migration Tool}.
+Utilizzando le definizioni originarie dei file (le tabelle \textit{legacy}), il programma crea dinamicamente e aggiorna una
+mappatura interna dei \textit{Data Files} attraverso Sessioni come \texttt{txamg1110m000}.
+
+Le descrizioni, numerazioni dei campi (\texttt{txamg.fdno}) e i tipi di dominio coinvolti (\texttt{txamg.atyp}) vengono
+inseriti nella tabella di supporto \texttt{txamg111} e sono quindi disponibili e precompilati per le successive attività
+di \textit{data-mapping} manuale verso le tabelle di destinazione della \textit{CloudSuite}.
+
+L'utente può gestire singoli file sorgente e gruppi di essi tramite le sessioni mostrate in
+Figura~\ref{fig:datafile_groups} e~\ref{fig:datafiles}.
+
+\begin{figure}[H]
+    \centering
+        \centering
+        \includegraphics[width=\textwidth]{DataFile_Groups_txamg1100m000}
+        \caption{DataFile Groups (\texttt{txamg1100m000}).}
+        \label{fig:datafile_groups}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{DataFiles_txamg1110m000}
+    \caption{DataFiles (\texttt{txamg1110m000}).}
+    \label{fig:datafiles}
+\end{figure}
+
+I dettagli dei campi per ogni file, inclusi i domini e le lunghezze, è gestito in una sessione specifica (Figura~\ref{fig:fields_session}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{DataFile_Fields_txamg1111m000}
+    \caption{Datafile Fields (\texttt{txamg1111m000}).}
+    \label{fig:fields_session}
+\end{figure}
+
+\section{Implementazione del Generatore di Codice}\label{sec:implementazione-del-generatore-di-codice}
+
+\subsection{Creazione Dinamica del Codice}\label{subsec:creazione-dinamica-del-codice}
+La generazione dinamica del codice è gestita mediante apposite librerie \textit{DLL} (\textit{Dynamic Link Library}) create
+all'interno del sistema Infor, quali \texttt{txamgdll0012} (\textit{Script Generator - Load dll}) e \texttt{txamgdll0013} (\textit{Script Generator - Process dll}).
+
+Il codice sorgente Baan C viene generato riga per riga, definendo le firme delle funzioni
+(es. \texttt{function extern long process.import.file...()}) e le variabili necessarie.
+Per farlo in modo conforme all'infrastruttura di Infor LN, il generatore interroga direttamente il \textit{Data Dictionary} del
+sistema tramite le tabelle \texttt{ttadv} (in particolare \texttt{tttadv420} per le definizioni delle
+tabelle, \texttt{tttadv422} per i campi e \texttt{tttadv400} per i domini).
+Questa interrogazione viene successivamente delegata al componente \texttt{txamgdll0010} (\textit{DD Integration Library}), che funge
+da strato di astrazione estraendo in automatico i tipi di dato, lunghezze massime e \textit{array} per assicurare che lo \textit{script}
+rispetti le definizioni fisiche corrette.
+
+Tali librerie servono ad analizzare la configurazione definita nelle tabelle di \textit{mapping} (ad esempio \texttt{txamg203})
+per generare script eseguibili, riducendo il tempo manuale richiesto per configurare le regole di conversione
+standard e garantendo che il codice finale aderisca alla logica di business (\textit{business logic}).
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function void GeneraMap(domain tcmcs.str8 tabella)
+{
+    Riga("function long map."&tabella&".record() {")
+    select txamg203.*, txamg111.* from txamg203, txamg111
+    where txamg203._index1 =
+    {:txamg202.cbat, :txamg202.sequ, :txamg202.sseq}
+    and txamg203.cmbd refers to txamg111
+    selectdo
+        on case txamg203.type
+            case txamg.type.long:
+                Riga("    "&tabella&trim$(txamg203.fdnm)
+                          &" = lval(imp.str."&trim$(txamg203.fdnm)&")")
+                break
+            case txamg.type.string:
+                Riga("    tt.align.according.domain(imp.str."
+                         &trim$(txamg111.fdnm)&","
+                         &tabella&trim$(txamg203.fdnm)&",...)")
+                break
+            |* Altri tipi (date, enum, etc.)
+        endcase
+    endselect
+    Riga("    return(OK)")
+    Riga("}")
+}
+\end{minted}
+\caption{Logica generazione della funzione di mapping (da \texttt{txamgdll0013}).}
+\label{lst:mapping_gen}
+\end{listing}
+
+Nell'esempio viene mostrata la funzione \texttt{GeneraMap} che genera il codice per mappare i dati estratti dal
+file d'origine alla struttura della tabella di destinazione:
+\begin{itemize}
+    \item \textbf{Riga 4-6}: Esegue un ciclo sui campi mappati (\texttt{txamg203}) relazionandoli con i campi sorgente (\texttt{txamg111}).
+    \item \textbf{Riga 9-10}: Se il target è un numero intero (\textit{long}), genera una chiamata a \texttt{lval()} per convertire la stringa ASCII in valore numerico.
+    \item \textbf{Riga 12-13}: Se il target è una stringa, usa \texttt{tt.align.according.domain()} per gestire lunghezze e allineamenti secondo il dominio Infor LN.
+\end{itemize}
+
+\subsection{Funzioni di Trasformazione Ad-hoc}\label{subsec:funzioni-di-trasformazione-ad-hoc}
+Oltre alle regole predefinite, l'interprete permette la dichiarazione e l'inserimento di funzioni personalizzate create ad-hoc.
+Durante il processo, eventuali routine di validazione o pulizia del dato possono essere inoltrate ad altre
+interfacce di esecuzione (come \texttt{txamg3200} - \textit{Execute Batch Runs}).
+
+Bisogna quindi consentire allo sviluppatore di interagire con il tool attraverso \textit{callback} specifici.
+Per esempio, nel caso in cui una data proveniente dal sistema \textit{legacy} necessiti di \textit{parsing} complesso
+o validazioni logiche \textit{custom}, lo sviluppatore può definire uno script aggiuntivo inserito in fase di \textit{mapping}.
+Ecco un esempio teorico pratico del codice di una funzione di trasformazione implementata in Baan C:
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function extern domain tcdate
+converti.data.legacy(domain tcmcs.str10 legacy_date)
+{
+    long yy, mm, dd
+    domain tcdate target_date
+
+    |* Parsing manuale "YYYY-MM-DD" o formati non standard
+    |* Questo if serve a verificare se sia vuota o nulla
+    if isspace(legacy_date) then
+        |* Return con data nulla
+        return(0)
+    endif
+
+    yy = lval(legacy_date(1;4))
+    mm = lval(legacy_date(6;2))
+    dd = lval(legacy_date(9;2))
+
+    |* Validazione e conversione nel formato numerico (giorni) di LN
+    if mm >= 1 and mm <= 12 and dd >= 1 and dd <= 31 then
+        target_date = date.to.num(yy, mm, dd)
+        return(target_date)
+    else
+        dal.set.error.message("@Data non valida legacy: %s", legacy_date)
+        return(0)
+    endif
+}
+\end{minted}
+\caption{Esempio di funzione di trasformazione \textit{ad-hoc} sviluppata per manipolare date non standard.}
+\label{lst:callback_ad_hoc}
+\end{listing}
+
+Il componente \texttt{txamgdll0011} si occupa del management dei metadati e dei log. 
+Inoltre, queste \textit{DLL} scambiano informazioni a \textit{runtime} mediante passaggio di parametri rigorosamente definiti o variabili globali \textit{extern} accessibili alla sessione in esecuzione. 
+Il collegamento tra DLL proprietarie e codice generato si basa su puntatori allocati temporaneamente, essenziali in Baan C per l'invio di costrutti complessi senza pesare sul \textit{Data Access Layer} sottostante.
+
+\subsection{Gestione delle Latenze e Fallback Dinamico}\label{subsec:gestione-delle-latenze-e-fallback-dinamico}
+Un aspetto dell'implementazione riguarda la \textbf{gestione delle eccezioni} legate alle latenze di rete e all'integrità referenziale, specialmente importante trattandosi di un inserimento massivo in ambiente Cloud (\textit{CloudSuite}).
+Per superare le inefficienze della singola \textit{commit}, è stato adottato un approccio \textit{Array-Insert} (inserimento a blocchi di centinaia di record alla volta tramite \textit{array}).
+Tuttavia, qualora la DAL (\textit{Data Access Layer}) riscontri un errore formale (\textit{Foreign Key} mancante, \textit{Domain Check} fallito) in uno solo dei record contenuti nell'\textit{array}, Infor scarterebbe l'intera transazione annullando di conseguente l'intero blocco
+e inserendolo nella lista di \textit{rollback}.
+
+Per gestire questa criticità, è stata integrata una \texttt{tecnica di fallback}: al fallimento del blocco, il sistema entra in un ciclo di \textit{retry} che esegue automaticamente la scansione e l'inserimento dello specifico blocco di dati riga per riga. 
+Tale meccanismo garantisce che il dato \textit{sanitizzato} venga salvato e che solamente la riga errata venga scartata, fornendo \textit{log} più precisi e massimizzando al contempo le prestazioni dell'inserimento.
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function long ProcessaBlocco(domain tcemm.noma num.righe)
+{
+    long obj.ret, i
+    
+    |* Tentativo di inserimento Array-Insert
+    db.retry.point()
+    obj.ret = dal.save.object("tccom001", num.righe)
+    if obj.ret = 0 then
+        commit.transaction()
+        return(OK)
+    endif
+    
+    |* Fallback Dinamico, fallimento inserimento a blocchi. Elaborazione riga per riga
+    abort.transaction()
+    for i = 1 to num.righe
+        db.retry.point()
+        obj.ret = dal.save.object("tccom001", 1) |* Inserisco la riga
+        if obj.ret = 0 then
+            commit.transaction()
+        else
+            |* Catturo l'errore generato dalla DAL e lo aggiungo ai log
+            LoggaErrore(i, dal.set.error.message()) 
+            abort.transaction()
+        endif
+    endfor
+    return(OK)
+}
+\end{minted}
+\caption{Pseudo-codice Baan C che mostra la logica iterativa di transazione e fallback riga-per-riga.}
+\label{lst:dynamic_fallback}
+\end{listing}
+
+\subsection{Logging degli Errori}\label{subsec:logging-degli-errori}
+Il processo di validazione e selezione dei record è legato a una complessa infrastruttura di \textit{logging}.
+Invece di disperdere i \textit{warning} e gli \textit{errors} nei log dei server di Infor, che non sono facilmente consultabili,
+le stringhe non accettate di ciascuna tabella vengono salvate, attivando il \texttt{dal.set.error.message} e scritte nella tabella \texttt{txamg303} (\textit{Runs Errors}).
+
+Un esempio di logica di recupero e salvataggio dell'errore (chiamata dalla funzione \texttt{LoggaErrore}) è la seguente:
+
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, baselinestretch=1.2, fontsize=\footnotesize, linenos]{c}
+function long LoggaErrore(long riga.id, string str.messaggio)
+{
+    |* Chiave tabella txamg303 
+    txamg303.cbat = current.batch
+    txamg303.dfil = current.datafile
+    txamg303.reno = riga.id
+    
+    |* Inserimento messaggio formattato
+    txamg303.mesg = str.messaggio
+    db.insert(ttxamg303, db.retry)
+    commit.transaction()
+    return(OK)
+}
+\end{minted}
+\caption{Snippet dimostrativo di inserimento del log di errore scaturito dal livello DAL interno.}
+\label{lst:error_logging}
+\end{listing}
+
+Tale implementazione serve all'utilizzatore finale in quanto avrà visibilità del log testuale completo dalla LNUI, tramite
+le sessioni di logs come quella degli errori (Error Logging)\@.
+
+\subsection{Array-Insert e Transazioni a Blocchi}\label{subsec:array-insert-e-transazioni-a-blocchi}
+Nel \textit{Tool} è stato implementato un sistema personalizzato per l'elaborazione dei \textit{commit} a blocchi durante la trasformazione dati.
+In ecosistemi \textit{Cloud} da remoto, le singole \textit{transactions} subiscono notevoli rallentamenti dati della latenza causate dal \textit{round-trip} 
+di ogni operazione di \textit{INSERT} o \textit{UPDATE} verso i \textit{layer} esterni di Infor in \textit{datacenter} remoti.
+Raggruppando migliaia di record (\textit{array-insert}), come detto precedentemente, l'impatto della latenza diminuisce (fino al 90\%).
+Di contro, l'impiego delle transazioni a gruppi necessità di particolare attenzione per la gestione del \textit{rollback},
+parziale o completo, di blocchi nel caso che anche solo un inserimento si corrompa (o violi i controlli della \textit{DAL}).
+Per mitigare questa criticità, il sistema implementa una strategia di \textit{fallback}: in caso di fallimento di una transazione a blocchi,
+viene catturata l'eccezione e rieseguito l'inserimento per i \textit{record} di quel blocco singolarmente (riga per riga \textit{row-by-row}).
+Questo approccio permette di isolare il \textit{record} anomalo, eseguendo la \textit{commit} per tutti i restanti dati validi senza interromperne l'intero flusso o \textit{run}
+migliorando internamente la flessibilità e le prestazioni senza perdita di dati.
+
+\section{Interfacce Utente (Sessioni)}\label{sec:interfacce-utente-(sessioni)}
+L'interazione con l'utente avviene attraverso un gruppo di sessioni dedicate, denominate \textit{m-sessions} o
+\textit{s-sessions} a seconda della loro finalità operativa.
+
+\subsection{Principi di UX/UI e Design delle Sessioni}\label{subsec:principi-di-ux/ui-e-design-delle-sessioni}
+Lo sviluppo e l'elaborazione dell'interfaccia si sono dovuti adattare a specifici vincoli e \textit{design pattern} di
+Infor LN, in modo da fornire all'utente una \textit{UX} (\textit{User Experience}) coerente e uniforme.
+
+Gli elementi chiave della \textit{UI} implementati comprendono:
+\begin{itemize}
+    \item \textbf{Sessioni Multi-Main (Multi-Occorrenza) vs Details (Dettaglio)}: Gran parte delle maschere previste
+    (come l'elenco dei \textit{Datafiles} o \textit{Batch}) sono state progettate come sessioni multi-occorrenza (lista tabellare).
+    L'utente può scorrere e filtrare grandi quantità di \textit{record} e aggiungere o modificare dati \textit{inline},
+    o richiamare una sessione di dettaglio secondaria in caso di presenza di decine di campi \textit{settings} o a scelta multipla.
+    Questo \textit{pattern} aumenta l'intuibilità e la facilità d'uso dello strumento senza commettere errori,
+    garantendo il rispetto degli standard sull'usabilità LN\@.
+    \item \textbf{Formati e Maschere (Formats)}: I campi a \textit{video} non sono semplici \textit{text-input}, ma
+    si basano su \textit{formati} specifici imposti a livello di \textit{Data Dictionary}.
+    Questa scelta fa in modo che il cursore e il \textit{parsing} dell'input costringano \textit{out-of-the-box}
+    l'inserimento solo di dati previsti e corretti (per esempio:
+    forzando il Maiuscolo, o aggiungendo i separatori alle cifre decimali), eliminando una buona porzione di
+    possibili errori prima ancora dell'esecuzione e successivo salvataggio.
+    \item \textbf{Zoom (Lookups/Selettori Dati)}: Altro strumento essenziale nell'interfaccia del \textit{Migration Tool} è l'uso degli \textit{zoom}.
+    Gli \textit{zoom} consentono all'utente, all'interno dei campi di \textit{foreign key} (ad esempio: per scegliere a
+    quale \textit{Package} logico appartiene una tabella, ma non solo), di
+    lanciare una sub-sessione modale per ricercare e prelevare un valore da tabelle o da enum (opzioni predefinite) preesistenti, invece di
+    memorizzare le codifiche mnemonicamente.
+\end{itemize}
+
+Le sessioni principali per la gestione dei \texttt{batch} e dei \texttt{mapping} sono visualizzabili nelle
+Figure~\ref{fig:batches}, \ref{fig:batch_sequences}, \ref{fig:batch_target_tables},
+\ref{fig:table_mappings}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Batches_txamg2100m000}
+    \caption{Batches (\texttt{txamg2100m000}).}
+    \label{fig:batches}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{BatchSequences_txamg2101m000}
+    \caption{Batch Sequences (\texttt{txamg2101m000}).}
+    \label{fig:batch_sequences}
+\end{figure}
+
+Nelle sessioni dei mapping si definiscono le tabelle target e le logiche di conversione per singolo campo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{BatchTargetTables_txamg2102m000}
+    \caption{Batch Target Tables (\texttt{txamg2102m000}).}
+    \label{fig:batch_target_tables}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{TableMappings_txamg2103m000}
+    \caption{Table Mappings (\texttt{txamg2103m000}).}
+    \label{fig:table_mappings}
+\end{figure}
+
+Si evidenziano, per esempio:
+\begin{itemize}
+    \item \textbf{Setup iniziale}: la Sessione \texttt{txamg0100m000} permette la parametrizzazione globale dello strumento.
+    \item \textbf{Definizione Formati}: le Sessioni relative a \texttt{txamg1110} gestiscono il popolamento dei formati dati elaborati.
+    \item \textbf{Mapping Dati}: la definizione di conversione logica e associazioni campo-campo tra origine e
+    destinazione avviene nelle interfacce di visualizzazione delle tabelle \textit{target} (\texttt{txamg2102m000}) e \textit{fields mapping} (\texttt{txamg2103m000}).
+\end{itemize}
+
+Nelle seguenti sezioni vengono riportati gli elenchi dei componenti software sviluppati, suddivisi per tipologia.
+
+\subsection{Esecuzione e Monitoraggio}\label{subsec:esecuzione-e-monitoraggio}
+Una volta configurati i mapping e generato il codice, il tool permette l'esecuzione dei batch tramite la sessione \texttt{txamg3200m000} (Figura~\ref{fig:execute_run}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ExecuteBatchRuns_txamg3200m000}
+    \caption{Execute Batch Runs (\texttt{txamg3200m000}).}
+    \label{fig:execute_run}
+\end{figure}
+
+Al termine dell'esecuzione, è possibile consultare alcune statistiche come momento di inizio e di fine e i log d'errore per ogni run (Figura~\ref{fig:runs_by_batch} e~\ref{fig:runs_errors}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{RunsByBatch_txamg3500m000}
+    \caption{Runs By Batch (\texttt{txamg3500m000}).}
+    \label{fig:runs_by_batch}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{RunsErrors_txamg3503m000}
+    \caption{Runs Errors (\texttt{txamg3503m000}).}
+    \label{fig:runs_errors}
+\end{figure}
+
+\subsection{Librerie (DLL) e Data Access Layer (DAL)}\label{subsec:librerie-(dll)-e-data-access-layer-(dal)}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l l p{8cm}}
+        \toprule
+        \textbf{Tipo} & \textbf{Codice} & \textbf{Descrizione} \\
+        \midrule
+        Libreria & \texttt{txamgdll0010} & AlteaIN Migration Tool - DD Integration Library \\
+        Libreria & \texttt{txamgdll0011} & AlteaIN Migration Tool - Metadata Management \& Error Logging \\
+        Libreria & \texttt{txamgdll0012} & AlteaIN Migration Tool - Script Generator - Load DLL \\
+        Libreria & \texttt{txamgdll0013} & AlteaIN Migration Tool - Script Generator - Process DLL \\
+        \addlinespace
+        DAL & \texttt{txamg000} & DAL for txamg000 \\
+        DAL & \texttt{txamg111} & DAL for txamg111 \\
+        DAL & \texttt{txamg203} & DAL for txamg203 \\
+        DAL & \texttt{txamg1110} & Data Files \\
+        DAL & \texttt{txamg3200} & Execute Batch Runs \\
+        DAL & \texttt{txamg3500} & Runs by Batch \\
+        DAL & \texttt{txamg3501} & Runs by Batch/Datafile \\
+        DAL & \texttt{txamg3502} & Runs by Batch/Datafile/Table \\
+        DAL & \texttt{txamg3503} & Runs Errors \\
+        \bottomrule
+    \end{tabular}
+    \caption{Elenco delle Librerie (DLL) e DAL sviluppati.}
+    \label{tab:dll_dal}
+\end{table}
+
+\subsection{Tabelle di Sistema e Sessioni Operative}\label{subsec:tabelle-di-sistema-e-sessioni-operative}
+
+Le strutture dettagliate di tutte le tabelle del Migration Tool (campi, domini, chiavi) sono riportate nell'Appendice~\ref{appendix:tabelle}.
+Di seguito sono elencate invece le sessioni, le librerie e i domini personalizzati:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l p{9cm}}
+        \toprule
+        \textbf{Sessione} & \textbf{Descrizione} \\
+        \midrule
+        \texttt{txamg0100m000} & Parameters \\
+        \texttt{txamg1100m000} & Datafile Groups \\
+        \texttt{txamg1110m000} & Data Files \\
+        \texttt{txamg1111m000} & DataFile Fields \\
+        \texttt{txamg2100m000} & Batches \\
+        \texttt{txamg2101m000} & Batch Sequences \\
+        \texttt{txamg2102m000} & Batch Target Tables \\
+        \texttt{txamg2103m000} & Table Mappings \\
+        \texttt{txamg3200m000} & Execute Batch Runs \\
+        \texttt{txamg3500m000} & Runs by Batch \\
+        \texttt{txamg3503m000} & Runs Errors \\
+        \bottomrule
+    \end{tabular}
+    \caption{Sessioni principali sviluppate per il Migration Tool.}
+    \label{tab:sessioni}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l p{9cm}}
+        \toprule
+        \textbf{Dominio} & \textbf{Descrizione} \\
+        \midrule
+        \texttt{txamg.atyp} & DataFile Field Type (Enums) \\
+        \texttt{txamg.cbat} & Batch (String) \\
+        \texttt{txamg.cdom} & Domain (String) \\
+        \texttt{txamg.cmod} & Module (String) \\
+        \texttt{txamg.cpac} & Package (String) \\
+        \texttt{txamg.cprs} & Script/Library Code (String) \\
+        \texttt{txamg.dfil} & Data File (String) \\
+        \texttt{txamg.dfnm} & Data File Field Name (String) \\
+        \texttt{txamg.fast} & ASCII File Format (Enums) \\
+        \texttt{txamg.fdnm} & Field Name (String) \\
+        \texttt{txamg.fdno} & Field Number (Integer) \\
+        \texttt{txamg.flno} & Table (String) \\
+        \texttt{txamg.grou} & Table Groups (String) \\
+        \texttt{txamg.logn} & Login (String) \\
+        \texttt{txamg.mapl} & Map Logic (Enums) \\
+        \texttt{txamg.migt} & Migration Type (Enums) \\
+        \texttt{txamg.refm} & Reference Mode (Enums) \\
+        \texttt{txamg.type} & Domain Type (Enums) \\
+        \texttt{txamg.utyp} & Update Type (Enums) \\
+        \bottomrule
+    \end{tabular}
+    \caption{Domini personalizzati tx del Migration Tool.}
+    \label{tab:domini}
+\end{table}
+
+\section{Integrazione Documentale}\label{sec:integrazione-documentale}
+
+\subsection{Esportazione delle Specifiche di Migrazione}\label{subsec:esportazione-delle-specifiche-di-migrazione}
+L'integrazione formale del modulo d'implementazione si traduce nella sua interconnessione con lo strumento aziendale adibito
+alla documentazione del progetto.
+
+Prima della configurazione ed eventuale esecuzione del batch (le sessioni
+\texttt{txamg2100} e \texttt{txamg3200}), l'\textit{utility} estrae il risultato dei mapping salvato nel \texttt{txamg203} (Tabella Mappings),
+formattandolo utilizzando layout predefiniti.
+
+L'esportazione documenta in \textit{Reports} (salvabili in diversi formati come PDF) ogni singolo dominio trasferito, documentando sia
+i campi copiati senza modifiche (\textit{one-to-one}) (in accordo con \texttt{txamg.mapl}) sia quei casi
+particolari per cui è stato inserito del codice personalizzato, creando le basi per una possibile eventuale manutenzione logica dell'architettura in futuro.
+
+\section{Ciclo di Vita del Dato}\label{sec:ciclo-di-vita-del-dato}
+Il processo di migrazione segue un flusso lineare, descritto nel seguente diagramma:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=2cm]
+        \node (legacy) [startstop] {Legacy Data (ASCII)};
+        \node (extract) [process, below of=legacy] {Estrazione};
+        \node (parse) [process, below of=extract] {Parsing (Importer)};
+        \node (map) [process, below of=parse] {Mapping \& Trasformazione};
+        \node (gen) [process, below of=map] {Generazione Codice DLL};
+        \node (exec) [process, below of=gen] {Esecuzione Batch};
+        \node (db) [io, below of=exec] {Infor CloudSuite DB};
+        \node (error) [startstop, right of=exec, node distance=5cm] {Log Errori (txamg303)};
+
+        \draw [arrow] (legacy) -- (extract);
+        \draw [arrow] (extract) -- (parse);
+        \draw [arrow] (parse) -- (map);
+        \draw [arrow] (map) -- (gen);
+        \draw [arrow] (gen) -- (exec);
+        \draw [arrow] (exec) -- (db);
+        \draw [arrow] (exec) -- (error);
+        \draw [arrow] (parse) -- (error);
+    \end{tikzpicture}
+    \caption{Diagramma di Flusso del Ciclo di Vita del Dato.}
+    \label{fig:flowchart}
+\end{figure}
+
+Il flusso garantisce che ogni record sia tracciato.
+In caso di errore durante il parsing (formato scorretto) o durante l'esecuzione (vincoli di database), l'\textit{engine}
+scrive un record dettagliato nella tabella \texttt{txamg303}, permettendo la ripartenza della migrazione esattamente da
+dove si era interrotta.

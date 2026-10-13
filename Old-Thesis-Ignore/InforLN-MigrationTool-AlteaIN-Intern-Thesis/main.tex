@@ -1,0 +1,125 @@
+% --------------------------
+% ---- DECLARE PACKAGES ----
+% --------------------------
+\documentclass[a4paper, oneside, openright]{book}
+\usepackage[T1]{fontenc} % Font encoding, T1 = it
+\usepackage{lmodern}
+\usepackage{multicol} % Per il frontespizio
+\usepackage[utf8]{inputenc} % Input encoding
+\usepackage[english,italian]{babel} % Lingua principale italiana, con parti in inglese
+\usepackage{minted} % Per i blocchi di codice
+\usepackage{csquotes} % Dipendenza di babel e biblatex
+\usepackage{blindtext} % Generazione di paragrafi lorem ipsum
+\usepackage{graphicx} % Immagini esterne
+
+\usepackage{setspace}
+\onehalfspacing % interlinea 1.5
+
+\usepackage[parfill]{parskip} % Disabilita l'indentazione dopo essere andati a capo
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+% Percorso per le immagini delle sessioni
+\graphicspath{{Immagini/}{Immagini/Sessioni/}}
+
+% Diagrammi TikZ
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgf-pie}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+% Captions
+\usepackage[font=scriptsize, skip=5pt, justification=centering]{caption}
+
+\usepackage[backend=biber, style=numeric, backref=true, defernumbers=true]{biblatex}
+
+\usepackage[immediate]{silence}
+\WarningFilter[temp]{latex}{Command}
+\usepackage{sectsty}
+\DeactivateWarningFilters[temp]
+\WarningFilter{microtype}{Unable to apply patch `footnote'}
+
+\usepackage{hyperref} % Rende l'indice cliccabile
+\usepackage[bottom]{footmisc} % Posiziona le footnotes alla fine della pagina
+\usepackage{subcaption}
+
+% Sperimentali
+\usepackage{microtype}
+
+% Impaginazione e margini
+\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
+\usepackage[fontsize=12pt]{scrextend} % dimensione font
+
+% ------------------------
+% ---- DOCUMENT SETUP ----
+% ------------------------
+\pagestyle{plain}
+\raggedbottom % Se la pagina non è completa, lascia lo spazio alla fine
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{10pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+\chaptertitlefont{\fontsize{22pt}{30pt}\selectfont}
+
+\hypersetup{ % Aspetto dei link
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\renewcommand{\footnotesize}{\fontsize{11pt}{13pt}\selectfont} % Imposta la dimensione del testo delle footnotes
+\setlength{\footnotesep}{0.5cm} % Imposta lo spazio fra e singole footnotes
+\setlength{\skip\footins}{1.5cm} % Imposta lo spazio fra il corpo e le footnotes
+
+\DeclareUnicodeCharacter{02BC}{}
+
+% ------------------------
+% ---- DOCUMENT START ----
+% ------------------------
+\addbibresource{bibliography.bib} % Bibliografia
+\begin{document} % Inizio documento
+\hypersetup{pageanchor=false}
+\frontmatter
+\input{Frontespizio} % PAGINA FRONTESPIZIO
+% \input{Dedica} % PAGINA DEDICA
+\tableofcontents  % Genera l'indice
+\mainmatter
+\hypersetup{pageanchor=true}
+\setcounter{chapter}{0} % Fa risultare l'introduzione come capitolo 0
+
+% ------------------
+% ---- CHAPTERS ----
+% ------------------
+\input{Capitoli/Introduzione}
+\input{Capitoli/StatoAttuale}
+\input{Capitoli/AnalisiRequisiti}
+\input{Capitoli/Architettura}
+\input{Capitoli/Implementazione}
+\input{Capitoli/Testing}
+\input{Capitoli/Conclusione}
+
+\appendix
+\input{Capitoli/Appendice}
+
+% ----------------------
+% ---- BIBLIOGRAPHY ----
+% ----------------------
+\backmatter
+\sloppy % serve a non far andare i link oltre ai margini
+\printbibliography[nottype=online, heading=bibintoc, title=Bibliografia]
+\printbibliography[type=online, heading=bibintoc, title=Sitografia]
+
+% ----------------------
+% ---- DOCUMENT END ----
+% ----------------------
+\end{document} % Fine documento

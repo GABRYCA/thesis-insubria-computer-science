@@ -1,0 +1,259 @@
+\chapter{Testing e Validazione}\label{ch:testing-e-validazione}
+
+\section{Strategia di Testing}\label{sec:strategia-di-testing}
+Testare un software per la migrazione dei dati è stato un aspetto fondamentale del progetto.
+Data la sensibilità delle logiche del \textit{Data Dictionary} di Infor CloudSuite in ambienti \textit{Cloud Multitenant},
+ogni anomalia nel record di inserimento avrebbe gravi conseguenze nel sistema di destinazione.
+
+Inoltre, per il generatore dinamico di codice in Baan C, le procedure di prova
+hanno incluso non solo l'importer dei dati, ma anche la correttezza sintattica e logica degli \textit{script}
+generati a \textit{runtime} dalle \textit{DLL} \texttt{txamgdll0012} e \texttt{txamgdll0013}.
+
+\subsection{Unit Testing sui Moduli di Parsing}\label{subsec:unit-testing-sui-moduli-di-parsing}
+I moduli di base (DLL quali \texttt{txamgdll0011}) per l'estrazione e la gestione dei metadata (\textit{metadata management})
+degli Infor Exchange sono stati testati su porzioni specifiche di file.
+
+Verificando ogni singola colonna (\texttt{txamg1111}), la validazione include il corretto casting di tipi enumerati,
+decimali a virgola mobile e codifiche in caratteri ASCII, simulando una diversità di input.
+Durante questa fase è possibile osservare come le diverse versioni del programma non alterino le librerie costruite
+se le posizioni di inizio (\texttt{stpn}) e la lunghezza (\texttt{leng}) vengono mantenute.
+
+\subsection{Test del Flusso di Migrazione}\label{subsec:test-del-flusso-di-migrazione}
+L'integrazione \textit{end-to-end} è validata eseguendo flussi di test governati dalle logiche di \textit{batch} (\texttt{txamg2100}
+e \texttt{txamg3200}).
+Durante questi test, il sistema genera degli \textit{script} di elaborazione e li invia al compilatore interno \texttt{bic\_compiler}.
+Se la generazione avviene correttamente, lo \textit{script} compilato viene agganciato al \textit{batch} ed eseguito.
+
+\subsection{Test della Sicurezza}\label{subsec:test-della-sicurezza}
+Un software di livello \textit{Enterprise} che si interfaccia con il \textit{database} deve essere a prova di anomalie e di sovraccarichi (voluti o semplicemente variazioni impreviste dell'\textit{input} legato all'estrazione da \textit{sistemi legacy}).
+Oltre a verificare il \textit{mapping} corretto, è stata posta particolare attenzione nelle fasi di validazione e test.
+
+Durante questa fase, sono stati inseriti appositamente nel sistema dei \textit{file} malformati: formati misti in \textit{UTF-8/ISO-8859-1} al posto dello spazio \textit{ASCII} standard, file vuoti e al altri estremamente pesanti per testare la resistenza 
+durante una saturazione del sistema (\textit{Out of Memory}), e misurarne l'utilizzo di memoria \textit{RAM}.
+Per testare il \textit{logging} delle righe errate, è stato inserito del testo con dimensioni non in linea con i tipi descritti sul file (\textit{es. nome di 50 caratteri su un tipo di lunghezza massima 10}).
+
+\begin{figure}[H]
+	\centering
+	\tikzset{
+		io_small/.style={trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=2.2cm, minimum height=0.8cm, text centered, draw=black, fill=blue!30, font=\footnotesize},
+		proc_small/.style={rectangle, minimum width=2.5cm, minimum height=0.8cm, text centered, draw=black, fill=orange!25, font=\footnotesize},
+		dec_small/.style={diamond, aspect=1.5, minimum width=2.5cm, minimum height=0.8cm, text centered, draw=black, fill=green!25, font=\footnotesize},
+		arrow/.style={thick,->,>=stealth}
+	}
+	\resizebox{\textwidth}{!}{
+		\begin{tikzpicture}[node distance=1cm and 1.2cm]
+			\node (raw) [io_small] {File Originario};
+			\node (read) [proc_small, right=of raw] {Lettura ed Estrazione (rere)};
+			\node (dec2) [dec_small, right=of read] {Validazione record};
+			\node (proc) [proc_small, right=of dec2] {Record Elaborato (repr)};
+			\node (disc) [proc_small, below=of dec2, yshift=-0.3cm] {Scarto Record (reer)};
+			\draw [arrow] (raw) -- (read);
+			\draw [arrow] (read) -- (dec2);
+			\draw [arrow] (dec2) -- node[midway, below, font=\scriptsize] {OK} (proc);
+			\draw [arrow] (dec2) -- node[midway, left, font=\scriptsize] {Errore} (disc);
+			\draw [arrow, dashed] (read.north west) .. controls +(0.4,0.8) and +(-0.4,0.8) .. (read.north east)
+			node[midway, above, font=\scriptsize] {Volume Totale};
+		\end{tikzpicture}
+	}
+	\caption{Rappresentazione logica del matching numerico di integrità}
+	\label{fig:matching_logico_testing}
+\end{figure}
+
+Un aspetto rilevante del testing d'integrazione riguarda la misurazione dei tempi di \textit{run}.
+Durante le simulazioni, con \textit{recordset} di piccole (circa $1.000$ inserimenti) e medie dimensioni (sino a $100.000$ righe su diversi file e tabelle),
+sono state effettuate delle misurazioni sulle latenze introdotte dal caricamento \textit{cloud} e dai vincoli di referenzialità.
+In parallelo, per assicurare le prestazioni e le procedure di \textit{rollback}, qualora ci siano rallentamenti o blocchi a livello di rete,
+il motore transazionale LN è stato istruito affinché le \textit{commit} avvengano a blocchi così come stabilito del numero di record.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/ExecuteBatchRuns_txamg3200m000}
+	\caption{Sessione di Esecuzione Batch (txamg3200m000)}
+	\label{fig:sessione_esecuzione_batch}
+\end{figure}
+
+I \textit{Runs Errors} offrono un riscontro immediato di blocchi logici o semantici.
+Sono stati eseguiti scenari in cui la validazione è forzata per respingere record privi di riferimenti chiave,
+verificando che la linea errata fosse elaborata senza però interromperne il caricamento dell'intero \textit{Run}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/RunsErrors_txamg3503m000}
+	\caption{Dettaglio degli errori di migrazione (txamg3503m000)}
+	\label{fig:dettaglio_errori_migrazione}
+\end{figure}
+
+Gli errori segnalati sono dettagliati all'interno della tabella \texttt{txamg303}, le cui colonne principali permettono
+di investigare quale linea e record abbia prodotto l'errore:
+\begin{itemize}
+    \item \texttt{runs}: Identificativo del Run
+    \item \texttt{rere}: Riga di lettura (\textit{Read Record})
+    \item \texttt{line}: Riga testuale all'interno del file sorgente
+    \item \texttt{errc}: Codice specifico dell'errore (\textit{Error Code})
+    \item \texttt{errm}: Descrizione del problema riscontrato dal DAL (\textit{Error Message})
+\end{itemize}
+
+Oltre ai controlli manuali, questo tracciamento funge da base per le strategie di \textit{retry} o per
+i \textit{sanity check} del dato prima della re-immissione: individuando la tipologia di errore, il consulente o l'operatore
+può decidere se modificarne il \textit{mapping}, apportare modifiche sul file d'origine o creare estensioni
+specifiche ai moduli generati dal \textit{tool}.
+
+\section{Verifica dell'Integrità dei Dati}\label{sec:verifica-dell'integrita-dei-dati}
+
+\subsection{Confronto tra Origine e Destinazione}\label{subsec:confronto-tra-origine-e-destinazione}
+Ogni file migrato viene tracciato sulle tabelle atte al monitoraggio (\texttt{txamg301}, \texttt{txamg302}). Il \textit{matching}
+prevede che vengano comparati il numero dei record letti, processati ed eventualmente respinti rispetto all'origine.
+Questo consente di ottenere la garanzia del risultato atteso, in quanto una discrepanza nel numero di dati letti e scritti,
+segnalerebbe un errore evidente.
+
+Nello specifico la tabella \texttt{txamg301} incapsula le metriche di base del processo:
+\begin{itemize}
+    \item \texttt{rere} (Records Read): volume totale dei record letti dal tool.
+    \item \texttt{repr} (Record Processed): record che hanno superato tutti i controlli e sono stati inseriti.
+    \item \texttt{reer} (Records Discarded): record scartati per errori di validazione o integrità.
+\end{itemize}
+
+I report prodotti (tramite moduli ad hoc come \texttt{txamgdll0011} per il log d'errore) forniscono la garanzia
+numerica dell'operazione, permettendo al team di validazione di avere stime certe prima dell'import su CloudSuite finale.
+
+Questo approccio garantisce che le disconnessioni di rete o i blocchi temporanei non lascino i dati in uno stato di
+incertezza.
+Il tool si comporta in maniera deterministica e produce riscontri sempre validati rispetto al totale.
+
+\section{Analisi delle Prestazioni e ROI}\label{sec:analisi-delle-prestazioni-e-roi}
+
+\subsection{Benchmark delle Prestazioni}\label{subsec:benchmark-delle-prestazioni}
+Per valutare l'effettivo miglioramento apportato dall'architettura del tool rispetto ai caricamenti manuali o ai vecchi script,
+sono stati condotti dei benchmark basati su dataset crescenti (da 1.000 a 100.000 record). Il grafico in Figura~\ref{fig:performance_benchmark} mostra i tempi
+di elaborazione misurati, evidenziando il netto miglioramento garantito dall'elaborazione in batch a blocchi e l'eliminazione dei colli di
+bottiglia legati alle singole commit di transazione.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=10cm, height=6cm,
+            xlabel={Numero di Record Migrati},
+            ylabel={Tempo di Esecuzione (secondi)},
+            legend pos=north west,
+            grid=both,
+            minor grid style={gray!25},
+            major grid style={gray!25},
+            mark size=2.5pt
+        ]
+        
+        \addplot[
+            color=red,
+            mark=square,
+            thick
+        ] coordinates {
+            (1000, 25)
+            (10000, 220)
+            (50000, 1100)
+            (100000, 2100)
+        };
+        \addlegendentry{Infor Exchange}
+        
+        \addplot[
+            color=blue,
+            mark=*,
+            thick
+        ] coordinates {
+            (1000, 12)
+            (10000, 95)
+            (50000, 410)
+            (100000, 850)
+        };
+        \addlegendentry{Migration Tool}
+        
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Benchmark prestazionale: Confronto tempi di elaborazione.}
+    \label{fig:performance_benchmark}
+\end{figure}
+
+\subsection{Analisi degli Errori}\label{subsec:analisi-degli-errori}
+Durante i test prestazionali, i \textit{record} scartati (\textit{Discarded Records}) sono stati analizzati e categorizzati per capirne l'origine.
+La Figura~\ref{fig:error_piechart} illustra la distribuzione percentuale dei fallimenti più comuni.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pie[
+            color={blue!30, red!30, orange!30, yellow!30},
+            text=legend
+        ]{
+            48/Violazione Vincoli Referenziali (DAL),
+            29/Errori di Tipo del Dato / Formato,
+            18/Troncamenti e Padding Errati,
+            5/Timeouts Rete CloudSuite
+        }
+    \end{tikzpicture}
+    \caption{Distribuzione delle casistiche d'errore durante i run.}
+    \label{fig:error_piechart}
+\end{figure}
+
+\subsection{Return on Investment (ROI)}\label{subsec:return-on-investment-(roi)}
+Infine, dal punto di vista gestionale in AlteaIN, l'automazione dei test e del ciclo di migrazione e sviluppo
+determina un importante risparmio per i consulenti, il quale si tramuta in un certo \textit{ROI} per l'azienda.
+
+La seguente tabella stima il risparmio in giornate, dei dipendenti, rispetto alle fasi operative:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{} p{0.25\textwidth} p{0.25\textwidth} p{0.25\textwidth} p{0.15\textwidth} @{}}
+        \toprule
+        \textbf{Fase di Migrazione} & \textbf{Giornate (Legacy)} & \textbf{Giornate (Migration Tool)} & \textbf{Risparmio} \\
+        \midrule
+        Analisi e Mapping & 5 & 2 & -60\% \\
+        Sviluppo Script / Generazione Codice & 12 & 1 & -91\% \\
+        Esecuzione Test e Validazione & 4 & 2 & -50\% \\
+        Fix Anomalie & 3 & 1 & -66\% \\
+        \midrule
+        \textbf{Totale stimato} & \textbf{24} & \textbf{6} & \textbf{-75\%} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Stima della ROI (Return on Investment) per un tipico mapping tabellare di complessità media.}
+    \label{tab:roi_estimations}
+\end{table}
+
+Per evidenziare questo risparmio a livello visivo, è stato realizzato un modello (Figura \ref{fig:roi_bar_chart}) che 
+confronta le tempistiche delle singole fasi. 
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+        ybar,
+        bar width=15pt,
+        enlargelimits=0.15,
+        legend style={at={(0.5,-0.20)}, anchor=north, legend columns=-1},
+        ylabel={Giornate Lavorative},
+        symbolic x coords={Analisi, Sviluppo, Test, Fix},
+        xtick=data,
+        nodes near coords,
+        nodes near coords align={vertical},
+        width=12cm,
+        height=7cm
+        ]
+        
+    \addplot[fill=red!60] coordinates {(Analisi, 5) (Sviluppo, 12) (Test, 4) (Fix, 3)};
+    \addplot[fill=blue!60] coordinates {(Analisi, 2) (Sviluppo, 1) (Test, 2) (Fix, 1)};
+    
+    \legend{Script Legacy/Porting, Migration Tool}
+    \end{axis}
+\end{tikzpicture}
+\caption{Confronto grafico delle risorse impiegate tra vecchio e nuovo modello.}
+\label{fig:roi_bar_chart}
+\end{figure}
+
+Il drastico taglio dei tempi dedicati allo sviluppo degli script deriva totalmente dalla natura del \textit{Metaprogramming} studiata nell'Applicazione che riduce 12 giorni di interazione Infor a circa 1 giorno. 
+Ciò permette un margine di profitto notevolmente vantaggioso: se ipotizzassimo a $100$ giorni (circa $800$ ore di lavoro) il quantitativo aziendale investito per la completa stesura del piano e del \textit{tool}, dal risparmio in ogni progetto ($18$ giornate) AlteaIN ripagherà interamente tale sforzo in tempi molto brevi, 
+trasformando in utile netto le successive migrazioni/\textit{porting} per tutti gli sviluppi e aggiornamenti che seguiranno, dimostrandone la superiorità dei processi \textit{Agile}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{Immagini/Sessioni/RunsByBatch_txamg3500m000}
+	\caption{Storico e validazione delle esecuzioni (txamg3500m000)}
+	\label{fig:storico_validazione_runs}
+\end{figure}

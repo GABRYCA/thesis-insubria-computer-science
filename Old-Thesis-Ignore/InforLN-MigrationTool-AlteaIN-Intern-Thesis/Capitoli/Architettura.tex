@@ -1,0 +1,226 @@
+\chapter{Architettura del Sistema}\label{ch:architettura-del-sistema}
+
+
+\section{Panoramica Architettura di Sistema}\label{sec:panoramica-architettura-di-sistema}
+L'architettura del \textit{Migration Tool} è stata definita per essere modulare e scalabile.
+Alla base del sistema vi è una netta separazione tra il modulo di \textit{input} (\textit{Importer}), il motore per l'elaborazione dei metadati,
+e il Generatore di Codice.
+Questo approccio garantisce la distinzione tra il \textit{layout} dei dati preesistenti e la struttura del database Infor \textit{CloudSuite}.
+
+\subsection{Modello Dati e Dizionario}\label{subsec:modello-dati-e-dizionario}
+L'architettura dati è stata progettata per riflettere e tracciare ogni singolo passaggio del ciclo di vita della migrazione.
+Il modello relazionale si basa su un raggruppamento logico identificato dai prefissi delle tabelle
+(sviluppate nel \textit{package} \textit{custom} \texttt{tx} / modulo \texttt{amg}).
+Le strutture dettagliate di tali tabelle sono consultabili nell'Appendice~\ref{appendix:tabelle}.
+
+\begin{itemize}
+    \item \textbf{Setup e Parametrizzazione (\texttt{txamg000})}: Raccoglie i parametri globali del \textit{tool}, incluse le
+    impostazioni di base per l'I/O (\texttt{txamg000.bpat}) e i \textit{package}/moduli su cui generare il codice.
+    L'interfaccia di configurazione (Figura~\ref{fig:params}) permette di definire i parametri globali.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{Parameters_txamg0100m000}
+        \caption{Sessione di setup dei parametri globali (\texttt{txamg0100m000}).}
+        \label{fig:params}
+    \end{figure}
+
+    \item \textbf{Gestione Metadati (\texttt{txamg1xx})}: Le tabelle \texttt{txamg110} (\textit{Datafiles})
+    e \texttt{txamg111} (\textit{Datafile Fields}) costituiscono il dizionario della sorgente.
+    Mappano i file di \textit{input}, includendo il formato (es.
+    separatori \textit{ASCII}, lunghezza fissa) e i domini di ciascun campo (tipo di dato, posizioni iniziali e lunghezze).
+    \item \textbf{Regole di Mapping (\texttt{txamg2xx})}: Rappresentano la parte di logica transazionale.
+    In \texttt{txamg202} (\textit{Target Tables}) si definiscono le entità, le logiche di aggiornamento
+    del database e i vincoli di condivisione (\textit{Shared}). Successivamente con \texttt{txamg203}
+    (\textit{Mapped Fields}), vengono stabilite le relazioni uno-a-uno e uno-a-molti, standardizzate per le funzioni
+    obbligatorie o opzionali.
+    \item \textbf{Esecuzione e Log (\texttt{txamg3xx})}: Il sistema adotta una politica di esecuzione strutturata in
+    \textit{run} (elaborazioni).
+    Attraverso \texttt{txamg300}, \texttt{txamg301} e \texttt{txamg302} viene memorizzato il conteggio esatto dei
+    record letti, processati o ignorati in base a tempi e sequenze.
+    Eventuali criticità e troncamenti vengono inseriti sulla tabella \texttt{txamg303} (\textit{Run Errors}).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=1.5cm, every node/.style={rectangle, draw, fill=blue!10, text centered, minimum width=2.5cm}]
+        \node (t000) {txamg000};
+        \node (t100) [right of=t000, node distance=4cm] {txamg100};
+        \node (t110) [below of=t100] {txamg110};
+        \node (t111) [below of=t110] {txamg111};
+
+        \node (t200) [left of=t111, node distance=4cm] {txamg200};
+        \node (t201) [below of=t200] {txamg201};
+        \node (t202) [below of=t201] {txamg202};
+        \node (t203) [below of=t202] {txamg203};
+
+        \node (t300) [right of=t203, node distance=4cm] {txamg300};
+        \node (t303) [below of=t300] {txamg303};
+
+        \draw [thick] (t100) -- (t110) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t110) -- (t111) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t200) -- (t201) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t201) -- (t202) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [thick] (t202) -- (t203) node[midway, right, draw=none, fill=none] {1:N};
+        \draw [dashed] (t110) -- (t201);
+        \draw [thick] (t300) -- (t303) node[midway, right, draw=none, fill=none] {1:N};
+    \end{tikzpicture}
+    \caption{Diagramma ER semplificato del \textit{package} txamg.}
+    \label{fig:er_diagram}
+\end{figure}
+
+La Tabella~\ref{tab:txamg000} nell'appendice mostra i parametri di configurazione per gestire i percorsi di I/O e le librerie dinamiche.
+
+\section{Progettazione del Software}\label{sec:progettazione-del-software}
+
+\subsection{Design dell'Importer e del Parser dei Dati}\label{subsec:design-dell'importer-e-del-parser-dei-dati}
+L'Importer funge da punto d'ingresso per i dati ed è progettato per interpretare il formato proprietario di Infor \textit{Exchange},
+analizzando file di esportazione testuali o strutturati.
+Estraendo i metadati dai record, l'Importer popola i dizionari \textit{Datafiles} (\texttt{txamg110}) e i
+relativi \textit{Fields} (\texttt{txamg111}), la cui struttura è definita rispettivamente nelle tabelle~\ref{tab:txamg110} e~\ref{tab:txamg111}.
+
+Questo \textit{design} del caricamento rende possibile supportare sia architetture \textit{multitenant} \textit{cloud}, sia installazioni \textit{legacy} \textit{on-premise}.
+L'architettura proposta garantisce una lettura massiva e aggregata da un singolo sorgente aziendale.
+
+\subsection{Sequenza Operativa del Sistema}\label{subsec:sequenza-operativa-del-sistema}
+Il seguente \textit{Sequence Diagram} ad alto livello illustra il flusso logico tra i componenti logici: l'utente,
+l'interfaccia (Sessioni Infor), il Motore Core (DLL di generazione) e il Database.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=1.7cm, auto, thick]
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=blue!10] (User) {Utente};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=green!10, right=of User] (UI) {UI (Sessioni)};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=orange!10, right=of UI] (Core) {Core (DLL)};
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=gray!20, right=of Core] (DB) {DBMS/DB};
+
+        \draw[->] (User.east) -- node[above] {} (UI.west);
+        \draw[->] (UI.east) -- node[above, xshift=-0.5cm] {} (Core.west);
+        \draw[->] (UI.east) -- node[below, yshift=-0.2cm, xshift=-0.5cm] {} (Core.west);
+        \draw[->] (UI.south) ++(0.5,0) |- ++(4.5,-1.5) node[above, pos=0.75] {} -| (DB.south);
+        \draw[->] (Core.east) -- node[above] {} (DB.west);
+    \end{tikzpicture}
+    \caption{Interazione semplificata delle operazioni del sistema.}
+    \label{fig:sequence_diagram}
+\end{figure}
+
+Per inquadrare microscopicamente l'attività di \textit{Load} vera e propria, è utile osservare il ciclo di vita (State Machine Diagram) di un singolo Record, 
+a partire dalla sua forma grezza su file fino all'inserimento (o scarto).
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, auto, thick, node distance=1.5cm]
+
+    \node[circle, fill=black, inner sep=2pt] (start) {};
+    
+    \node[rectangle, draw, rounded corners, fill=blue!10, right=0.8cm of start, align=center] (letto) {Letto\\(Raw String)};
+    \node[rectangle, draw, rounded corners, fill=orange!10, right=1.5cm of letto, align=center] (validato) {Validato\\(Domains)};
+    
+    \node[rectangle, draw, rounded corners, fill=purple!10, below=1.5cm of validato] (trasformato) {Trasformato};
+    
+    \node[diamond, draw, fill=yellow!20, right=2cm of trasformato, aspect=2, inner sep=1pt] (dal) {DAL Check};
+    
+    \node[circle, draw, double, right=1.5cm of dal, fill=green!20, align=center] (fine) {Inserito\\DB};
+    \node[circle, draw, double, below=1.5cm of dal, fill=red!20] (errore) {Errore/Skip};
+
+    \draw[->] (start) -- (letto);
+    \draw[->] (letto) -- node[above, font=\scriptsize] {Parse Array} (validato);
+    \draw[->] (validato) -- node[right, font=\scriptsize] {Mapped DLL} (trasformato);
+    
+    \draw[->] (trasformato) -- node[above, font=\scriptsize, yshift=2pt] {dal.save.object} (dal);
+
+    \draw[->] (dal) -- node[above, font=\scriptsize] {Success} (fine);
+    \draw[->] (dal) -- node[right, font=\scriptsize] {Error (e.g. FK)} (errore);
+    
+    \draw[->, dashed] (validato.west) .. controls +(-2.5,0) and +(-2.5,0) .. 
+        node[left, align=center, font=\scriptsize, xshift=-3pt] {Type\\Mismatch} (errore.west);
+
+    \end{tikzpicture}
+    \caption{Diagramma degli Stati (UML) semplificato di un record sottoposto alla conversione.}
+    \label{fig:record_state_diagram}
+\end{figure}
+
+\subsection{Diagramma dei Componenti}\label{subsec:diagramma-dei-componenti}
+L'architettura può essere descritta logicamente attraverso il seguente diagramma a blocchi dei moduli, dove il
+Motore Generale si divide in \textit{importer} (\textit{parser}), \textit{generator} e \textit{executor}, e comunica coi pacchetti Infor Tools e DAL\@.
+\begin{figure}[H]
+    \centering
+     \begin{tikzpicture}[node distance=1cm, auto, thick,
+        box/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=teal!20},
+        outbox/.style={draw, rectangle, minimum width=3.5cm, minimum height=1.5cm, fill=gray!30}]
+        
+        \node[box] (importer) {Importer (txamg1xx)};
+        \node[box, below=0.5cm of importer] (generator) {Generator (txamg2xx)};
+        
+        \node[box, right=0.5cm of importer, yshift=-1cm] (executor) {Executor (txamg3xx)};
+
+        \node[draw, dashed, inner sep=0.3cm, fit=(importer) (generator) (executor), label=above:{\textbf{Migration Tool}}] (tool) {};
+
+        \node[outbox, right=1cm of tool] (infor) {Infor Tools e DAL};
+
+        \draw[->, very thick] (tool.east) -- node[above] {API} (infor.west);
+        \draw[->] (importer.south) -- (generator.north);
+        \draw[->] (generator.east) -- (executor.west);
+    \end{tikzpicture}
+    \caption{Component Diagram dei moduli dell'architettura.}
+    \label{fig:component_diagram}
+\end{figure}
+
+\subsection{Generazione del Codice}\label{subsec:generazione-del-codice}
+Il generatore di codice è basato su librerie compilate (\textit{DLL} come \texttt{txamgdll0012} e \texttt{txamgdll0013}),
+il modulo interpreta il dizionario di \textit{mapping} (definito in \texttt{txamg203} (\textit{MappedFields})) e
+traduce i legami e le regole di trasformazione in \textit{script} nativi Baan C.
+
+Questo meccanismo previene la scrittura manuale di codice, garantendo il rispetto del \textit{framework} \textit{CloudSuite}:
+il codice viene prima generato, poi compilato via \texttt{bic\_compiler}, ed infine agganciato ai \textit{Batch Runs}.
+Al fine di rispettare le rigide \textit{policy} di sicurezza e isolamento dei tenant in ambienti CloudSuite, la compilazione e
+il deployment delle librerie avvengono esclusivamente all'interno di ambienti di Sviluppo/Staging autorizzati.
+Successivamente, le DLL validate vengono promosse in Produzione attraverso i canali standard di rilascio dell'ERP, garantendo l'integrità del sistema.
+
+\subsection{Confronto tra Generazione e Interpretazione del Codice}\label{subsec:confronto-tra-generazione-e-interpretazione-del-codice}
+Nell'architettura software di questa tesi, in azienda si è discusso se utilizzare un paradigma di 
+esecuzione \textit{interpretata} od optare per una pura \textit{generazione del codice} (\textit{Code Generation}).
+Quest'ultima tecnica rientra nell'ampio paradigma del \textbf{Metaprogramming} (Metaprogrammazione). 
+
+In informatica, la metaprogrammazione è la capacità di un programma di trattare altri programmi come propri dati: significa poter leggere, 
+generare, analizzare o trasformare codice sorgente. 
+A livello ingegneristico, esistono diversi approcci per ottenere dinamicamente comportamenti non pre-scritti:
+\begin{itemize}
+    \item \textbf{Reflection} (es. Java o C\#): Analisi a (\textit{runtime}) della struttura di classi e attributi. 
+    Sebbene flessibile, richiede pesanti astrazioni da parte della \textit{Virtual Machine} non adatte a un ERP \textit{legacy-oriented}.
+    \item \textbf{Interpretazione a runtime}: Un \textit{interpreter} costruito nativamente in Baan C che legge riga per riga il tracciato stringa e 
+    applica logiche condizionali riga-per-riga. 
+    Questo approccio ha un enorme peso sulle performance (\textit{overhead}) rallentando le elaborazioni 
+    sui milioni di record a causa dell'esecuzione sequenziale delle query.
+    \item \textbf{Generazione di codice (\textit{Lexical/AST Generation})}: Trasformazione delle logiche (nel nostro caso i Mapping e Datafile) in 
+    \textit{script} nativi (\textit{.bc}) e compilazione prima dell'esecuzione vera e propria.
+    Questo è l'approccio che è stato scelto per il progetto.
+\end{itemize}
+
+Al contrario del vecchio strumento che offriva interpretazioni particolarmente lente, il \textit{tool} da noi creato utilizza il 
+motore \textit{generatore di codice} compilato. 
+I metadati dell'origine e di destinazione vengono tradotti in script Baan C. Questi script vengono quindi registrati dal server Infor e 
+diventano immutabili (a meno di un ricalcolo). Solo la \textit{fase preparatoria} (\textit{code generation}) richiede secondi d'elaborazione, 
+permettendo alla successiva fase di inserimento (\textit{Batch}) di essere eseguita alla velocità nativa consentita dal compilatore \textit{Infor}.
+
+\subsection{Modulo di Integrazione Ad-hoc e Callbacks}\label{subsec:modulo-di-integrazione-ad-hoc-e-callbacks}
+Mentre buona parte dei flussi vengono standardizzati automaticamente, alcune regole di \textit{business} richiedono sviluppi
+specifici a causa della loro complessità.
+Vengono quindi esposte a livello architetturale delle interfacce di \textit{callback}.
+
+In pratica, in appositi \textit{module script}, gli sviluppatori possono inserire blocchi di codice chiamati asincronamente dal motore generatore di codice e dall'esecutore.
+Questi \textit{script} personalizzati usufruiscono degli stessi vantaggi transazionali dell'utility principale.
+
+\section{Scelte Tecnologiche}
+\subsection{Linguaggi e Framework}
+L'intero ecosistema è sviluppato sfruttando il \textit{Framework} Infor Tools, programmando in \textbf{Baan C (sia 3GL che 4GL)}.
+In parte sono state adottate le \textit{DAL (Data Access Layer)}, per la parte restante, sono state utilizzati approcci
+più classici e a basso livello.
+
+\subsection{Librerie di Supporto e Strumenti di Build}
+Tutto il coordinamento della configurazione, \textit{logging} (\texttt{txamgdll0011}) e le \textit{string utility} si basano sulle librerie
+del sistema \textit{ERP} (\textit{DLL} native Baan e \textit{tool} come il \texttt{ttdll string}).
+
+Le \textit{build} non prevedono \textit{toolchain} esterni complessi
+(come \textit{Maven} o \textit{MSBuild}), ma si appoggiano direttamente al \textit{toolset} interno dell'\textit{ERP}, il quale gestisce i
+legami \textit{VRC} (\textit{Version Release Customer}) \textit{multitenant} per garantirne l'incapsulamento del codice generato al corretto \textit{Tenant}.

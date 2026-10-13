@@ -1,0 +1,112 @@
+\chapter{Introduzione}\label{ch:introduzione}
+
+
+\section{Contesto Aziendale}\label{sec:contesto-aziendale}
+Questo lavoro di tesi nasce dalla necessità dell'azienda AlteaIN di sviluppare e migliorare uno strumento di migrazione dati per Infor LN~\cite{inforLN2025},
+un sistema \textit{ERP} (\textit{Enterprise Resource Planning}) industriale utilizzato a livello internazionale, di cui l'azienda
+è ufficialmente partner in Italia.
+
+L'obiettivo è agevolare il processo di migrazione da sistemi \textit{legacy} a Infor LN, garantendo l'integrità e la coerenza
+dei dati in ambienti \textit{multitenant}~\cite{multitenantCloud, inforCloudsuite}.
+
+Nello specifico, questo strumento sarà sviluppato all'interno dell'azienda, parte del gruppo di
+Altea Federation (Figura~\ref{fig:loghi_aziendali}).
+AlteaIN è specializzata nella consulenza informatica, e si occupa di supportare le aziende del comparto
+manifatturiero e logistico nei loro processi di trasformazione digitale e innovazione tecnologica, nello specifico
+tramite sistemi ERP Infor.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.65\textwidth}
+        \centering
+        \includegraphics[height=1.5cm]{Immagini/AlteaIN_Logo_rgb}
+        \caption{Logo AlteaIN}
+        \label{fig:logo_alteain}
+    \end{subfigure}
+    \hspace{0.05\textwidth}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[height=2cm]{Immagini/Infor_Logo_rgb}
+        \caption{Logo Infor}
+        \label{fig:logo_infor}
+    \end{subfigure}
+    \caption{Loghi di AlteaIN e Infor, rispettivamente azienda ospitante e fornitore del software.}
+    \label{fig:loghi_aziendali}
+\end{figure}
+
+\section{Obiettivi del Progetto}\label{sec:obiettivi-del-progetto}
+Il lavoro si concentrerà sull'analisi dei requisiti, la progettazione dell'architettura del software, la stesura della
+documentazione e lo sviluppo di un prototipo funzionante.
+
+In particolare, lo strumento sarà in grado di generare dinamicamente codice, estendibile con funzioni personalizzate, per migrare
+dati su sistemi \textit{Cloud Multitenant}, con un focus sulla Infor \textit{CloudSuite Enterprise}.
+Questa generazione permetterà di abbattere i tempi di sviluppo di \textit{script} specifici per ciascuna
+migrazione (noti anche come operazioni di \textit{Porting}), riducendo i classici errori delle scritture manuali e
+aumentandone l'efficienza operativa.
+
+Inoltre, è richiesto lo sviluppo di un \textit{importer} capace di interpretare il formato proprietario di \textit{import/export} di
+Infor \textit{Exchange} al fine di ricreare automaticamente le definizioni fisiche dei file dall'origine da migrare.
+
+L'intero sistema dovrà interfacciarsi e integrarsi con lo strumento aziendale preesistente per la
+produzione di specifiche di migrazione e la relativa esportazione documentale.
+
+\section{Metodologia e Strumenti}\label{sec:metodologia-e-strumenti}
+Essendo il \textit{Migration Tool} destinato a diventare uno strumento molto utilizzato dai consulenti AlteaIN,
+lo sviluppo ha richiesto alti requisiti di qualità, seguendo le \textit{best practice} dell'ingegneria del software~\cite{sommervilleSoftwareEng},
+sotto la supervisione del tutor aziendale (\textit{Manager}).
+
+Durante il periodo di tirocinio, le attività sono state gestite ispirandosi ai princìpi \textit{Agile}~\cite{agileManifesto},
+adottando un approccio iterativo e incrementale.
+Il ciclo di sviluppo è stato suddiviso in \textit{Sprint} di durata bisettimanale (variabile in base alla fase del progetto),
+al termine dei quali veniva rilasciata e testata una nuova funzionalità o un modulo specifico del \textit{Migration Tool}.
+
+Il lavoro è stato scandito da momenti di confronto regolari, come riunioni giornaliere e revisioni rapide periodiche del lavoro svolto
+con il tutor aziendale.
+Questi incontri hanno permesso di allineare costantemente lo sviluppo ai requisiti e alle regole imposte dall'architettura Infor e dell'azienda.
+Il documento delle specifiche del progetto, contenente l'elenco delle funzionalità da implementare, dei bug da risolvere e delle ottimizzazioni architetturali,
+è stato gestito attivamente per rispondere rapidamente alle necessità del progetto.
+
+Per il tracciamento delle attività, l'analisi dei requisiti e la stesura della documentazione tecnica, si è fatto affidamento 
+su strumenti di collaborazione e \textit{project management} aziendali come software di \textit{ticketing}, permettendo
+un colloquio attivo tra lo sviluppatore (il sottoscritto e altri membri del team) e i funzionali.
+
+I consulenti, insieme ai funzionali, in quanto futuri utenti finali del \textit{tool}, hanno giocato un ruolo chiave nel
+definire gli \textit{Use Case} e nel testare le \textit{release} intermedie del generatore di codice.
+
+
+\subsection{Apprendimento dell'Ecosistema Infor}\label{subsec:contesto-tecnologico-e-curva-di-apprendimento}
+Uno degli aspetti formativi più sfidanti del tirocinio, preliminare alla fase di sviluppo vera e propria, è stato l'inserimento
+in un ecosistema software proprietario ed estremamente verticalizzato.
+A differenza di altri linguaggi \textit{open-source} o dei
+\textit{framework} convenzionali solitamente studiati durante il percorso accademico (come Java o \textit{framework web}),
+l'ambiente Infor si basa su un'architettura proprietaria consolidata denominata \textit{Infor Tools}.
+
+Le caratteristiche tecniche di Baan C, delle DLL proprietarie e del framework Infor Tools sono descritte in dettaglio nel Capitolo~\ref{ch:stato-attuale} (Sezione~\ref{subsec:linguaggio-baan-c:-3gl-e-4gl}).
+Qui basti sapere che si tratta di un ambiente chiuso e molto diverso dai linguaggi open-source tipicamente affrontati nel corso di studi.
+Di conseguenza, questo ha richiesto un importante periodo iniziale di \textit{training} e di studio della documentazione ufficiale
+(come \textit{progguide} e videolezioni registrate create per i nostri colleghi), necessario per
+padroneggiare concetti avanzati come le \textit{Dynamic Link Libraries} (DLL) proprietarie, i \textit{Data Access Layer} 
+(DAL) e l'utilizzo degli strumenti dedicati come \textit{BECS} e Infor LN Studio.
+Solamente dopo aver imparato tutti questi strumenti, concetti e argomenti è stato possibile ideare, studiare e implementare i moduli architetturali che
+compongono il \textit{Migration Tool}.
+
+Tra questi elementi si possono menzionare:
+\begin{itemize}
+    \item \textbf{Architettura}: Infor segue un'architettura a più livelli, da quelli fisici, database, a quelli di comunicazione con l'esterno.
+    tramite \textit{middleware} ION API~\cite{inforION} (in fase di transizione da XML con SOAP a REST \cite{fieldingREST}), includendo i \textit{web services} (in breve chiamati \textit{WB}), \textit{BOD} (\textit{Business Object Documents}).
+    \item \textbf{Strumenti di sviluppo}: Strumenti di sviluppo come IDE proprietari (basati su altri IDE come, per esempio, \textit{Eclipse})
+    LN Studio, BECS e interfaccia web LNUI\@.
+    \item \textbf{Librerie e moduli}: L'ecosistema Infor è composto da molte librerie e moduli preesistenti, che vanno dalle \textit{utility} di
+    stringa alle librerie di accesso ai dati, fino a moduli specifici per la gestione dei processi di \textit{business}.
+\end{itemize}
+
+\section{Struttura della Tesi}\label{sec:struttura-della-tesi}
+L'elaborato si articola nel seguente modo:
+\begin{itemize}
+    \item \textbf{Capitolo 2}: stato attuale degli ERP moderni, architetture cloud \textit{multitenant} e sfide di migrazione dati.
+    \item \textbf{Capitolo 3}: analisi dello scenario di partenza e dei requisiti funzionali e non funzionali.
+    \item \textbf{Capitolo 4}: architettura del sistema, design e scelte tecnologiche (\textit{Importer} e generatore di codice).
+    \item \textbf{Capitolo 5}: descrizione dell'implementazione concreta del progetto.
+    \item \textbf{Capitolo 6}: testing, inclusi elementi come la validazione dell'integrità dei dati e statistiche.
+    \item \textbf{Capitolo 7}: conclusioni, traguardi raggiunti e possibili sviluppi futuri.
+\end{itemize}

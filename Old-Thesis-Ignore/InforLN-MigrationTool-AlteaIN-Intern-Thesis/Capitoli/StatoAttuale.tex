@@ -1,0 +1,209 @@
+﻿\chapter{Stato dell'Arte: ERP, Cloud e Migrazione Dati}\label{ch:stato-attuale}
+
+
+\section{Sistemi ERP}\label{sec:sistemi-erp}
+I sistemi \textit{ERP} (\textit{Enterprise Resource Planning}) rappresentano un elemento fondamentale del sistema gestionale aziendale~\cite{erpMigration},
+consentendo l'integrazione dei processi di \textit{business} più importanti di un'azienda come: vendite, acquisti, gestione inventario, contabilità e personale.
+
+\subsection{Dai Sistemi Legacy al Cloud}\label{subsec:evoluzione-dei-sistemi-legacy-al-cloud}
+Nel corso degli anni, i sistemi \textit{ERP} si sono evoluti partendo da architetture \textit{on-premise} \textit{legacy}, spesso caratterizzate da un elevato
+grado di personalizzazione (\textit{customization}, in Infor LN definiti nei \textit{package} \texttt{tx}) e grandi costi di manutenzione.
+Tuttavia, oggi si sta assistendo a una transizione verso nuove soluzioni come il \textit{Cloud}.
+
+% \subsection{Architetture Multitenant}
+\subsection{Multitenant e Isolamento dei Dati}\label{subsec:architetture-multitenant-e-segregazione-dei-dati}
+Di fatto, il modello \textit{Cloud Multitenant} oggi rappresenta l'architettura fondamentale degli \textit{ERP} moderni~\cite{multitenantCloud}.
+A differenza dei sistemi tradizionali \textit{on-premise} (definiti \textit{single-tenant}), in cui ogni azienda possiede un'infrastruttura hardware e software
+dedicata, in un ambiente \textit{multitenant} una singola istanza dell'applicativo e del database viene condivisa da molteplici clienti (i cosiddetti \textit{tenant}, in ambiente \textit{cloud}).
+
+Questo approccio offre molti vantaggi dal punto di vista dell'erogazione del servizio (scalabilità orizzontale, aggiornamenti continui e massivi,
+ottimizzazione delle risorse e abbassamento dei costi di manutenzione dei server), ma pone grandi sfide architetturali.
+La principale problematica risiede nell'isolamento logico delle informazioni: essendo i dati fisicamente presenti nello
+stesso database, è fondamentale che siano divisi (segregazione) per evitare violazioni di sicurezza e
+fughe di dati (\textit{data leak}) tra aziende.
+
+Nei sistemi come Infor \textit{CloudSuite Enterprise}, la segregazione dei dati viene applicata a più livelli:
+\begin{itemize}
+    \item A livello di infrastruttura \textit{Cloud}, l'isolamento del \textit{tenant} è garantito da chiavi di crittografia specifiche e partizionamenti logici.
+    \item A livello applicativo, la storicizzazione e l'isolamento avvengono tramite l'uso sistematico di identificativi aziendali
+    (spesso indicati come \textit{Company Number} o codici azienda) che vengono inseriti automaticamente dal \textit{framework} in ogni \textit{query} verso il database.
+\end{itemize}
+
+In questa architettura, è necessario che ogni processo di migrazione operi secondo vincoli di integrità molto rigidi~\cite{dataMigrationStrategies}.
+Qualsiasi inserimento massivo di dati deve necessariamente passare attraverso strati intermedi di validazione (come i \textit{Data Access Layer})
+che assicurino che il dato venga assegnato non solo alla tabella e con il formato corretto, ma anche e soprattutto all'identificativo del \textit{tenant}
+di destinazione, senza possibilità di errore o sovrascrittura accidentale.
+
+\subsection{Confronto con Altre Piattaforme ETL}\label{subsec:confronto-con-altre-piattaforme-etl}
+
+Sebbene sul mercato esistano soluzioni ETL di terze parti ormai mature e ben testate (come Talend o Informatica PowerCenter),
+la loro integrazione con l'\textit{ERP Infor CloudSuite} presenta grandi barriere architetturali.
+L'utilizzo di questi \textit{tool}, pur offrendo interfacce grafiche avanzate per la gestione dei \textit{workflow},
+comporta infatti i seguenti svantaggi:
+\begin{itemize}
+    \item \textbf{Latenza di rete:} dovuta alla continua interazione tra l'ERP e i servizi di integrazione esterni.
+    \item \textbf{Accesso limitato ai dati:} impossibilità di interagire nativamente con il \textit{Data Dictionary} del sistema.
+    \item \textbf{\textit{Bottleneck} nelle interfacce:} obbligo di effettuare le conversioni fuori dall'ecosistema ed elaborare
+    le scritture a sistema appoggiandosi esclusivamente ad API predefinite (\textit{Web Services} e \textit{ION}) o ai \textit{BOD (Business Object Document)}.
+    \item \textbf{Costi:} necessità di sottoscrivere costosi accordi di licenza.
+\end{itemize}
+
+Per superare anche questi limiti strutturali e garantire un'elevata efficienza transazionale, si è iniziato lo sviluppo interno di un proprio \textit{tool}.
+Il \textit{Migration Tool} realizzato sfrutta un approccio di \textit{Metaprogramming} (codice in grado di scrivere altro codice) implementato nativamente in Baan C\@.
+Questa scelta architetturale permette di operare interamente all'interno dell'ecosistema Infor, evitando intermediari esterni e
+gestendo le regole di business e i controlli di referenza nativamente.
+
+\section{Infor LN e CloudSuite Enterprise}\label{sec:infor-ln-e-cloudsuite-enterprise}
+Infor LN, nato con il nome di \textit{Baan ERP}, è uno dei principali \textit{ERP} nel settore manifatturiero industriale~\cite{inforLN2025} a livello internazionale.
+Viene integrato all'interno della Infor \textit{CloudSuite Enterprise}, il quale offre funzionalità per la gestione della \textit{supply chain}
+e produzione~\cite{inforCloudsuite}.
+
+L'architettura logica e fisica di Infor LN si basa su un classico ma solido modello a tre livelli (Figura~\ref{fig:infor_architecture}), 
+volto a disaccoppiare interamente l'interazione utente, la logica di \textit{business} e l'accesso al database. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=2cm, auto,
+      box/.style={rectangle, draw=black, fill=blue!10, text width=6cm, text centered, rounded corners, minimum height=1.5cm},
+      line/.style={draw, -latex', thick}
+    ]
+    \node [box, fill=green!10] (ui) {\textbf{Livello Presentazione}\\Web UI (LNUI) / ION API / Ming.le};
+    \node [box, below of=ui, node distance=3.5cm, fill=orange!10] (app) {\textbf{Livello Applicativo}\\Sessioni, Baan C scripts, DAL e DLLs};
+    \node [box, below of=app, node distance=3.5cm, fill=red!10] (db) {\textbf{Livello Dati (Data)}\\RDBMS Database \& Data Dictionary};
+    
+    \draw [line] ([xshift=-1.5cm]ui.south) -- node[left, text width=2.5cm, align=right] {Richieste\\Input} ([xshift=-1.5cm]app.north);
+    \draw [line] ([xshift=1.5cm]app.north) -- node[right, text width=2.5cm] {Web Update\\Risposte} ([xshift=1.5cm]ui.south);
+
+    \draw [line] ([xshift=-1.5cm]app.south) -- node[left, text width=2.5cm, align=right] {Query\\CRUD} ([xshift=-1.5cm]db.north);
+    \draw [line] ([xshift=1.5cm]db.north) -- node[right, text width=3cm] {Record Set\\Validazioni DAL} ([xshift=1.5cm]app.south);
+
+    \end{tikzpicture}
+    \caption{Rappresentazione schematica dell'architettura a 3 livelli (Three-tier) di Infor LN.}
+    \label{fig:infor_architecture}
+\end{figure}
+
+L'interfaccia utente Web (nota come \texttt{LNUI}) permette agli utenti finali di navigare tra le diverse sessioni
+tramite \textit{menu} contestuali o ricerca diretta (Figura~\ref{fig:ln_ui}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Lista_Sessioni_LNUI}
+    \caption{Esempio di interfaccia Web Infor LN (LNUI) con elenco sessioni del Migration Tool.}
+    \label{fig:ln_ui}
+\end{figure}
+
+% \subsection{Architettura e Componenti di Infor LN}
+Infor LN è basato su un'architettura che separa il \textit{framework} tecnologico (gli Infor Tools) dalla logica di \textit{business}.
+Ogni applicazione è composta da diversi componenti:
+\begin{itemize}
+    \item \textbf{Tabelle (\textit{Tables})}: I dati fisici, definiti tramite \textit{Data Dictionary}, con domini standard o \textit{custom}.
+    \item \textbf{Sessioni (\textit{Sessions})}: Le interfacce utente (da qui definite come Sessioni) attraverso cui gli operatori accedono, visualizzano e interagiscono con i dati.
+    \item \textbf{DAL (\textit{Data Access Layer})}: L'elemento che si occupa di garantire l'integrità dei dati e delle tabelle, indipendentemente dalle Sessioni \cite{inforDalGuide}.
+    \item \textbf{Domini (\textit{Domains})}: Definiscono i tipi dei dati, con regole di validazione e formati, che possono essere standard o personalizzati (\textit{custom}).
+    \item \textbf{Etichette (\textit{Labels})}: Utilizzate per la localizzazione e la visualizzazione dei campi nelle Sessioni, con supporto multilingue (es.
+    02 corrisponde alla lingua inglese, e 06 alla lingua italiano).
+\end{itemize}
+
+\subsection{Linguaggio Baan C: 3GL e 4GL}\label{subsec:linguaggio-baan-c:-3gl-e-4gl}
+Per lo sviluppo e personalizzazione degli \textit{script} e librerie, come detto precedentemente, Infor LN utilizza un linguaggio proprietario di nome \textbf{Baan C}~\cite{infor3GL4GL}.
+
+Esso si divide a sua volta in:
+\begin{itemize}
+    \item \textbf{4GL (\textit{Fourth-Generation Language})}: La versione più recente e moderna.
+    Infor LN Tools genera automaticamente operazioni standard di Sessione e database (CRUD). In 4GL non è necessario
+    scrivere codice per gestire il salvataggio o il caricamento di un record, ma ci si concentra sulla gestione
+    degli \textit{eventi} legati ai componenti della Sessione o del database (tramite \textit{DAL} \cite{inforDal2Guide}).
+    \item \textbf{3GL (\textit{Third-Generation Language})}: Precedente a 4GL, e totalmente integrato con esso, viene utilizzato
+    per la gestione di logiche di \textit{business} complesse.
+    Permette un approccio più procedurale e a basso livello per implementare funzioni matematiche, algoritmi personalizzati,
+    \textit{DLL} (\textit{Dynamic Link Libraries}) proprietarie, funzioni e routine di manipolazione stringhe o file, nonché di estensioni (\textit{extensions})
+    che rappresentano in alcuni casi l'unico modo di interagire e personalizzare tabelle e procedure standard.
+\end{itemize}
+
+\subsection{Infor Exchange e Strumenti Tradizionali di Import/Export}\label{subsec:infor-exchange-e-strumenti-di-import/export}
+Per lo scambio di informazioni, Infor fornisce un modulo denominato \textit{Exchange}~\cite{inforExchangeGuide}.
+Si tratta di una piattaforma per l'importazione e l'esportazione di file (es.
+CSV, XML, testo a larghezza fissa e ASCII) mappando righe e colonne sui \textit{Datafiles} e sui campi del database di LN,
+esso si integra anche con sistemi esterni, permettendone lo scambio di informazioni con Infor tramite lo scambio di messaggi.
+
+Spesso sono necessarie delle personalizzazioni delle procedure di migrazione tramite Baan C, utile quando le regole di
+mappatura sono più complesse di quanto sia gestibile nativamente dall'\textit{Exchange}.
+Inoltre, un grande limite architetturale dell'\textit{Exchange} Infor risiede nella sua inefficienza durante l'elaborazione
+di grandi quantità di dati: esso tende infatti a elaborare man mano tanti piccoli singoli file, e a ripetere operazioni di controllo più volte di quanto sarebbe necessario.
+Questo costringe il sistema a ripetere continuamente iterazioni e operazioni di I/O (apertura e chiusura) del tutto evitabili,
+nonché controlli superflui, le quali impattano pesantemente le prestazioni dell'intero sistema.
+
+\section{Migrazione Dati nei Sistemi ERP}\label{sec:migrazione-dati-nei-sistemi-erp}
+
+\subsection{Il Paradigma ETL (Extract, Transform, Load)}\label{subsec:il-paradigma-etl-(extract-transform-load)}
+Per capire le dinamiche e le difficoltà che nascono dal processo di migrazione dei dati, è utile introdurre tali operazioni all'interno del paradigma
+architetturale \textit{ETL} (\textit{Extract, Transform, Load})~\cite{kimballETL}.
+Questo modello teorico descrive le tre fasi fondamentali necessarie per prelevare dati da uno o
+più sistemi sorgenti (\textit{source}), spesso eterogenei e obsoleti, per prepararli e infine inserirli in un sistema di destinazione (\textit{target}).
+
+Nello specifico, le tre fasi si articolano nel seguente modo:
+\begin{itemize}
+    \item \textbf{Extract (Estrazione)}: Rappresenta il processo di lettura e acquisizione delle informazioni dal sistema \textit{legacy}.
+    In questa fase i dati spesso si presentano in formati non strutturati o debolmente strutturati (come file CSV, esportazioni ASCII a larghezza fissa o vecchi archivi
+    relazionali non normalizzati).
+    La priorità in questa fase è estrarre il dato senza alterarne la semantica originale, gestendo le problematiche di codifica
+    dei caratteri (ad esempio \textit{UTF-8} contro vecchie codifiche \textit{ISO}) e di formattazione.
+    \item \textbf{Transform (Trasformazione)}: È la fase più complessa e importante.
+    I dati grezzi appena estratti vengono analizzati,ripuliti e manipolati per adattarsi alle regole di \textit{business} del nuovo \textit{ERP}.
+    In questa fase trovano posto i concetti teorici di \textbf{Data Cleansing} (pulizia dei dati) e \textbf{Data Quality} (qualità del dato).
+    I sistemi \textit{legacy}, spesso in uso da decenni, accumulano tipicamente dati \enquote{sporchi} a causa di diversi motivi, come:
+    la mancanza di vincoli di integrità referenziale (\textit{Foreign Key}) nei vecchi database relazionali, l'assenza di controlli lato interfaccia 
+    utente che consentivano l'inserimento di testo libero al posto di valori con specifici tipi di dominio, l'utilizzo di codifiche obsolete (o stratificate nel tempo a seguito di acquisizioni aziendali) 
+    e l'inserimento di dati duplicati.
+    Quindi, il processo di trasformazione deve gestire e risolvere queste anomalie strutturali, applicando regole di normalizzazione (ad esempio, imponendo il \textit{casing} corretto tramite funzioni come \texttt{toupper} o \texttt{tolower}),
+    validando campi obbligatori, decodificando vecchi valori verso i nuovi domini Infor LN, e arricchendo i record con logiche predefinite per garantire che nel nuovo sistema entrino
+    esclusivamente dati e informazioni consistenti.
+    \item \textbf{Load (Caricamento)}: L'ultima fase consiste nella scrittura fisica dei dati processati nel database di destinazione \textit{target}.
+    In ambienti complessi, questa scrittura non avviene quasi mai tramite interrogazioni SQL dirette, bensì passando attraverso \textit{API} o livelli di astrazione (come le DAL) che si
+    occupano di avviare eventi, ricalcolare saldi e far scattare controlli di integrità referenziale.
+\end{itemize}
+
+Lo sviluppo di uno strumento software automatizzato, come quello trattato in questa tesi, copre tutte le fasi del
+paradigma \textit{ETL}.
+Bisogna quindi superare le classiche frammentazioni dove sviluppatori diversi usano codici, linguaggi,
+e metodologie diverse per le tre fasi, aumentando la probabilità di errori semantici durante il trasferimento delle informazioni.
+
+\subsection{Le Principali Sfide della Migrazione Dati}\label{subsec:sfide-e-problematiche-comuni}
+La migrazione da un sistema \textit{legacy} a un nuovo \textit{ERP} \textit{cloud} richiede un'attenta fase di analisi per evitare perdite o
+disallineamenti di informazioni storiche e \textit{master data}~\cite{gali2025master}.
+
+Come già menzionato, molte migrazioni sono gestite manualmente, con l'integrazioni di \textit{script} scritti personalizzati,
+con un alto livello di complessità e rischio d'errore.
+Un altro buon motivo per la creazione del nostro (\textit{Migration Tool}).
+
+%\subsection{Migrazione verso ambienti Cloud e SaaS}
+\subsection{Verso l'Automazione e la Generazione Dinamica}\label{subsec:necessita-di-strumenti-di-automazione-e-generazione-dinamica}
+Per la migrazione verso il \textit{Cloud}, non è più sostenibile un approccio basato esclusivamente su procedure di inserimento manuali 
+o sullo sviluppo isolato di \textit{script} monouso scritti \textit{ad-hoc} per ogni singola tabella aziendale.
+Tutto il tempo dedicato a queste operazioni sarebbe meglio utilizzato per l'analisi dei dati, la definizione delle regole di mappatura e la gestione di casi specifici,
+piuttosto che per la scrittura di codice per ogni migrazione.
+
+Inoltre, i moderni \textit{ERP SaaS} richiedono strumenti robusti in grado di interfacciarsi con il database non solo in 
+esecuzione \textit{batch} locale, ma anche attraverso servizi \textit{web} (\textit{Web Services} o \textit{API REST}) in scenari distribuiti.
+Il dato deve essere normalizzato, validato a livello applicativo e controllato prima ancora di essere introdotto al server del \textit{database}.
+
+Emerge quindi una lacuna tra i vecchi processi operativi e le stringenti necessità dell'infrastruttura Infor \textit{CloudSuite} e
+diventa necessario lo sviluppo di \textit{framework} di migrazione che automatizzino la fase di scrittura del codice: partendo da mappature logiche
+definite dall'utente tramite interfacce grafiche (per quanto possibile), il \textit{tool} deve essere in grado di generare a \textit{runtime} 
+le procedure di conversione, con un'efficienza migliore dell'\textit{Exchange Infor}.
+Solo eliminando la scrittura manuale degli script di mapping è possibile garantire la ripetibilità del processo,
+una diagnostica precisa degli errori e la totale tracciabilità di ogni singolo \textit{record} rifiutato.
+
+\section{Limiti delle Tecnologie Alternative}\label{sec:limiti-delle-tecnologie-alternative}
+Sebbene si fosse valutato sul piano puramente teorico l'utilizzo dei \textit{Web Services} SOAP (o anche a un aggiornamento
+ai \textit{Web Services REST}) messi a disposizione da Infor LN (tramite \textit{Infor ION} o BODs),
+essi sono stati scartati in quanto incompleti, spesso datati rispetto agli ultimi moduli applicativi, e
+fondamentalmente inadatti alle \textit{performance} richieste e alla complessità di manipolazione di grandi moli di dati
+(mancanza di primitive complete per elaborazioni \textit{batch} complesse come le nostre).
+
+Inoltre, molti \textit{endpoint} espongono solo un sottoinsieme minimale di funzionalità e sono internamente protetti
+da Infor stessa e resi quindi inutilizzabili per sviluppatori esterni e consulenti ai fini della migrazione dati.
+Lo sviluppo nativo \textit{backend} tramite Baan C è quindi stata l'unica soluzione adatta, \textit{performante} e completamente integrabile con le rigide architetture dell'ERP\@.
+
+Per i motivi esposti nella Sezione~\ref{subsec:confronto-con-altre-piattaforme-etl} (latenza, accesso limitato ai dati, costi),
+la scelta progettuale è ricaduta su uno sviluppo nativo in Baan C, pienamente integrato nell'ecosistema Infor.

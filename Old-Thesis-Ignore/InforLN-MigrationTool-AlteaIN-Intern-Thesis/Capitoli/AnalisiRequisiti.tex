@@ -1,0 +1,294 @@
+﻿\chapter{Analisi dei Requisiti}
+
+\section{Scenario di Riferimento}
+\subsection{Necessità di Ottimizzazione}
+Come evidenziato nei capitoli precedenti, i cambiamenti architetturali da parte di Infor e i 
+nuovi \textit{standard} più restrittivi legati agli ambienti \textit{multitenant} hanno reso le 
+operazioni manuali e l'uso dell'\textit{Exchange Infor} molto più complesse \cite{erpMigration}. 
+Emerge quindi la necessità aziendale di innovare e automatizzare il processo con l'introduzione di un nuovo \textit{Migration Tool}.
+
+\section{Requisiti Funzionali}
+I requisiti funzionali definiscono i comportamenti attesi, ossia che cosa dovrebbe fare lo strumento, così come stabilito con gli \textit{stakeholder}. 
+Per la classificazione di questi requisiti è stata adottata la metodologia \textbf{MoSCoW} (\textit{Must have, Should have, Could have, Won't have}), che permette di definire in maniera 
+chiara le priorità di sviluppo (Tabella~\ref{tab:moscow_requisiti}).
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{} p{0.20\linewidth} p{0.75\linewidth} @{}}
+        \toprule
+        \textbf{Priorità} & \textbf{Descrizione Requisito} \\
+        \midrule
+        \textbf{Must Have} & 
+        - Sviluppo dell'\textit{Importer} per i file legacy. \newline
+        - Generatore dinamico di codice Baan C 4GL e 3GL. \newline
+        - Validazione formale del dictionary (DAL). \newline
+        - Gestione massiva (Batch) delle elaborazioni. \\
+        \midrule
+        \textbf{Should Have} & 
+        - Estensibilità con funzioni ad-hoc (\textit{Callback}). \newline
+        - Esportazione documentale integrata con strumenti aziendali preesistenti (\textit{Reports}). \\
+        \midrule
+        \textbf{Could Have} & 
+        - Suggerimento intelligente (o logica basata su \textit{Machine Learning} testuale) per il consiglio automatico dei \textit{mapping Target-Source}. \\
+        \midrule
+        \textbf{Won't Have} & 
+        - Elaborazione distribuita su più thread (non supportata). \newline
+        - Interfaccia grafica dedicata e separata dalla LNUI o BECS. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Classificazione dei requisiti funzionali secondo la matrice MoSCoW.}
+    \label{tab:moscow_requisiti}
+\end{table}
+
+\subsection{Sviluppo dell'Importer per Infor Exchange}
+Il sistema dovrà supportare l'\textit{input} di file e strutture generate dallo strumento preesistente nativo di Infor \textit{Exchange}.
+
+Tali file presentano specifici \textit{layout} (come formati testuali \textit{ASCII}) che dovranno essere interpretati per
+popolare il dizionario \texttt{txamg110} (\textit{Datafiles}) e \texttt{txamg111} (\textit{DataFile Fields}).
+A differenza dell'approccio frammentato dell'\textit{Exchange} di Infor, adotteremo una soluzione ottimizzata: il \textit{tool} processerà
+l'intero flusso di metadati a partire da un singolo file sorgente, limitando e rimuovendo del tutto l'elaborazione a piccoli blocchi
+su singoli file che rallentano l'esecuzione iniziale dell'\textit{import}.
+In altre parole, il file sorgente sarà un singolo file generato dall'importer, contenente tutte le tabelle e dati dalla fonte
+legacy da cui si sta migrando, e il \textit{tool} farà un controllo completo iniziale, e passerà poi all'elaborazione in \textit{batch} dei \textit{runs}.
+
+% \subsection{Generazione Dinamica del Codice}
+Internamente al \textit{Migration Tool} sarà sviluppato e integrato uno strumento generatore di codice.
+Partendo dalle tabelle di \textit{mapping} (es. \texttt{txamg203}), lo strumento dovrà generare \textit{script} di elaborazione e
+conversione, % invocando i compilatori interni Infor e producendo file eseguibili
+senza l'intervento manuale del programmatore.
+
+\subsection{Estensibilità con Funzioni Ad-hoc}
+Nonostante l'automazione, alcune regole \textit{legacy} di \textit{business} non potranno essere legate a semplici assegnazioni.
+
+Viene quindi la necessità di una funzionalità di \textit{callback} per permettere, ad opera dello sviluppatore, l'inserimento di
+\textit{script} personalizzati che verranno inseriti nel processo principale durante l'esecuzione \textit{batch} (\texttt{txamg3200}).
+
+\subsection{Integrazione con lo Strumento Documentale}
+Per garantire il raggiungimento degli \textit{standard} del progetto, il \textit{Migration Tool} dovrà interfacciarsi con la
+documentazione aziendale, permettendo la produzione ed esportazione delle specifiche tecniche di migrazione,
+\textit{mappature}, eccezioni e \textit{log} generati in fase di esecuzione (necessari per \textit{debugging}).
+
+\section{Requisiti Non Funzionali}\label{sec:requisiti-non-funzionali}
+I requisiti non funzionali gestiscono i vincoli qualitativi e infrastrutturali del software\cite{sommervilleSoftwareEng}.
+
+\subsection{Manutenibilità ed Estensibilità}\label{subsec:manutenibilita-ed-estensibilita}
+Il \textit{Migration Tool} dovrà essere interamente sviluppato in linguaggio Baan C rispettando il \textit{framework} Infor Tools,
+così da garantirne la compatibilità con future \textit{release} dell'\textit{ERP} e manutenibilità semplificata per il comparto IT aziendale.
+Tale scelta rappresenta inoltre uno stringente vincolo architetturale: l'ecosistema Infor LN non permette agevolmente altre alternative
+per questo genere di operazioni \texttt{massive}. Come anticipato nel precedente capitolo, lo sviluppo nativo \textit{backend} tramite Baan C è risulta quindi l'unica soluzione adatta, \textit{performante} e completamente integrabile.
+
+\subsection{Sicurezza e Integrità dei Dati nel Multitenant}\label{subsec:sicurezza-e-integrita-dei-dati-nel-multitenant}
+Dato che il sistema tratterà dati di tipo \textit{core} (come informazioni private o riservate) dell'azienda cliente in contesti
+\textit{Cloud}, la sicurezza e la segregazione (isolamento) dei dati per i \textit{Tenant} costituiscono un requisito fondamentale.% Lo strumento si appoggerà esclusivamente ai DAL \textit{(Data Access Layer)} standard per l'aggiornamento dei record sul database.
+
+%\subsection{Prestazioni e Affidabilità}
+Inoltre, il caricamento dovrà ottimizzare l'uso della memoria e delle sessioni, prediligendo % \textit{array-insert} e 
+un'elaborazione a blocchi al fine di minimizzare i rallentamenti causati dalla latenza di rete verso i server \textit{CloudSuite} remoti.
+
+\subsection{Usabilità (UX/UI)}
+Dato che il \textit{tool} sarà utilizzato da consulenti applicativi (quindi non necessariamente programmatori), l'interfaccia utente dovrà rispettare fedelmente le stringenti linee guida di \textit{Infor LN User Experience}. 
+In particolare, per prevenire errori umani durante le fasi di \textit{Data Entry} e mappatura, il sistema dovrà limitare al minimo i campi a testo libero, sostituendoli ove possibile con 
+componenti di \textit{lookup} o \textit{zoom} obbligatori, che forzano l'utente a selezionare referenze valide (ad esempio, la selezione della tabella \textit{Target} da un elenco precaricato e non tramite inserimento manuale della stringa). 
+Questo paradigma, permette di ridurre drasticamente la probabilità di configurazioni errate che impatterebbero a cascata sulla generazione del codice.
+
+\section{Casi d'Uso (Use Cases)}
+Per rappresentare le interazioni tra l'utente (il consulente / sviluppatore) o i sistemi esterni e il \textit{Migration Tool}, è stato realizzato il diagramma dei casi d'uso (Use Case Diagram UML).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+      usecase/.style={ellipse, draw, fill=blue!10, minimum width=2.5cm, minimum height=1cm, text centered, font=\small},
+      actor/.style={rectangle, text centered, font=\small\bfseries},
+      line/.style={draw, thick}
+    ]
+    \node[actor] (user) at (0, 0) {Consulente/Sviluppatore};
+    
+    \node[usecase] (setup) at (5, 3) {Setup Parametri};
+    \node[usecase] (import) at (6, 1.5) {Import Metadata};
+    \node[usecase] (mapping) at (6, 0) {Definizione Mapping};
+    \node[usecase] (codegen) at (6, -1.5) {Generazione Codice};
+    \node[usecase] (batch) at (5, -3) {Esecuzione Batch};
+    
+    \draw[line] (user) -- (setup.west);
+    \draw[line] (user) -- (import.west);
+    \draw[line] (user) -- (mapping.west);
+    \draw[line] (user) -- (codegen.west);
+    \draw[line] (user) -- (batch.west);
+
+    \draw[-latex, dashed] (codegen) -- node[right, font=\scriptsize] {<<include>>} (mapping);
+    \draw[-latex, dashed] (batch) -- node[right, font=\scriptsize] {<<include>>} (codegen);
+
+    \end{tikzpicture}
+    \caption{Diagramma UML dei Casi d'Uso del Migration Tool.}
+    \label{fig:use_case}
+\end{figure}
+
+Come illustrato nel diagramma di flusso e UML (Figura~\ref{fig:use_case}), per ogni scenario sono state definite le azioni intraprese del sistema.
+Vengono quindi mostrate di seguito le tabelle descrittive per ciascun caso d'uso del \textit{Migration Tool}.
+
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Setup Parametri} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Setup Parametri (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Setup Parametri.} \label{tab:uc_setup_parametri} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Accesso alla sessione dei parametri generici (\texttt{txamg000}). \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente accede ai parametri e configura i percorsi dei file, i package/moduli di riferimento. \\
+    \midrule
+    \textbf{Post-condizioni}  & I parametri fondamentali sono salvati. \\
+    \midrule
+    \textbf{Eccezioni} & Errore nel salvataggio, parametri obbligatori mancanti. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Import Metadata} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Import Metadata (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Import Metadata.} \label{tab:uc_import_metadata} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & I file legacy e le loro definizioni (tracciati record) sono pronti. \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente richiama la routine \textit{Importer} che interpreta i metadati dal formato sorgente e popola i dizionari (\texttt{txamg110}, \texttt{txamg111}). \\
+    \midrule
+    \textbf{Post-condizioni} & Il dizionario \textit{input} auto-compilato con le strutture dati esterne. \\
+    \midrule
+    \textbf{Eccezioni} & Formato sorgente corrotto, tipo non supportato, mancanza di permessi I/O. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Definizione Mapping} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Definizione Mapping (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Definizione Mapping.} \label{tab:uc_definizione_mapping} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & I metadati sorgente sono stati importati e le tabelle LN target sono note. \\
+    \midrule
+    \textbf{Flusso Principale}& L'attore associa i file d'ingresso alle tabelle Infor (Target Tables \texttt{txamg202}) e definisce le regole campo per campo (\texttt{txamg203}). \\
+    \midrule
+    \textbf{Post-condizioni} & Le logiche di \textit{mapping} sono finalizzate nel Data Entry. \\
+    \midrule
+    \textbf{Eccezioni} & Campi target non esistenti, errata associazione del tipo di dato. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Generazione Codice} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Generazione Codice (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Generazione Codice.} \label{tab:uc_generazione_codice} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Mapping correttamente definito per un determinato Batch. \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente avvia l'interfaccia di generazione. Il motore converte il database di regole in script nativi Baan C (inclusi array, API DAL, check). Compila il codice in \textit{object-file} eseguibili. \\
+    \midrule
+    \textbf{Post-condizioni} & Codice generato, validato dal compilatore interno e pronto per il \textit{deploy}. \\
+    \midrule
+    \textbf{Eccezioni} & Regole personalizzate complesse errate (sintassi non valida), lock sui file da compilare. \\
+\end{longtable}
+
+\begin{longtable}{@{} p{0.25\linewidth} p{0.70\linewidth} @{}}
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Esecuzione Batch} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Caso d'Uso} & \textbf{Esecuzione Batch (Continua)} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{{Continua nella pagina successiva}} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \caption{Caso d'uso: Esecuzione Batch.} \label{tab:uc_esecuzione_batch} \\
+    \endlastfoot
+    \textbf{Attore Principale} & Utente/Sviluppatore \\
+    \midrule
+    \textbf{Pre-condizioni} & Il codice generato compilato. È stato parametrizzato un \textit{Run} (\texttt{txamg300}). \\
+    \midrule
+    \textbf{Flusso Principale} & L'utente lancia il caricamento, leggendo fisicamente i file dati grezzi e instanziando la validazione ed inserimento via DAL sul server LN. \\
+    \midrule
+    \textbf{Post-condizioni} & Dati importati nell'ERP. \textit{Log} di risultato salvati nelle specifiche tabelle interne. \\
+    \midrule
+    \textbf{Eccezioni} & Record in errore per vincoli DB (Foreign Key o Domain constraint), file dati \textit{missing} o disconnessioni server. \\
+\end{longtable}
+
+\section{Modello dei Dati}\label{sec:modello-dei-dati}
+
+\subsection{Le Tabelle e i Domini del Migration Tool}\label{subsec:le-tabelle-e-i-domini-del-migration-tool}
+Per supportare in modo efficace il processo di migrazione, è stata definita un'architettura dati, basata su
+package \textit{tx} (\textit{custom}).
+
+Il modello dati è suddiviso in diverse entità:
+
+\begin{itemize}
+    \item \textbf{Parametrizzazione}: tramite tabelle di configurazione come \texttt{txamg000} (AlteaIN Migration Tool Parameters).
+    \item \textbf{Gestione dei Datafile}: tabelle come \texttt{txamg110} (Datafiles) e \texttt{txamg111} (DataFile Fields) permettono di definire le strutture dei file originali da importare.
+    \item \textbf{Elaborazione dei Batch}: la configurazione e l'esecuzione tramite batch è regolata da tabelle come \texttt{txamg200} (Batch), \texttt{txamg201} (Batch Sequences) e \texttt{txamg202} (Target Tables), insieme ad altre tabelle dedicate al mapping dei campi (\texttt{txamg203}).
+    \item \textbf{Tracciamento delle Esecuzioni}: lo stato e l'esito delle operazioni, oltre all'eventuale presenza di errori, vengono memorizzati all'interno delle tabelle \texttt{txamg300}, \texttt{txamg301}, \texttt{txamg302} e \texttt{txamg303} (Runs Errors).
+\end{itemize}
+
+I Domini includono sia tipi strettamente descrittivi (es. \texttt{txamg.cdom}, \texttt{txamg.fdnm}) sia tipi enumerativi
+per la validazione e il workflow (es. \texttt{txamg.migt} o \texttt{txamg.mapl}).
+
+Esempi di Domini essenziali sono quelli relativi ai formati ASCII (\texttt{txamg.fast}), alle regole di mapping (\texttt{txamg.mapl})
+o al tracciamento dei file (\texttt{txamg.dfil}).
+
+Schema ER del modello dati del Migration Tool: (Figura~\ref{fig:er_schema})
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Immagini/Schema_1}
+    \caption{Schema ER del Modello Dati del Migration Tool}
+    \label{fig:er_schema}
+\end{figure}
+
+Le strutture complete di ogni tabella (campi, domini, chiavi) sono riportate nell'Appendice~\ref{appendix:tabelle}.
